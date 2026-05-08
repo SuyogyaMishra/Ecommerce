@@ -101,23 +101,37 @@ class UserModel{
     }
 
 
-    public function getAllUsers()
-    {
-        $sql = "SELECT
-                    id,
-                    name,
-                    email,
-                    role,
-                    status,
-                    created_at
-                FROM users
-                ORDER BY id DESC";
+   public function getAllUsers($page=1,$limit=4)
+{
+    $offset = ($page - 1) * $limit;
 
-        return $this->db
-                    ->query($sql)
-                    ->getResultArray();
-    }
+    return [
+        'users'=>$this->db
+        ->query(
+            "SELECT
+                id,
+                name,
+                email,
+                role,
+                status,
+                created_at
+            FROM users
+            ORDER BY id DESC
+            LIMIT ? OFFSET ?",
+            [$limit,$offset]
+        )
+        ->getResultArray(),
 
+        'total'=>$this->db
+        ->query("SELECT COUNT(id) as total FROM users")
+        ->getRow()
+        ->total,
+
+        'page'=>$page,
+
+        'limit'=>$limit
+    ];
+}
  
     public function getUserById($id)
     {
@@ -167,5 +181,12 @@ class UserModel{
 {
     return $this->db->query("INSERT INTO users(name,email,password,salt,role,created_at,updated_at) VALUES
     (".$this->db->escape($data['name']).",".$this->db->escape($data['email']).",".$this->db->escape($data['password']).",".$this->db->escape($data['salt']).",".$this->db->escape($data['role']).",NOW(),NOW())");
+}
+
+public function totalUsers()
+{
+    $sql = "SELECT COUNT(*) AS total FROM users";
+    $result = $this->db->query($sql)->getRowArray();
+    return $result['total'];
 }
 }

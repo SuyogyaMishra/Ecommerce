@@ -8,10 +8,11 @@
 </head>
 <body class="bg-light">
 
+
 <div class="container vh-100 d-flex justify-content-center align-items-center">
 <div class="card shadow border-0 p-4" style="width:400px;">
 
-<h3 class="text-center text-primary mb-4">JWT Login</h3>
+<h3 class="text-center text-primary mb-4">Admin Login</h3>
 
 <?php if(session()->getFlashdata('success')): ?>
 <div class="alert alert-success alert-dismissible fade show"><?= session()->getFlashdata('success') ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
@@ -21,7 +22,7 @@
 <div class="alert alert-danger alert-dismissible fade show"><?= session()->getFlashdata('error') ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
-<form method="POST" action="<?= base_url('login') ?>">
+<form method="POST" action="<?= base_url('admin/login') ?>">
 
 <?= csrf_field() ?>
 
@@ -35,15 +36,18 @@
 <input type="password" name="password" class="form-control" placeholder="Enter Password" required>
 </div>
 
-<div class="form-check mb-3">
+<!-- <div class="form-check mb-3">
 <input type="checkbox" name="remember" value="1" class="form-check-input" id="remember">
 <label class="form-check-label" for="remember">Remember Me</label>
-</div>
+</div> -->
 
 <button class="btn btn-primary w-100">Login</button>
 
 </form>
-
+   <p class="text-center mt-3">
+            Don't have an account?
+            <a href="<?= base_url('adminsignup') ?>">Signup</a>
+        </p>
 </div>
 </div>
 

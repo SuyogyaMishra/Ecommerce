@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\UserModel;
+use App\Services\JwtService;
 
 class UserService
 {
@@ -76,7 +77,7 @@ class UserService
 
             'isLoggedIn' => true
         ]);
-    
+
         return [
 
             'status' => true,
@@ -89,13 +90,13 @@ class UserService
 
 
 
-    //// Admin create user method
+    //// Admin starts here 08/05
     public function createAdminUser($data)
-    {   
-        $salt= bin2hex(random_bytes(16));
+    {
+        $salt = bin2hex(random_bytes(16));
         $finalPassword = password_hash($data['password'] . $salt, PASSWORD_DEFAULT);
-         
-        return $this->userModel-> insertAdmin([
+
+        return $this->userModel->insertAdmin([
 
             'name' => $data['name'],
 
@@ -108,4 +109,50 @@ class UserService
             'salt' => $salt,
         ]);
     }
+
+    public function loginadmin($data)
+    {
+        $jwtService = new JwtService();
+        $user = $this->userModel
+            ->loginUser($data['email']);
+
+        if (!$user) {
+
+            return [
+
+                'status' => false,
+
+                'message' => 'User not found',
+
+                'token' => csrf_hash()
+            ];
+        }
+
+        $finalPassword = $data['password'] . $user['salt'];
+        if (!password_verify($finalPassword, $user['password'])) {
+
+            return [
+
+                'status' => false,
+
+                'message' => 'Invalid password',
+
+                'token' => csrf_hash()
+            ];
+        }
+
+        $pylod = $jwtService->encode($user);
+
+        return [
+
+            'status' => true,
+
+            'message' => 'Login successful redirecting to dashboard..',
+
+            'token' => csrf_hash(),
+
+            'jwt' => $pylod
+        ];
+    }
+ 
 }

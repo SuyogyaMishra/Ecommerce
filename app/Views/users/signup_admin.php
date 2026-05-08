@@ -65,7 +65,10 @@ Create User
 </button>
 
 </form>
-
+   <p class="text-center mt-3">
+           Already have an account?
+            <a href="<?= base_url('adminlogin') ?>">Login</a>
+        </p>
 </div>
 
 </div>

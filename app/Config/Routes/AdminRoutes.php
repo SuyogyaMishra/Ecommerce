@@ -2,14 +2,20 @@
 
 use CodeIgniter\Router\RouteCollection;
 use App\Controllers\UserController;
+use App\Controllers\Admin\AdminController;
+use Config\View;
+
 /**
  * @var RouteCollection $routes
  */
-    
-    $routes->get('adminsignup', function () {
-        return view('users/signup_admin');
+
+$routes->group('admin',['filter'=>'auth'],function($routes){
+
+    $routes->get('dashboard', function () {
+        return View('Admin/AdminDashboard');
     });
-      $routes->get('adminlogin', function () {
-        return view('users/login_admin');
-    });
-    $routes->post('admin/createuser', [UserController::class, 'createAdminUser']);
+    $routes->get('dashboarddata',[AdminController::class,'dashboard']);
+
+    $routes->get('logout',[UserController::class,'adminLogout']);
+
+});
