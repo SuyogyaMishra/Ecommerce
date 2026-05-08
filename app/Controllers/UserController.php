@@ -109,4 +109,36 @@ class UserController extends BaseController
 
         return redirect()->to('/loginform');
     }
+
+
+
+
+
+    //admin functions 08/05
+    public function createAdminUser()
+    {
+        $data = $this->request->getPost();
+        $this->signupService->createAdminUser([
+
+            'name' => $data['name'],
+
+            'email' =>  $data['email'],
+
+            'role' => $data['role'],
+
+            'password' =>  $data['password']
+
+        ]);
+
+        return $this->response->setJSON([
+
+            'status' => true,
+
+            'message' => 'Admin User registered successfully <a href="' . base_url('loginform') . '">
+
+            Login Here </a>',
+            'token' => csrf_hash()
+
+        ]);
+    }
 }

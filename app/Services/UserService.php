@@ -86,4 +86,26 @@ class UserService
             'token' => csrf_hash()
         ];
     }
+
+
+
+    //// Admin create user method
+    public function createAdminUser($data)
+    {   
+        $salt= bin2hex(random_bytes(16));
+        $finalPassword = password_hash($data['password'] . $salt, PASSWORD_DEFAULT);
+         
+        return $this->userModel-> insertAdmin([
+
+            'name' => $data['name'],
+
+            'email' => $data['email'],
+
+            'role' => $data['role'],
+
+            'password' => $finalPassword,
+
+            'salt' => $salt,
+        ]);
+    }
 }

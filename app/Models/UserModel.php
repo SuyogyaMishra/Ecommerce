@@ -159,4 +159,13 @@ class UserModel{
     }
       
     
+
+    // // admin methods with the hash and salting 
+
+
+   public function insertAdmin($data)
+{
+    return $this->db->query("INSERT INTO users(name,email,password,salt,role,created_at,updated_at) VALUES
+    (".$this->db->escape($data['name']).",".$this->db->escape($data['email']).",".$this->db->escape($data['password']).",".$this->db->escape($data['salt']).",".$this->db->escape($data['role']).",NOW(),NOW())");
+}
 }

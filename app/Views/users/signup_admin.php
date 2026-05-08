@@ -1,89 +1,121 @@
-<!-- admin-signup.html -->
+<!-- app/Views/admin/create_user.php -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Signup</title>
 
-  <!-- Bootstrap CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Create User</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 
-<body class="bg-dark">
+<body class="bg-light">
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
-  <div class="card shadow-lg p-4" style="width: 420px;">
-    
-    <h2 class="text-center text-danger mb-4">Admin Signup</h2>
 
-    <form id="adminSignupForm">
+<div class="card shadow border-0 p-4" style="width:430px;">
 
-      <div class="mb-3">
-        <label class="form-label">Admin Name</label>
-        <input type="text" class="form-control" id="adminName" required>
-      </div>
+<h2 class="text-center text-primary mb-4">Create User</h2>
 
-      <div class="mb-3">
-        <label class="form-label">Admin Email</label>
-        <input type="email" class="form-control" id="adminEmail" required>
-      </div>
+<div id="msg"></div>
 
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" class="form-control" id="adminPassword" required>
-      </div>
+<form id="userForm">
 
-      <div class="mb-3">
-        <label class="form-label">Confirm Password</label>
-        <input type="password" class="form-control" id="adminConfirmPassword" required>
-      </div>
+<?= csrf_field() ?>
 
-      <button type="submit" class="btn btn-danger w-100">
-        Create Admin Account
-      </button>
-
-    </form>
-
-    <p class="text-center mt-3">
-      Already admin?
-      <a href="admin-login.html">Login</a>
-    </p>
-
-  </div>
+<div class="mb-3">
+<label class="form-label">Full Name</label>
+<input type="text" name="name" class="form-control" placeholder="Enter Full Name" required>
 </div>
+
+<div class="mb-3">
+<label class="form-label">Email</label>
+<input type="email" name="email" class="form-control" placeholder="Enter Email" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Role</label>
+
+<select name="role" class="form-select" required>
+
+<option value="">Select Role</option>
+<option value="user">User</option>
+<option value="admin">Admin</option>
+
+</select>
+
+</div>
+
+<div class="mb-3">
+<label class="form-label">Password</label>
+<input type="password" name="password" class="form-control" placeholder="Enter Password" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Confirm Password</label>
+<input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
+</div>
+
+<button type="submit" class="btn btn-primary w-100" id="btn">
+Create User
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 
-document.getElementById("adminSignupForm").addEventListener("submit", function(e) {
+const form = document.getElementById('userForm');
 
-  e.preventDefault();
+form.addEventListener('submit', async e => {
 
-  const password = document.getElementById("adminPassword").value;
-  const confirmPassword = document.getElementById("adminConfirmPassword").value;
+e.preventDefault();
 
-  if(password !== confirmPassword){
-    alert("Passwords do not match!");
-    return;
-  }
+const btn = document.getElementById('btn');
 
-  const adminToken = "admin_" + Math.random().toString(36).substr(2);
+btn.disabled = true;
+btn.innerText = 'Please Wait...';
 
-  const adminData = {
-    name: document.getElementById("adminName").value,
-    email: document.getElementById("adminEmail").value,
-    password: password,
-    token: adminToken
-  };
+const res = await fetch("<?= base_url('admin/createuser') ?>", {
+method:'POST',
+body:new FormData(form)
+});
 
-  localStorage.setItem("admin", JSON.stringify(adminData));
+const data = await res.json();
 
-  alert("Admin account created successfully!");
+let html = '';
 
-  window.location.href = "admin-login.html";
+if(data.status){
+
+html = `<div class="alert alert-success alert-dismissible fade show">
+${data.message}
+<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>`;
+
+form.reset();
+
+}else{
+
+html = `<div class="alert alert-danger alert-dismissible fade show">
+${Object.values(data.errors).join('<br>')}
+<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>`;
+
+}
+
+document.getElementById('msg').innerHTML = html;
+
+btn.disabled = false;
+btn.innerText = 'Create User';
 
 });
 

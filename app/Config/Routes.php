@@ -46,3 +46,17 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         'ProductController::deleteProduct/$1'
     );
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+require APPPATH . 'Config/Routes/AdminRoutes.php';
