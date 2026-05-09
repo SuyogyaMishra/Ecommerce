@@ -7,6 +7,7 @@ use App\Controllers\BaseController;
 use App\Services\UserService;
 
 use App\Validation\SignupValidation;
+use App\Services\JwtService;
 
 class UserController extends BaseController
 {
@@ -108,5 +109,60 @@ class UserController extends BaseController
         session()->destroy();
 
         return redirect()->to('/loginform');
+    }
+
+
+
+
+
+    //admin functions 08/05
+    public function createAdminUser()
+    {
+        $data = $this->request->getPost();
+        $this->signupService->createAdminUser([
+
+            'name' => $data['name'],
+
+            'email' =>  $data['email'],
+
+            'role' => $data['role'],
+
+            'password' =>  $data['password']
+
+        ]);
+
+        return $this->response->setJSON([
+
+            'status' => true,
+
+            'message' => 'Admin User registered successfully <a href="' . base_url('loginform') . '">
+
+            Login Here </a>',
+            'token' => csrf_hash()
+
+        ]);
+    }
+    public function adminlogin()
+    {
+        $data = $this->request->getPost();
+        $result = $this->signupService->loginadmin($data);
+        if (!$result['status']) {
+
+            return $this->response->setJSON($result);
+        }
+        return redirect()->to(base_url('/admin/dashboard'))->setCookie([
+            'name' => 'token',
+            'value' => $result['jwt'],
+            'expire' => 86400,
+            'httponly' => true
+        ]);
+    }
+    public function adminLogout()
+    {
+        session()->destroy();
+
+        return redirect()->to(base_url('adminlogin'))
+            ->deleteCookie('token')
+            ->with('success', 'Logout successful');
     }
 }

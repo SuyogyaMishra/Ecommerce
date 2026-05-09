@@ -18,6 +18,15 @@ $routes->get('/signupform', function () {
 $routes->post('signup', [UserController::class, 'signupuser']);
 $routes->post('login', [UserController::class, 'loginuser']);
 $routes->get('logout', [UserController::class, 'logout']);
+ $routes->get('adminsignup', function () {
+        return view('users/signup_admin');
+    });
+      $routes->get('adminlogin', function () {
+        return view('users/login_admin');
+    });
+
+$routes->post('admin/createuser',[UserController::class,'createAdminUser']);
+$routes->post('admin/login',[UserController::class,'adminlogin']);
 
 
 //////  Product controller routes   ->solid principals ,paswoord hash and salting  , jwt ,admin page;
@@ -46,3 +55,17 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         'ProductController::deleteProduct/$1'
     );
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+require APPPATH . 'Config/Routes/AdminRoutes.php';

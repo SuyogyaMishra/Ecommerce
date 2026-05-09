@@ -1,114 +1,57 @@
-<!-- admin-login.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login</title>
-
-  <!-- Bootstrap CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<body class="bg-light">
 
-<body class="bg-secondary">
 
-<div class="container d-flex justify-content-center align-items-center vh-100">
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+<div class="card shadow border-0 p-4" style="width:400px;">
 
-  <div class="card shadow-lg p-4" style="width: 420px;">
+<h3 class="text-center text-primary mb-4">Admin Login</h3>
 
-    <h2 class="text-center text-primary mb-4">Admin Login</h2>
+<?php if(session()->getFlashdata('success')): ?>
+<div class="alert alert-success alert-dismissible fade show"><?= session()->getFlashdata('success') ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<?php endif; ?>
 
-    <form id="adminLoginForm">
+<?php if(session()->getFlashdata('error')): ?>
+<div class="alert alert-danger alert-dismissible fade show"><?= session()->getFlashdata('error') ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<?php endif; ?>
 
-      <div class="mb-3">
-        <label class="form-label">Admin Email</label>
-        <input type="email" class="form-control" id="adminLoginEmail" required>
-      </div>
+<form method="POST" action="<?= base_url('admin/login') ?>">
 
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" class="form-control" id="adminLoginPassword" required>
-      </div>
+<?= csrf_field() ?>
 
-      <div class="form-check mb-3">
-        <input
-          type="checkbox"
-          class="form-check-input"
-          id="adminRememberMe"
-        >
-        <label class="form-check-label" for="adminRememberMe">
-          Remember Me
-        </label>
-      </div>
-
-      <button type="submit" class="btn btn-primary w-100">
-        Login as Admin
-      </button>
-
-    </form>
-
-    <p class="text-center mt-3">
-      Create new admin?
-      <a href="admin-signup.html">Signup</a>
-    </p>
-
-  </div>
-
+<div class="mb-3">
+<label class="form-label">Email</label>
+<input type="email" name="email" class="form-control" placeholder="Enter Email" value="<?= old('email') ?>" required>
 </div>
 
-<script>
+<div class="mb-3">
+<label class="form-label">Password</label>
+<input type="password" name="password" class="form-control" placeholder="Enter Password" required>
+</div>
 
-window.onload = function(){
+<!-- <div class="form-check mb-3">
+<input type="checkbox" name="remember" value="1" class="form-check-input" id="remember">
+<label class="form-check-label" for="remember">Remember Me</label>
+</div> -->
 
-  const adminRememberToken = localStorage.getItem("adminRememberToken");
+<button class="btn btn-primary w-100">Login</button>
 
-  if(adminRememberToken){
+</form>
+   <p class="text-center mt-3">
+            Don't have an account?
+            <a href="<?= base_url('adminsignup') ?>">Signup</a>
+        </p>
+</div>
+</div>
 
-    alert("Welcome Admin! Auto login successful.");
-
-    console.log("Admin Token:", adminRememberToken);
-  }
-};
-
-document.getElementById("adminLoginForm").addEventListener("submit", function(e){
-
-  e.preventDefault();
-
-  const email = document.getElementById("adminLoginEmail").value;
-  const password = document.getElementById("adminLoginPassword").value;
-  const rememberMe = document.getElementById("adminRememberMe").checked;
-
-  const storedAdmin = JSON.parse(localStorage.getItem("admin"));
-
-  if(
-    storedAdmin &&
-    storedAdmin.email === email &&
-    storedAdmin.password === password
-  ){
-
-    alert("Admin login successful!");
-
-    if(rememberMe){
-      localStorage.setItem("adminRememberToken", storedAdmin.token);
-    } else {
-      localStorage.removeItem("adminRememberToken");
-    }
-
-    console.log("Admin Logged Token:", storedAdmin.token);
-
-
-  } else {
-
-    alert("Invalid admin credentials!");
-
-  }
-
-});
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
