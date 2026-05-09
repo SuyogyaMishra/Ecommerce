@@ -15,7 +15,7 @@ $routes->get('/loginform', function () {
 $routes->get('/signupform', function () {
     return view('users/signup_user');
 });
-$routes->post('signup', [UserController::class, 'signupuser']);
+$routes->post('/signup', [UserController::class, 'signupuser']);
 $routes->post('login', [UserController::class, 'loginuser']);
 $routes->get('logout', [UserController::class, 'logout']);
 
