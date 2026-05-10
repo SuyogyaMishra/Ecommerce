@@ -3,35 +3,143 @@
 namespace App\Services;
 
 use App\Models\UserModel;
+use App\Services\JwtService;
 
 class UserService
 {
-    protected $userModel;
+    protected $userModel, $jwtService;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->jwtService = new JwtService();
     }
 
     public function createUser($data)
     {
++        $salt = bin2hex(random_bytes(16));
+
+        $finalPassword = password_hash(
+            $data['password'] . $salt,
+            PASSWORD_DEFAULT
+        );
         return $this->userModel->insertUser([
 
             'name' => $data['name'],
 
             'email' => $data['email'],
 
-            'role' => 'user',
+            'role' => $data['role'] ?? 'user',
+            'remember' => $data['remember'] ?? false,
 
-            'password' => password_hash(
-                $data['password'],
-                PASSWORD_DEFAULT
-            )
+            'password' => $finalPassword,
+
+            'salt' => $salt
         ]);
     }
 
-    public function loginUser($data)
+
+   public function loginUser($data)
+{
+    $user = $this->userModel
+        ->loginUser($data['email']);
+
+    if (!$user) {
+
+        return [
+
+            'status' => false,
+
+            'message' => 'User not found',
+
+            'token' => csrf_hash()
+        ];
+    }
+
+    $finalPassword = $data['password'] . $user['salt'];
+
+    if (
+        !password_verify(
+            $finalPassword,
+            $user['password']
+        )
+    ) {
+
+        return [
+
+            'status' => false,
+
+            'message' => 'Invalid password',
+
+            'token' => csrf_hash()
+        ];
+    }
+
+    // remember me checkbox
+    $remember = !empty($data['remember_me']);
+
+    $payload = [
+
+        'id' => $user['id'],
+
+        'name' => $user['name'],
+
+        'email' => $user['email'],
+
+        'role' => $user['role'],
+
+        'remember' => $remember
+    ];
+
+    $jwt = $this->jwtService->encode($payload);
+
+    $expire = $remember ? 2592000 : 86400;
+
+    $this->userModel
+        ->updateRememberToken(
+            $user['id'],
+            $remember
+        );
+
+    return [
+
+        'status' => true,
+
+        'message' => 'Login successful',
+
+        'jwt' => $jwt,
+
+        'expire' => $expire,
+
+        'token' => csrf_hash()
+    ];
+}
+
+
+
+    //// Admin starts here 08/05
+    public function createAdminUser($data)
     {
+        $salt = bin2hex(random_bytes(16));
+        $finalPassword = password_hash($data['password'] . $salt, PASSWORD_DEFAULT);
+
+        return $this->userModel->insertAdmin([
+
+            'name' => $data['name'],
+
+            'email' => $data['email'],
+
+            'role' => $data['role'],
+
+            'password' => $finalPassword,
+
+            'salt' => $salt,
+        ]);
+    }
+
+    public function loginadmin($data)
+    {
+        $jwtService = new JwtService();
         $user = $this->userModel
             ->loginUser($data['email']);
 
@@ -41,18 +149,14 @@ class UserService
 
                 'status' => false,
 
-                'message' => 'Email not found',
+                'message' => 'User not found',
 
                 'token' => csrf_hash()
             ];
         }
 
-        if (
-            !password_verify(
-                $data['password'],
-                $user['password']
-            )
-        ) {
+        $finalPassword = $data['password'] . $user['salt'];
+        if (!password_verify($finalPassword, $user['password'])) {
 
             return [
 
@@ -64,26 +168,17 @@ class UserService
             ];
         }
 
-        session()->set([
+        $pylod = $jwtService->encode($user);
 
-            'user_id' => $user['id'],
-
-            'user_name' => $user['name'],
-
-            'user_email' => $user['email'],
-
-            'user_role' => $user['role'],
-
-            'isLoggedIn' => true
-        ]);
-    
         return [
 
             'status' => true,
 
             'message' => 'Login successful redirecting to dashboard..',
 
-            'token' => csrf_hash()
+            'token' => csrf_hash(),
+
+            'jwt' => $pylod
         ];
     }
 }

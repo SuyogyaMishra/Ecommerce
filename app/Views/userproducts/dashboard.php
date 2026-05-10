@@ -79,18 +79,9 @@
     <!-- User -->
     <div class="user-box">
 
-      <h3>
+      <h3 id="userName"></h3>
 
-        Welcome,
-        <?= session()->get('user_name') ?>
-
-      </h3>
-
-      <p class="mb-0">
-
-        <?= session()->get('user_email') ?>
-
-      </p>
+      <p class="mb-0" id="userEmail"></p>
 
     </div>
 
@@ -332,9 +323,14 @@
 
             return;
           }
+          $('#userName').html(
+            'Welcome, ' + response.user.name
+          );
 
+          $('#userEmail').html(
+            response.user.email
+          );
           let rows = '';
-
           if (response.products.length === 0) {
 
             rows = `
@@ -600,30 +596,29 @@
     });
   </script>
   <script>
-
-/*
+    /*
 |--------------------------------------------------------------------------
 | Delete Product
 |--------------------------------------------------------------------------
 */
 
-$(document).on('click', '.deleteBtn', function(){
+    $(document).on('click', '.deleteBtn', function() {
 
-    if(!confirm('Are you sure you want to delete this product?')){
+      if (!confirm('Are you sure you want to delete this product?')) {
 
         return;
-    }
+      }
 
-    let productId = $(this).data('id');
+      let productId = $(this).data('id');
 
-    let csrfName =
+      let csrfName =
         '<?= csrf_token() ?>';
 
-    let csrfHash =
+      let csrfHash =
         $('meta[name="csrf-token"]')
-            .attr('content');
+        .attr('content');
 
-    $.ajax({
+      $.ajax({
 
         url: "<?= base_url('delete-product') ?>/" + productId,
 
@@ -631,58 +626,56 @@ $(document).on('click', '.deleteBtn', function(){
 
         data: {
 
-            [csrfName]: csrfHash
+          [csrfName]: csrfHash
         },
 
         dataType: "json",
 
-        success: function(response){
+        success: function(response) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Update CSRF
-            |--------------------------------------------------------------------------
-            */
+          /*
+          |--------------------------------------------------------------------------
+          | Update CSRF
+          |--------------------------------------------------------------------------
+          */
 
-            if(response.csrf_hash){
+          if (response.csrf_hash) {
 
-                $('meta[name="csrf-token"]')
-                    .attr(
-                        'content',
-                        response.csrf_hash
-                    );
-            }
+            $('meta[name="csrf-token"]')
+              .attr(
+                'content',
+                response.csrf_hash
+              );
+          }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Success
-            |--------------------------------------------------------------------------
-            */
+          /*
+          |--------------------------------------------------------------------------
+          | Success
+          |--------------------------------------------------------------------------
+          */
 
-            if(response.status){
+          if (response.status) {
 
-                alert(response.message);
+            alert(response.message);
 
-                loadProducts();
-            }
-            else{
+            loadProducts();
+          } else {
 
-                alert(response.message);
-            }
+            alert(response.message);
+          }
         },
 
-        error: function(xhr){
+        error: function(xhr) {
 
-            console.log(xhr.responseText);
+          console.log(xhr.responseText);
 
-            alert('Delete Failed');
+          alert('Delete Failed');
         }
 
+      });
+
     });
-
-});
-
-</script>
+  </script>
 </body>
 
 </html>
