@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,107 +11,106 @@
     <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        rel="stylesheet">
 </head>
 
 <body class="bg-light">
 
-<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="container d-flex justify-content-center align-items-center vh-100">
 
-    <div class="card shadow p-4" style="width:400px;">
+        <div class="card shadow p-4" style="width:400px;">
 
-        <h2 class="text-center mb-4">User Login</h2>
+            <h2 class="text-center mb-4">User Login</h2>
 
-        <!-- Error Message -->
-        <?php if(session()->getFlashdata('error')) : ?>
-            <div class="alert alert-danger">
-                <?= session()->getFlashdata('error'); ?>
-            </div>
-        <?php endif; ?>
+            <!-- Error Message -->
+            <?php if (session()->getFlashdata('error')) : ?>
+                <div class="alert alert-danger">
+                    <?= session()->getFlashdata('error'); ?>
+                </div>
+            <?php endif; ?>
 
-        <form id="loginForm">
-             <?= csrf_field() ?>
-            <div class="mb-3">
-                <label>Email Address</label>
-                <input
-                    type="email"
-                    name="email"
-                    class="form-control"
-                    required
-                >
-            </div>
+            <form id="loginForm">
+                <?= csrf_field() ?>
+                <div class="mb-3">
+                    <label>Email Address</label>
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        required>
+                </div>
 
-            <div class="mb-3">
-                <label>Password</label>
-                <input
-                    type="password"
-                    name="password"
-                    class="form-control"
-                    required
-                >
-            </div>
+                <div class="mb-3">
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        name="password"
+                        class="form-control"
+                        required>
+                </div>
 
-            <div class="form-check mb-3">
-                <input
-                    type="checkbox"
-                    class="form-check-input"
-                    name="remember_me"
-                    value="1"
-                >
+                <div class="form-check mb-3">
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        name="remember_me"
+                        value="1">
 
-                <label class="form-check-label">
-                    Remember Me
-                </label>
-            </div>
+                    <label class="form-check-label">
+                        Remember Me
+                    </label>
+                </div>
 
-            <button type="submit" class="btn btn-success w-100">
-                Login
-            </button>
+                <button type="submit" class="btn btn-success w-100">
+                    Login
+                </button>
 
-        </form>
+            </form>
 
-        <p class="text-center mt-3">
-            Don't have an account?
-            <a href="<?= base_url('signupform') ?>">Signup</a>
-        </p>
+            <p class="text-center mt-3">
+                Don't have an account?
+                <a href="<?= base_url('signupform') ?>">Signup</a>
+            </p>
+             <p class="text-center mt-3">
+                Login as admin?
+                <a href="<?= base_url('adminlogin') ?>">Login</a>
+            </p>
+
+        </div>
 
     </div>
 
-</div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
 
-<script>
+            $("#loginForm").submit(function(e) {
 
-$(document).ready(function () {
+                e.preventDefault();
 
-    $("#loginForm").submit(function (e) {
+                $(".alert").remove();
 
-        e.preventDefault();
+                $.ajax({
 
-        $(".alert").remove();
+                    url: "<?= base_url('login') ?>",
 
-        $.ajax({
+                    type: "POST",
 
-            url: "<?= base_url('login') ?>",
+                    data: $(this).serialize(),
 
-            type: "POST",
+                    dataType: "json",
 
-            data: $(this).serialize(),
+                    success: function(response) {
 
-            dataType: "json",
+                        console.log(response);
 
-            success: function (response) {
+                        $('input[name="<?= csrf_token() ?>"]')
+                            .val(response.token);
 
-                console.log(response);
+                        if (response.status) {
 
-                $('input[name="<?= csrf_token() ?>"]')
-                    .val(response.token);
-
-                if (response.status) {
-
-                    $("#loginForm").before(`
+                            $("#loginForm").before(`
 
                         <div class="alert alert-success">
 
@@ -120,29 +120,29 @@ $(document).ready(function () {
 
                     `);
 
-                    setTimeout(function () {
+                            setTimeout(function() {
 
-                        window.location.href = "<?= base_url('dashboard') ?>";
+                                window.location.href = "<?= base_url('dashboard') ?>";
 
-                    }, 1000);
+                            }, 1000);
 
-                } else {
+                        } else {
 
-                    let errors = "";
+                            let errors = "";
 
-                    if (response.errors) {
+                            if (response.errors) {
 
-                        $.each(response.errors, function (key, value) {
+                                $.each(response.errors, function(key, value) {
 
-                            errors += `<div>${value}</div>`;
-                        });
+                                    errors += `<div>${value}</div>`;
+                                });
 
-                    } else {
+                            } else {
 
-                        errors = response.message;
-                    }
+                                errors = response.message;
+                            }
 
-                    $("#loginForm").before(`
+                            $("#loginForm").before(`
 
                         <div class="alert alert-danger">
 
@@ -151,14 +151,21 @@ $(document).ready(function () {
                         </div>
 
                     `);
-                }
-            },
+                        }
+                    },
 
-            error: function (xhr) {
+                    error: function(xhr) {
 
-                console.log(xhr.responseText);
+                        console.log(xhr.responseText);
+                        if (xhr.status === 401 || xhr.status === 403) {
 
-                $("#loginForm").before(`
+                            localStorage.removeItem('token');
+
+                            window.location.href = "<?= base_url('loginform') ?>";
+
+                            return;
+                        }
+                        $("#loginForm").before(`
 
                     <div class="alert alert-danger">
 
@@ -167,13 +174,13 @@ $(document).ready(function () {
                     </div>
 
                 `);
-            }
+                    }
+                });
+
+            });
+
         });
-
-    });
-
-});
-
-</script>
+    </script>
 </body>
+
 </html>

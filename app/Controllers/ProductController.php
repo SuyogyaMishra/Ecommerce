@@ -4,160 +4,161 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Services\ProductService;
+use App\Services\JwtService;
 
 class ProductController extends BaseController
 {
     protected $productService;
-
-
+    protected $JwtService;
 
     public function __construct()
     {
         $this->productService = new ProductService();
+        $this->JwtService     = new JwtService();
     }
 
+    /**
+     * Get Authenticated User From JWT
+     */
+    private function getAuthUser()
+    {
+        $token = request()->getCookie('token');
 
+        if (!$token) {
+            return false;
+        }
 
+        return $this->JwtService->decode($token);
+    }
+
+    /**
+     * Get All Products Of Logged In User
+     */
     public function index()
     {
-        // Check Login
-        if (!session()->get('isLoggedIn')) {
+        $user = $this->getAuthUser();
+
+        if (!$user) {
 
             return $this->response->setJSON([
-
-                'status' => false,
-
-                'message' => 'Unauthorized Access',
-
+                'status'   => false,
+                'message'  => 'Unauthorized Access',
                 'redirect' => base_url('loginform')
-
             ]);
         }
 
-        // Get Products
         $products = $this->productService->getUserProducts(
-
-            session()->get('user_id')
-
+            $user->id
         );
 
-        // JSON Response
         return $this->response->setJSON([
 
             'status' => true,
 
             'user' => [
-
-                'user_id'    => session()->get('user_id'),
-
-                'user_name'  => session()->get('user_name'),
-
-                'user_email' => session()->get('user_email'),
-
-                'user_role'  => session()->get('user_role')
-
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+                'role'  => $user->role
             ],
 
             'products' => $products
-
         ]);
     }
 
-
-
+    /**
+     * Save Product
+     */
     public function saveProduct()
     {
+        $user = $this->getAuthUser();
+
+        if (!$user) {
+
+            return $this->response->setJSON([
+                'status'   => false,
+                'message'  => 'Unauthorized Access',
+                'redirect' => base_url('loginform')
+            ]);
+        }
+
         $result = $this->productService->saveProduct(
-
             $this->request,
-
-            session()->get('user_id')
-
+            $user->id
         );
 
         if (!$result['status']) {
 
             return $this->response->setJSON([
-
-                'status' => false,
-
+                'status'    => false,
                 'csrf_hash' => csrf_hash(),
-
-                'errors' => $result['errors']
-
+                'errors'    => $result['errors']
             ]);
         }
 
         return $this->response->setJSON([
-
-            'status' => true,
-
+            'status'    => true,
             'csrf_hash' => csrf_hash(),
-
-            'message' => 'Product Inserted Successfully redirecting to dashboard',
-
-            'redirect' => base_url('dashboard')
-
+            'message'   => 'Product Inserted Successfully',
+            'redirect'  => base_url('dashboard')
         ]);
     }
 
+    /**
+     * Get Single Product
+     */
     public function getProduct($id)
     {
-        // Check Login
-        if (!session()->get('isLoggedIn')) {
+        $user = $this->getAuthUser();
+
+        if (!$user) {
 
             return $this->response->setJSON([
-
-                'status' => false,
-
-                'message' => 'Unauthorized Access',
-
+                'status'   => false,
+                'message'  => 'Unauthorized Access',
                 'redirect' => base_url('loginform')
-
             ]);
         }
 
-        // Get Product
         $product = $this->productService->getProduct(
-
             $id,
-
-            session()->get('user_id')
-
+            $user->id
         );
 
-        // Product Not Found
         if (!$product) {
 
             return $this->response->setJSON([
-
-                'status' => false,
-
+                'status'  => false,
                 'message' => 'Product Not Found'
-
             ]);
         }
 
-        // Success Response
         return $this->response->setJSON([
-
-            'status' => true,
-
+            'status'  => true,
             'product' => $product
-
         ]);
     }
 
+    /**
+     * Update Product
+     */
     public function updateProduct($id)
     {
+        $user = $this->getAuthUser();
+
+        if (!$user) {
+
+            return $this->response->setJSON([
+                'status'   => false,
+                'message'  => 'Unauthorized Access',
+                'redirect' => base_url('loginform')
+            ]);
+        }
+
         $result = $this->productService->updateProduct(
-
             $id,
-
             $this->request,
-
-            session()->get('user_id')
-
+            $user->id
         );
 
         return $this->response->setJSON($result);

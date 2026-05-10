@@ -20,12 +20,16 @@ class UserModel{
                     name,
                     email,
                     password,
+                    salt,
                     role,
+                    remember_token,
                     created_at,
                     updated_at
                 )
                 VALUES
                 (
+                    ?,
+                    ?,
                     ?,
                     ?,
                     ?,
@@ -39,7 +43,9 @@ class UserModel{
             $data['name'],
             $data['email'],
             $data['password'],
-            $data['role']
+            $data['salt'],
+            $data['role'],
+            $data['remember'] ?? false
 
         ]);
     }
