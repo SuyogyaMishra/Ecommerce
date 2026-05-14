@@ -8,7 +8,7 @@
         padding: 30px;
         color: #fff;
         margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
     .stats-card {
@@ -142,6 +142,7 @@
 <div class="main-content flex-grow-1">
 
     <!-- HEADER -->
+
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h2 class="fw-bold mb-2">
@@ -154,10 +155,10 @@
             </p>
         </div>
 
-        <button class="btn btn-light btn-custom shadow-sm">
+        <!-- <button class="btn btn-light btn-custom shadow-sm">
             <i class="bi bi-plus-circle-fill me-2"></i>
             Add User
-        </button>
+        </button> -->
     </div>
 
     <!-- STATS -->
@@ -247,20 +248,20 @@
 
         </div>
 
-       <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm">
 
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
 
-                    <h5 class="mb-0">
-                         Users
-                    </h5>
-                </div>
+                <h5 class="mb-0">
+                    Users
+                </h5>
+            </div>
 
-                <div class="table-responsive">
+            <div class="table-responsive">
 
-                    <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0">
 
-                        <thead class="table-light">
+                    <thead class="table-light">
 
                         <tr>
 
@@ -273,21 +274,36 @@
 
                         </tr>
 
-                        </thead>
+                    </thead>
 
-                        <tbody id="userTable"></tbody>
+                    <tbody id="userTable"></tbody>
 
-                    </table>
+                </table>
 
-                    <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center p-3 flex-wrap gap-2">
 
-                        <ul class="pagination mb-0" id="pagination"></ul>
+                    <ul class="pagination mb-0" id="pagination"></ul>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <small class="text-muted">Show</small>
+
+                        <select id="limitUsers" class="form-select form-select-sm" style="width:90px;">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+
+                        <small class="text-muted">users</small>
 
                     </div>
 
                 </div>
 
             </div>
+
+        </div>
 
 
     </div>
@@ -366,8 +382,8 @@
                             id="status"
                             name="status">
 
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
 
                         </select>
                     </div>
@@ -390,64 +406,206 @@
     </div>
 
 </div>
+<div class="toast-container position-fixed top-0 end-0 p-3">
+
+    <div id="liveToast" class="toast border-0 shadow">
+
+        <div class="toast-header">
+
+            <strong class="me-auto" id="toastTitle">
+                Notification
+            </strong>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="toast">
+            </button>
+
+        </div>
+
+        <div class="toast-body" id="toastMessage"></div>
+
+    </div>
+
+</div>
 
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-
-     function loadUsers(page=1)
-    {
-        let keyword=$('#searchUser').val();
-
+    function loadUsers(page = 1) {
+        let keyword = $('#searchUser').val();
+        let limit = $('#limitUsers').val();
+        console.log("function")
         $('#userTable').html(`
-
-        <tr>
-
-            <td colspan="6" class="text-center p-5">
-
-                <div class="spinner-border text-primary"></div>
-
-            </td>
-
-        </tr>
-
-        `);
+    <tr>
+        <td colspan="6" class="text-center p-5">
+            <div class="spinner-border text-primary"></div>
+        </td>
+    </tr>
+    `);
 
         $.ajax({
 
-            url:"<?= base_url('admin/dashboarddata') ?>",
+            url: "<?= base_url('admin/userdata') ?>",
 
-            type:"GET",
+            type: "GET",
 
-            dataType:"json",
+            dataType: "json",
 
-            data:{
-                page:page,
-                search:keyword
+            data: {
+                page: page,
+                limit: limit,
+                search: keyword
             },
 
-            success:function(res){
-
-                $('#adminName').text(res.decodedToken.name);
-
-                $('#adminEmail').text(res.decodedToken.email);
-
+            success: function(res) {
+                console.log(res);
                 $('#totalUsers').text(res.totalUsers);
+                $('#activeUsers').text(res.activeUsers);
+                $('#adminUsers').text(res.adminUsers);
+                $('#adminName').text(res.user.name);
+                $('#adminEmail').text(res.user.email);
+                console.log(res);
+                let html = '';
 
-                $('#totalProducts').text(res.totalProducts);
+                if (res.users.length < 1) {
+                    html = `
+                <tr>
+                    <td colspan="6" class="text-center text-muted p-5">
+                        No users found
+                    </td>
+                </tr>
+                `;
+                } else {
+                    $.each(res.users.users, function(i, user) {
 
-                $('#totalOrders').text(res.totalOrders);
+                        html += `
+                    <tr>
 
-                $('#revenue').text("₹"+res.revenue);
+                        <td>${user.id}</td>
 
-                let html='';
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
 
-                $.each(res.users,function(i,user){
+                                <div class="user-avatar">
+                                    ${user.name.charAt(0).toUpperCase()}
+                                </div>
 
-                    html+=`
+                                <div>
+                                    <div class="fw-semibold">
+                                        ${user.name}
+                                    </div>
+                                </div>
 
+                            </div>
+                        </td>
+
+                        <td>${user.email}</td>
+
+                        <td>
+                            <span class="badge ${user.role=='admin'?'bg-dark':'bg-primary'}">
+                                ${user.role}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="badge ${user.status=='active'?'bg-success':'bg-danger'}">
+                                ${user.status}
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <div class="d-flex gap-2">
+
+                                <button
+                                    class="btn btn-primary btn-sm action-btn editBtn"
+                                    data-id="${user.id}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+
+                                <button
+                                    class="btn btn-danger btn-sm action-btn deleteBtn"
+                                    data-id="${user.id}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                    `;
+                    });
+                }
+
+                $('#userTable').html(html);
+
+                let pagination = '';
+
+                for (let i = 1; i <= res.totalPages; i++) {
+                    pagination += `
+                <li class="page-item ${res.users.page==i?'active':''}">
+                    <a href="#"
+                       class="page-link"
+                       onclick="loadUsers(${i})">
+                        ${i}
+                    </a>
+                </li>
+                `;
+                }
+
+                $('#pagination').html(pagination);
+            },
+
+            error: function(xhr) {
+                if (xhr.status == 401) {
+                    window.location.href = "<?= base_url('loginform') ?>";
+                }
+
+                $('#userTable').html(`
+            <tr>
+                <td colspan="6" class="text-center text-danger p-5">
+                    Failed to load users
+                </td>
+            </tr>
+            `);
+            }
+
+        });
+    }
+
+    function searchUser(keyword) {
+        $.ajax({
+
+            url: "<?= base_url('admin/searchuser') ?>/" + keyword,
+
+            type: "GET",
+
+            dataType: "json",
+
+            success: function(res) {
+
+                let html = '';
+                console.log(res.data);
+                if (res.data.length < 1) {
+
+                    html = `
+                <tr>
+                    <td colspan="6" class="text-center p-5">
+                        No users found
+                    </td>
+                </tr>
+                `;
+
+                } else {
+
+                    $.each(res.data, function(i, user) {
+
+                        html += `
                     <tr>
 
                         <td>${user.id}</td>
@@ -456,91 +614,195 @@
 
                         <td>${user.email}</td>
 
+                        <td>${user.role}</td>
+
                         <td>
-
-                            <span class="badge custom-badge ${user.role=='admin'?'bg-dark':'bg-primary'}">
-
-                                ${user.role}
-
-                            </span>
-
+                            ${user.status==1?'Active':'Inactive'}
                         </td>
 
                         <td>
 
-                            <span class="badge ${user.status=='active'?'bg-success':'bg-danger'}">
-
-                                ${user.status}
-
-                            </span>
-
-                        </td>
-
-                        <td class="d-flex gap-2">
-
-                            <button class="btn btn-sm btn-primary editBtn"
-                                    data-id="${user.id}">
+                            <button
+                                class="btn btn-primary btn-sm editBtn"
+                                data-id="${user.id}">
                                 Edit
-                            </button>
-
-                            <button class="btn btn-sm btn-danger deleteBtn"
-                                    data-id="${user.id}">
-                                Delete
                             </button>
 
                         </td>
 
                     </tr>
-
                     `;
-
-                });
+                    });
+                }
 
                 $('#userTable').html(html);
+            }
+        });
+    }
 
-                let pagination='';
+    let timer;
 
-                for(let i=1;i<=res.totalPages;i++)
-                {
-                    pagination+=`
+    $(document).on('keyup', '#searchUser', function() {
 
-                    <li class="page-item ${res.page==i?'active':''}">
+        clearTimeout(timer);
 
-                        <a href="#"
-                           class="page-link"
-                           onclick="loadUsers(${i})">
+        let keyword = $(this).val().trim();
+        console.log(keyword);
+        timer = setTimeout(function() {
 
-                            ${i}
+            if (keyword == '') {
 
-                        </a>
+                loadUsers();
 
-                    </li>
+            } else {
 
-                    `;
-                }
+                searchUser(keyword);
 
-                $('#pagination').html(pagination);
+            }
 
-                loadChart(res.chartData);
+        }, 300);
 
+    });
+
+    $(document).on('change', '#limitUsers', function() {
+        loadUsers(1);
+    });
+
+    loadUsers();
+    $(document).on('click', '.editBtn', function() {
+
+        let id = $(this).data('id');
+
+        $.ajax({
+
+            url: "<?= base_url('admin/getuser') ?>/" + id,
+
+            type: "GET",
+
+            dataType: "json",
+
+            success: function(res) {
+
+                $('#user_id').val(res.user.id);
+                $('#name').val(res.user.name);
+                $('#email').val(res.user.email);
+                $('#role').val(res.user.role);
+                $('#status').val(res.user.status);
+
+                let modal = new bootstrap.Modal(
+                    document.getElementById('updateUserModal')
+                );
+
+                modal.show();
+            }
+        });
+
+    });
+
+    $(document).on('submit', '#updateUserForm', function(e) {
+
+        e.preventDefault();
+
+        let id = $('#user_id').val();
+
+        $.ajax({
+
+            url: "<?= base_url('admin/updateuser') ?>",
+
+            type: "PUT",
+
+            contentType: "application/json",
+            headers: {
+                'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
             },
 
-            error:function(xhr){
+            data: JSON.stringify({
+                id: $('#user_id').val(),
+                name: $('#name').val(),
+                email: $('#email').val(),
+                role: $('#role').val(),
+                status: $('#status').val()
+            }),
 
-                if(xhr.status==401)
-                {
-                    window.location.href="<?= base_url('loginform') ?>";
-                }
+            dataType: "json",
 
-                showToast('Something went wrong','error');
+            success: function(res) {
+                bootstrap.Modal.getInstance(
+                    document.getElementById('updateUserModal')
+                ).hide();
 
+                loadUsers();
+
+                showToast(res.message, 'success');
+            },
+
+            error: function(xhr) {
+
+                showToast(
+                    xhr.responseJSON?.message || 'Something went wrong',
+                    'danger'
+                );
             }
 
         });
 
+    });
+
+    $(document).on('click', '.deleteBtn', function() {
+
+        if (!confirm('Delete this user?'))
+            return;
+
+        let id = $(this).data('id');
+
+        $.ajax({
+
+            url: "<?= base_url('admin/deleteuser') ?>/" + id,
+
+            type: "DELETE",
+
+            dataType: "json",
+            headers: {
+                'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
+            },
+
+            success: function(res) {
+
+                loadUsers();
+
+                showToast(res.message, 'success');
+            },
+
+            error: function(xhr) {
+                showToast(
+                    xhr.responseJSON?.message || 'Something went wrong',
+                    'danger'
+                );
+            }
+
+        });
+
+    });
+
+    function showToast(message, type = 'success') {
+
+        let toastEl = document.getElementById('liveToast');
+
+        toastEl.classList.remove(
+            'text-bg-success',
+            'text-bg-danger'
+        );
+
+        toastEl.classList.add(
+            type == 'success' ?
+            'text-bg-success' :
+            'text-bg-danger'
+        );
+
+        $('#toastMessage').text(message);
+
+        new bootstrap.Toast(toastEl).show();
     }
-    loadUsers();
-
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?= $this->endSection() ?>

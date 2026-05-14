@@ -2,165 +2,313 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Services\ProductService;
 use App\Services\JwtService;
+use App\Services\CartService;
 
 class ProductController extends BaseController
 {
-    protected $productService;
-    protected $JwtService;
+    protected $productService,$jwtService,$cartService;
 
     public function __construct()
     {
-        $this->productService = new ProductService();
-        $this->JwtService     = new JwtService();
+        $this->productService=new ProductService();
+        $this->jwtService=new JwtService();
+        $this->cartService=new CartService();
     }
 
-    /**
-     * Get Authenticated User From JWT
-     */
-    private function getAuthUser()
+    public function productData()
     {
-        $token = request()->getCookie('token');
+        try{
 
-        if (!$token) {
-            return false;
-        }
+            $decodedToken=$this->jwtService->decode($this->request->getCookie('token'));
 
-        return $this->JwtService->decode($token);
-    }
+            $page=(int)($this->request->getGet('page') ?? 1);
+            $limit=(int)($this->request->getGet('limit') ?? 10);
+            $search=trim($this->request->getGet('search') ?? '');
 
-    /**
-     * Get All Products Of Logged In User
-     */
-    public function index()
-    {
-        $user = $this->getAuthUser();
-
-        if (!$user) {
+            $products=$this->productService->getProducts($page,$limit,$search);
 
             return $this->response->setJSON([
-                'status'   => false,
-                'message'  => 'Unauthorized Access',
-                'redirect' => base_url('loginform')
+
+                'status'=>true,
+
+                'message'=>'Products fetched successfully',
+
+                'products'=>$products,
+
+                'totalProducts'=>$this->productService->totalProducts(),
+
+                'activeProducts'=>$this->productService->activeProducts(),
+
+                'outStockProducts'=>$this->productService->outStockProducts(),
+
+                'totalPages'=>ceil(($products['total'] ?? 0)/$limit),
+
+                'user'=>$decodedToken,
+
+                'token'=>csrf_hash()
+
+            ]);
+
+        }catch(\Throwable $e){
+
+            return $this->response
+            ->setStatusCode(500)
+            ->setJSON([
+
+                'status'=>false,
+
+                'message'=>$e->getMessage(),
+
+                'token'=>csrf_hash()
+
             ]);
         }
-
-        $products = $this->productService->getUserProducts(
-            $user->id
-        );
-
-        return $this->response->setJSON([
-
-            'status' => true,
-
-            'user' => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role
-            ],
-
-            'products' => $products
-        ]);
     }
 
-    /**
-     * Save Product
-     */
-    public function saveProduct()
-    {
-        $user = $this->getAuthUser();
-
-        if (!$user) {
-
-            return $this->response->setJSON([
-                'status'   => false,
-                'message'  => 'Unauthorized Access',
-                'redirect' => base_url('loginform')
-            ]);
-        }
-
-        $result = $this->productService->saveProduct(
-            $this->request,
-            $user->id
-        );
-
-        if (!$result['status']) {
-
-            return $this->response->setJSON([
-                'status'    => false,
-                'csrf_hash' => csrf_hash(),
-                'errors'    => $result['errors']
-            ]);
-        }
-
-        return $this->response->setJSON([
-            'status'    => true,
-            'csrf_hash' => csrf_hash(),
-            'message'   => 'Product Inserted Successfully',
-            'redirect'  => base_url('dashboard')
-        ]);
-    }
-
-    /**
-     * Get Single Product
-     */
     public function getProduct($id)
     {
-        $user = $this->getAuthUser();
+        try{
 
-        if (!$user) {
+            $product=$this->productService->getProduct($id);
+
+            if(!$product){
+
+                return $this->response
+                ->setStatusCode(404)
+                ->setJSON([
+
+                    'status'=>false,
+
+                    'message'=>'Product not found',
+
+                    'token'=>csrf_hash()
+
+                ]);
+            }
 
             return $this->response->setJSON([
-                'status'   => false,
-                'message'  => 'Unauthorized Access',
-                'redirect' => base_url('loginform')
+
+                'status'=>true,
+
+                'message'=>'Product fetched successfully',
+
+                'product'=>$product,
+
+                'token'=>csrf_hash()
+
+            ]);
+
+        }catch(\Throwable $e){
+
+            return $this->response
+            ->setStatusCode(500)
+            ->setJSON([
+
+                'status'=>false,
+
+                'message'=>$e->getMessage(),
+
+                'token'=>csrf_hash()
+
             ]);
         }
-
-        $product = $this->productService->getProduct(
-            $id,
-            $user->id
-        );
-
-        if (!$product) {
-
-            return $this->response->setJSON([
-                'status'  => false,
-                'message' => 'Product Not Found'
-            ]);
-        }
-
-        return $this->response->setJSON([
-            'status'  => true,
-            'product' => $product
-        ]);
     }
 
-    /**
-     * Update Product
-     */
-    public function updateProduct($id)
+    public function addProduct()
     {
-        $user = $this->getAuthUser();
+        try{
 
-        if (!$user) {
+            $result=$this->productService->addProduct($this->request);
 
-            return $this->response->setJSON([
-                'status'   => false,
-                'message'  => 'Unauthorized Access',
-                'redirect' => base_url('loginform')
+            if(!$result['status']){
+
+                return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+
+                    'status'=>false,
+
+                    'errors'=>$result['errors'] ?? [],
+
+                    'message'=>$result['message'] ?? 'Validation failed',
+
+                    'token'=>csrf_hash()
+
+                ]);
+            }
+
+            return $this->response
+            ->setStatusCode(201)
+            ->setJSON([
+
+                'status'=>true,
+
+                'message'=>$result['message'] ?? 'Product added successfully',
+
+                'token'=>csrf_hash()
+
+            ]);
+
+        }catch(\Throwable $e){
+
+            return $this->response
+            ->setStatusCode(500)
+            ->setJSON([
+
+                'status'=>false,
+
+                'message'=>$e->getMessage(),
+
+                'token'=>csrf_hash()
+
             ]);
         }
+    }
 
-        $result = $this->productService->updateProduct(
-            $id,
-            $this->request,
-            $user->id
-        );
+    public function updateProduct($id)
+    {
+        try{
 
-        return $this->response->setJSON($result);
+            $result=$this->productService->updateProduct($id);
+
+            if(!$result['status']){
+
+                return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+
+                    'status'=>false,
+
+                    'errors'=>$result['errors'] ?? [],
+
+                    'message'=>$result['message'] ?? 'Update failed',
+
+                    'token'=>csrf_hash()
+
+                ]);
+            }
+
+            return $this->response->setJSON([
+
+                'status'=>true,
+
+                'message'=>$result['message'] ?? 'Product updated successfully',
+
+                'token'=>csrf_hash()
+
+            ]);
+
+        }catch(\Throwable $e){
+
+            return $this->response
+            ->setStatusCode(500)
+            ->setJSON([
+
+                'status'=>false,
+
+                'message'=>$e->getMessage(),
+
+                'token'=>csrf_hash()
+
+            ]);
+        }
+    }
+
+    public function deleteProduct($id)
+    {
+        try{
+
+            $result=$this->productService->deleteProduct($id);
+
+            if(!$result['status']){
+
+                return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+
+                    'status'=>false,
+
+                    'message'=>$result['message'] ?? 'Delete failed',
+
+                    'token'=>csrf_hash()
+
+                ]);
+            }
+
+            return $this->response->setJSON([
+
+                'status'=>true,
+
+                'message'=>$result['message'] ?? 'Product deleted successfully',
+
+                'token'=>csrf_hash()
+
+            ]);
+
+        }catch(\Throwable $e){
+
+            return $this->response
+            ->setStatusCode(500)
+            ->setJSON([
+
+                'status'=>false,
+
+                'message'=>$e->getMessage(),
+
+                'token'=>csrf_hash()
+
+            ]);
+        }
+    }
+
+    public function addToCart($id)
+    {
+        try{
+
+            $result=$this->cartService->addCart($id);
+
+            if(!$result['status']){
+
+                return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+
+                    'status'=>false,
+
+                    'message'=>$result['message'] ?? 'Failed to add product to cart',
+
+                    'token'=>csrf_hash()
+
+                ]);
+            }
+
+            return $this->response->setJSON([
+
+                'status'=>true,
+
+                'message'=>$result['message'] ?? 'Product added to cart successfully',
+
+                'cart'=>$result['cart'] ?? null,
+
+                'token'=>csrf_hash()
+
+            ]);
+
+        }catch(\Throwable $e){
+
+            return $this->response
+            ->setStatusCode(500)
+            ->setJSON([
+
+                'status'=>false,
+
+                'message'=>$e->getMessage(),
+
+                'token'=>csrf_hash()
+
+            ]);
+        }
     }
 }

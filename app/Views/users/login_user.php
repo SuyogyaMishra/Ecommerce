@@ -93,7 +93,7 @@
 
                 $.ajax({
 
-                    url: "<?= base_url('login') ?>",
+                 url:"<?= base_url('login') ?>",
 
                     type: "POST",
 

@@ -4,19 +4,41 @@ namespace App\Services;
 
 use App\Models\UserModel;
 use App\Services\JwtService;
+use App\Validation\SignupValidation;
 
-class UserService
+class UserService extends BaseService
 {
-    protected $userModel;
+    protected $userModel, $validation;
 
     public function __construct()
     {
+        parent::__construct();
         $this->userModel = new UserModel();
+        $this->validation = new SignupValidation();
     }
 
     public function createUser($data)
     {
-        return $this->userModel->insertUser([
+        $validation = $this->validation
+            ->validateSignup();
+
+        if (!$validation['status']) {
+
+            return [
+
+                'status' => false,
+
+                'message' => $validation['message'],
+
+                'errors' => $validation['errors']
+
+            ];
+        }
+        $data = $validation['data'];
+        $salt = bin2hex(random_bytes(16));
+
+        $finalPassword = password_hash($data['password'] . $salt, PASSWORD_DEFAULT);
+        $result= $this->userModel->insertUser([
 
             'name' => $data['name'],
 
@@ -24,97 +46,52 @@ class UserService
 
             'role' => 'user',
 
-            'password' => password_hash(
-                $data['password'],
-                PASSWORD_DEFAULT
-            )
+            'password' => $finalPassword,
+            'Salt' => $salt
         ]);
-    }
-
-    public function loginUser($data)
-    {
-        $user = $this->userModel
-            ->loginUser($data['email']);
-
-        if (!$user) {
-
-            return [
-
-                'status' => false,
-
-                'message' => 'Email not found',
-
-                'token' => csrf_hash()
+        if(!$result){
+            return[
+               'status'=>false,
+               'message'=>"Login Failed"
             ];
         }
-
-        if (
-            !password_verify(
-                $data['password'],
-                $user['password']
-            )
-        ) {
-
-            return [
-
-                'status' => false,
-
-                'message' => 'Invalid password',
-
-                'token' => csrf_hash()
-            ];
-        }
-
-        session()->set([
-
-            'user_id' => $user['id'],
-
-            'user_name' => $user['name'],
-
-            'user_email' => $user['email'],
-
-            'user_role' => $user['role'],
-
-            'isLoggedIn' => true
-        ]);
-
         return [
 
             'status' => true,
 
-            'message' => 'Login successful redirecting to dashboard..',
+            'message' => 'User registered successfully <a href="' . base_url('loginform') . '">
 
+            Login Here </a>',
             'token' => csrf_hash()
+
         ];
     }
 
-
-
-    //// Admin starts here 08/05
-    public function createAdminUser($data)
+    public function loginUser($data)
     {
-        $salt = bin2hex(random_bytes(16));
-        $finalPassword = password_hash($data['password'] . $salt, PASSWORD_DEFAULT);
+        $validation = $this->validation
+            ->validateLogin();
 
-        return $this->userModel->insertAdmin([
+        if (!$validation['status']) {
 
-            'name' => $data['name'],
+            return [
 
-            'email' => $data['email'],
+                'status' => false,
 
-            'role' => $data['role'],
+                'message' => $validation['message'],
 
-            'password' => $finalPassword,
+                'errors' => $validation['errors']
 
-            'salt' => $salt,
-        ]);
-    }
-
-    public function loginadmin($data)
-    {
+            ];
+        }
+        $data = $validation['data'];
         $jwtService = new JwtService();
         $user = $this->userModel
-            ->loginUser($data['email']);
+            ->loginUser($data['email']);;
+        if ($user && isset($data['remember_me'])) {
+
+            $this->userModel->updateRememberToken($user['id'], $data['remember_me']);
+        }
 
         if (!$user) {
 
@@ -141,7 +118,7 @@ class UserService
             ];
         }
 
-        $pylod = $jwtService->encode($user);
+        $pylod = $jwtService->encode($user, $data['remember_me'] ?? false);
 
         return [
 
@@ -151,8 +128,127 @@ class UserService
 
             'token' => csrf_hash(),
 
-            'jwt' => $pylod
+            'jwt' => $pylod['jwt'],
+            'expire' => $pylod['expire']
         ];
     }
- 
+
+
+
+    //// Admin starts here 08/05
+    public function createAdminUser($data)
+    {
+        $validation = $this->validation
+            ->validateSignup();
+
+        if (!$validation['status']) {
+
+            return [
+
+                'status' => false,
+
+                'message' => $validation['message'],
+
+                'errors' => $validation['errors']
+
+            ];
+        }
+        $data = $validation['data'];
+        $salt = bin2hex(random_bytes(16));
+        $finalPassword = password_hash($data['password'] . $salt, PASSWORD_DEFAULT);
+
+        $result = $this->userModel->insertAdmin([
+
+            'name' => $data['name'],
+
+            'email' => $data['email'],
+
+            'role' => $data['role'],
+
+            'password' => $finalPassword,
+
+            'salt' => $salt,
+        ]);
+         if(!$result){
+            return[
+               'status'=>false,
+               'message'=>"Login Failed"
+            ];
+        }
+        return [
+
+            'status' => true,
+
+            'message' => 'Admin User registered successfully <a href="' . base_url('loginform') . '">
+
+            Login Here </a>',
+            'token' => csrf_hash()
+
+        ];
+    }
+
+    public function loginadmin($data)
+    {
+        $validation = $this->validation
+            ->validateLogin();
+
+        if (!$validation['status']) {
+
+            return [
+
+                'status' => false,
+
+                'message' => $validation['message'],
+
+                'errors' => $validation['errors']
+
+            ];
+        }
+        $data = $validation['data'];
+        $jwtService = new JwtService();
+        $user = $this->userModel
+            ->loginUser($data['email']);
+        if ($user && isset($data['remember'])) {
+
+            $this->userModel->updateRememberToken($user['id'], $data['remember']);
+        }
+        if (!$user) {
+
+            return [
+
+                'status' => false,
+
+                'message' => 'User not found',
+
+                'token' => csrf_hash()
+            ];
+        }
+
+        $finalPassword = $data['password'] . $user['salt'];
+        if (!password_verify($finalPassword, $user['password'])) {
+
+            return [
+
+                'status' => false,
+
+                'message' => 'Invalid password',
+
+                'token' => csrf_hash()
+            ];
+        }
+
+        $pylod = $jwtService->encode($user, $data['remember'] ?? false);
+
+        return [
+
+            'status' => true,
+
+            'message' => 'Login successful redirecting to dashboard..',
+
+            'token' => csrf_hash(),
+
+            'jwt' => $pylod['jwt'],
+            'expire' => $pylod['expire']
+        ];
+    }
 }

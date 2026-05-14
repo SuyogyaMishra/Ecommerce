@@ -24,24 +24,7 @@ class UserController extends BaseController
     public function signupuser()
     {
         $data = $this->request->getPost();
-        $this->validation->setRules(
-            SignupValidation::rules()
-        );
-
-        if (!$this->validation->run($data)) {
-
-            return $this->response->setJSON([
-
-                'status' => false,
-
-                'message' => 'Validation failed',
-
-                'errors' => $this->validation->getErrors(),
-                'token' => csrf_hash()
-
-            ]);
-        }
-        $this->signupService->createUser([
+        $result=$this->signupService->createUser([
 
             'name' => $data['name'],
 
@@ -51,79 +34,51 @@ class UserController extends BaseController
 
         ]);
 
-        return $this->response->setJSON([
-
-            'status' => true,
-
-            'message' => 'User registered successfully <a href="' . base_url('loginform') . '">
-
-            Login Here </a>',
-            'token' => csrf_hash()
-
-        ]);
-    }
-
-public function loginuser()
-{
-    $this->validation->setRules(
-
-        SignupValidation::loginRules()
-    );
-
-    if (
-        !$this->validation->run(
-            $this->request->getPost()
-        )
-    ) {
-
-        return $this->response->setJSON([
-
-            'status' => false,
-
-            'errors' => $this->validation->getErrors(),
-
-            'token' => csrf_hash()
-        ]);
-    }
-
-    $result = $this->signupService->loginUser(
-
-        $this->request->getPost()
-    );
-
-    if (!$result['status']) {
-
         return $this->response->setJSON($result);
     }
 
-    return $this->response
+    public function loginuser()
+    {
+        
 
-        ->setJSON([
+        $result = $this->signupService->loginUser(
 
-            'status' => true,
+            $this->request->getPost()
+        );
 
-            'message' => $result['message'],
+        if (!$result['status']) {
 
-            'redirect' => base_url('/dashboard'),
+            return $this->response->setJSON($result);
+        }
+     
+        return $this->response
 
-            'token' => csrf_hash()
-        ])
+            ->setJSON([
 
-       ->setCookie([
+                'status' => true,
 
-    'name'     => 'token',
+                'message' => $result['message'],
 
-    'value'    => $result['jwt'],
+                'redirect' => base_url('/dashboard'),
 
-    'expire'   => $result['expire'],
+                'token' => csrf_hash()
+            ])
 
-    'httponly' => true,
+            ->setCookie([
 
-    'secure'   => false, // true on HTTPS
+                'name'     => 'token',
 
-    'path'     => '/'
-]);
-}
+                'value'    => $result['jwt'],
+
+                'expire'   => $result['expire'],
+
+                'httponly' => true,
+
+                'secure'   => false, // true on HTTPS
+
+                'path'     => '/'
+            ]);
+    }
 
 
 
@@ -150,7 +105,7 @@ public function loginuser()
     public function createAdminUser()
     {
         $data = $this->request->getPost();
-        $this->signupService->createAdminUser([
+        $result =$this->signupService->createAdminUser([
 
             'name' => $data['name'],
 
@@ -162,16 +117,7 @@ public function loginuser()
 
         ]);
 
-        return $this->response->setJSON([
-
-            'status' => true,
-
-            'message' => 'Admin User registered successfully <a href="' . base_url('loginform') . '">
-
-            Login Here </a>',
-            'token' => csrf_hash()
-
-        ]);
+        return $this->response->setJSON($result);
     }
     public function adminlogin()
     {
@@ -181,7 +127,11 @@ public function loginuser()
 
             return $this->response->setJSON($result);
         }
-        return redirect()->to(base_url('/admin/dashboard'))->setCookie([
+        return $this->response->setJSON([
+            'status'=>true,
+            'message'=>'Login Succes,Redirecting admin dashboard',
+            'redirect'=>'admin\dashboard'
+        ])->setCookie([
             'name' => 'token',
             'value' => $result['jwt'],
             'expire' => 86400,
@@ -196,59 +146,7 @@ public function loginuser()
             ->deleteCookie('token')
             ->with('success', 'Logout successful');
     }
-
-
-
-
-
-    //admin functions 08/05
-    public function createAdminUser()
-    {
-        $data = $this->request->getPost();
-        $this->signupService->createAdminUser([
-
-            'name' => $data['name'],
-
-            'email' =>  $data['email'],
-
-            'role' => $data['role'],
-
-            'password' =>  $data['password']
-
-        ]);
-
-        return $this->response->setJSON([
-
-            'status' => true,
-
-            'message' => 'Admin User registered successfully <a href="' . base_url('loginform') . '">
-
-            Login Here </a>',
-            'token' => csrf_hash()
-
-        ]);
-    }
-    public function adminlogin()
-    {
-        $data = $this->request->getPost();
-        $result = $this->signupService->loginadmin($data);
-        if (!$result['status']) {
-
-            return $this->response->setJSON($result);
-        }
-        return redirect()->to(base_url('/admin/dashboard'))->setCookie([
-            'name' => 'token',
-            'value' => $result['jwt'],
-            'expire' => 86400,
-            'httponly' => true
-        ]);
-    }
-    public function adminLogout()
-    {
-        session()->destroy();
-
-        return redirect()->to(base_url('adminlogin'))
-            ->deleteCookie('token')
-            ->with('success', 'Logout successful');
+    public function orders(){
+        return view('userproducts/order_product');
     }
 }
