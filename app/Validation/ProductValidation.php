@@ -2,88 +2,68 @@
 
 namespace App\Validation;
 
-class ProductValidation
-{
-   
-    public static function validate($request)
-    {
-        $validation = \Config\Services::validation();
+class ProductValidation extends BaseValidation{
 
-        $rules = [
+    public function validateProduct(){
 
-            'product_name' => [
+        return $this->validateFiles(
 
-                'rules' => 'required|min_length[3]|max_length[255]',
+            [
 
-                'errors' => [
+                'name'=>'required|min_length[3]|max_length[255]',
 
-                    'required'   => 'Product name is required',
+                'price'=>'required|numeric|greater_than[0]',
 
-                    'min_length' => 'Product name must be at least 3 characters'
+                'stock'=>'required|integer|greater_than_equal_to[0]',
 
-                ]
+                'status'=>'required|in_list[0,1]',
+
+                'image'=>'is_image[image]|max_size[image,2048]'
 
             ],
 
-            'category' => [
+            [
 
-                'rules' => 'required|min_length[3]',
+                'name'=>[
 
-                'errors' => [
+                    'required'=>'Product name is required',
 
-                    'required' => 'Category is required'
+                    'min_length'=>'Product name must be at least 3 characters'
 
-                ]
+                ],
 
-            ],
+                'price'=>[
 
-            'price' => [
+                    'required'=>'Price is required',
 
-                'rules' => 'required|numeric|greater_than[500]',
+                    'numeric'=>'Price must be numeric'
 
-                'errors' => [
+                ],
 
-                    'required' => 'Price is required',
+                'stock'=>[
 
-                    'numeric'  => 'Price must be numeric'
+                    'required'=>'Stock is required',
 
-                ]
+                    'integer'=>'Stock must be integer'
 
-            ],
+                ],
 
-            'quantity' => [
+                'status'=>[
 
-                'rules' => 'required|integer|greater_than[2]',
+                    'required'=>'Status is required'
 
-                'errors' => [
+                ],
 
-                    'required' => 'Quantity is required',
+                'image'=>[
 
-                    'integer'  => 'Quantity must be integer'
+                    'is_image'=>'Only image files allowed',
+
+                    'max_size'=>'Image size must be less than 2MB'
 
                 ]
 
             ]
 
-        ];
-
-        $validation->setRules($rules);
-
-        if (!$validation->withRequest($request)->run()) {
-
-            return [
-
-                'status' => false,
-
-                'errors' => $validation->getErrors()
-
-            ];
-        }
-
-        return [
-
-            'status' => true
-
-        ];
+        );
     }
 }

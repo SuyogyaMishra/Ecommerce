@@ -2,93 +2,99 @@
 
 namespace App\Validation;
 
-class SignupValidation
-{
-    public static function rules()
-    {
-        return [
+class SignupValidation extends BaseValidation{
 
-            'name' => [
+    public function validateSignup(){
 
-                'rules' => 'required|min_length[3]|max_length[100]',
+        return $this->validateData(
 
-                'errors' => [
+            [
 
-                    'required' => 'Full Name is required',
+                'name'=>'required|min_length[3]|max_length[100]',
 
-                    'min_length' => 'Name must be minimum 3 characters'
-                ]
+                'email'=>'required|valid_email|is_unique[users.email]',
+
+                'password'=>'required|min_length[6]',
+
+                'confirm_password'=>'required|matches[password]'
+
             ],
 
-            'email' => [
+            [
 
-                'rules' => 'required|valid_email|is_unique[users.email]',
+                'name'=>[
 
-                'errors' => [
+                    'required'=>'Full Name is required',
 
-                    'required' => 'Email is required',
+                    'min_length'=>'Name must be minimum 3 characters',
 
-                    'valid_email' => 'Enter valid email',
+                    'max_length'=>'Name maximum 100 characters'
 
-                    'is_unique' => 'Email already exists'
+                ],
+
+                'email'=>[
+
+                    'required'=>'Email is required',
+
+                    'valid_email'=>'Enter valid email',
+
+                    'is_unique'=>'Email already exists'
+
+                ],
+
+                'password'=>[
+
+                    'required'=>'Password is required',
+
+                    'min_length'=>'Password minimum 6 characters'
+
+                ],
+
+                'confirm_password'=>[
+
+                    'required'=>'Confirm Password required',
+
+                    'matches'=>'Passwords do not match'
+
                 ]
-            ],
 
-            'password' => [
-
-                'rules' => 'required|min_length[6]',
-
-                'errors' => [
-
-                    'required' => 'Password is required',
-
-                    'min_length' => 'Password minimum 6 characters'
-                ]
-            ],
-
-            'confirm_password' => [
-
-                'rules' => 'required|matches[password]',
-
-                'errors' => [
-
-                    'required' => 'Confirm Password required',
-
-                    'matches' => 'Passwords do not match'
-                ]
             ]
-        ];
+
+        );
     }
 
+    public function validateLogin(){
 
+        return $this->validateData(
 
-    public static function loginRules()
-    {
-        return [
+            [
 
-            'email' => [
+                'email'=>'required|valid_email',
 
-                'rules' => 'required|valid_email',
+                'password'=>'required|min_length[6]'
 
-                'errors' => [
-
-                    'required' => 'Email is required',
-
-                    'valid_email' => 'Enter valid email'
-                ]
             ],
 
-            'password' => [
+            [
 
-                'rules' => 'required|min_length[6]',
+                'email'=>[
 
-                'errors' => [
+                    'required'=>'Email is required',
 
-                    'required' => 'Password is required',
+                    'valid_email'=>'Enter valid email'
 
-                    'min_length' => 'Password minimum 6 characters'
+                ],
+
+                'password'=>[
+
+                    'required'=>'Password is required',
+
+                    'min_length'=>'Password minimum 6 characters'
+
                 ]
+
             ]
-        ];
+
+        );
     }
 }

@@ -10,55 +10,72 @@ use CodeIgniter\Router\RouteCollection;
 
 $routes->get('/loginform', function () {
     return view('users/login_user');
-});
+}, ['filter' => 'AuthCheck']);
 
 $routes->get('/signupform', function () {
     return view('users/signup_user');
-});
+}, ['filter' => 'AuthCheck']);
 $routes->post('/signup', [UserController::class, 'signupuser']);
 $routes->post('login', [UserController::class, 'loginuser']);
 $routes->get('logout', [UserController::class, 'logout']);
- $routes->get('adminsignup', function () {
-        return view('users/signup_admin');
-    });
-      $routes->get('adminlogin', function () {
-        return view('users/login_admin');
-    });
+$routes->get('adminsignup', function () {
+    return view('users/signup_admin');
+}, ['filter' => 'AuthCheck']);
 
-$routes->post('admin/createuser',[UserController::class,'createAdminUser']);
-$routes->post('admin/login',[UserController::class,'adminlogin']);
+$routes->get('adminlogin', function () {
+    return view('users/login_admin');
+}, ['filter' => 'AuthCheck']);
+
+$routes->post('admin/createuser', [UserController::class, 'createAdminUser']);
+$routes->post('admin/login', [UserController::class, 'adminlogin']);
 
 
-//////  Product controller routes   ->solid principals ,paswoord hash and salting  , jwt ,admin page;
+//////  Product controller routes   for the users   ->solid principals ,paswoord hash and salting  , jwt ,admin page;
 
-$routes->group('', ['filter' => 'auth'], function ($routes) {
+$routes->group('', ['filter' => 'AuthUserFilter'], function ($routes) {
     $routes->get('/dashboard', function () {
         return view('userproducts/dashboard');
     });
-    $routes->get('getproducts', [ProductController::class, 'index']);
+    $routes->get('getproducts', [ProductController::class, 'productData']);
 
-    $routes->get('/addproduct', function () {
-        return view('userproducts/add_product');
-    });
-    $routes->post('saveproduct', [ProductController::class, 'saveProduct']);
+
+    $routes->post('addtocart/(:num)', [ProductController::class, 'addToCart/$1']);
+
+    $routes->get('user/cart', 'CartController::index');
+
+    $routes->get('getcart', 'CartController::getCart');
+    $routes->get('checkout', 'CartController::checkoutCart');
+
+    $routes->post('updatecart/(:num)', 'CartController::updateCart/$1');
+
+    $routes->post('deletecart/(:num)', 'CartController::deleteCart/$1');
+
+    $routes->get('user/orders', 'UserController::orders');
+
+    ///user place ordr
+
+    $routes->post('placeorder', 'OrderController::AddOrders');
+    $routes->get('getorders', 'OrderController::getOrderByUser');
+    $routes->delete('cancelorder/(:num)', 'OrderController::deleteUserOrder/$1');
+
+
+
+    //  routes for payment  for the razor pay
+    $routes->get('/payment', 'PaymentController::index');
+    $routes->get('getpayment/(:num)', 'PaymentController::getPaymentByOrderId/$1');
+    $routes->post('createpayment', 'PaymentController::createPayment');
+    $routes->get('payment/verify/razorpay', 'PaymentController::verifyPayment');
+
+
     $routes->get(
-        '/get-product/(:num)',
-        'ProductController::getProduct/$1'
-    );
-    $routes->post(
-        '/update-product/(:num)',
-        'ProductController::updateProduct/$1'
-    );
-
-    $routes->post(
-        '/delete-product/(:num)',
-        'ProductController::deleteProduct/$1'
+        'payment/cancel',
+        'PaymentController::cancel'
     );
 });
 
 
 
-
+//     wallet , waleet trans histroy, users wallet balance, generate log;
 
 
 

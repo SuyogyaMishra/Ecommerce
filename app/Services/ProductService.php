@@ -3,114 +3,136 @@
 namespace App\Services;
 
 use App\Models\ProductModel;
+use App\Repositories\UserRepository;
 use App\Validation\ProductValidation;
 
-class ProductService
-{
-    protected $productModel;
+class ProductService{
 
-    public function __construct()
-    {
-        $this->productModel = new ProductModel();
+    protected $productModel,$userrepo,$productValidation;
+
+    public function __construct(){
+
+        $this->productModel=new ProductModel();
+
+        $this->userrepo=new UserRepository();
+
+        $this->productValidation=new ProductValidation();
     }
 
-  
+    public function getUserById($id){
 
-    public function saveProduct($request, $userId)
-    {
-        $validation = ProductValidation::validate(
-            $request
+        return $this->userrepo->getUserById($id);
+    }
+
+    public function getProducts($page=1,$limit=10,$search=''){
+
+        return $this->productModel->getProducts(
+            $page,
+            $limit,
+            $search
         );
+    }
 
-        if (!$validation['status']) {
+    public function totalProducts(){
 
+        return $this->productModel->totalProducts();
+    }
+
+    public function activeProducts(){
+
+        return $this->productModel->activeProducts();
+    }
+
+    public function outStockProducts(){
+
+        return $this->productModel->outStockProducts();
+    }
+
+    public function getProduct($id){
+
+        return $this->productModel->getSingleProduct($id);
+    }
+
+    public function addProduct(){
+
+        $validation=$this->productValidation
+            ->validateProduct();
+
+        if(!$validation['status'])
             return $validation;
+
+        $data=$validation['data'];
+
+        $image=$validation['files']['image']??null;
+
+        if($image && $image->isValid()){
+
+            $imageName=$image->getRandomName();
+
+            $image->move(
+                FCPATH.'uploads/products',
+                $imageName
+            );
+
+            $data['image']='uploads/products/'.$imageName;
         }
 
-        $data = [
-
-            'user_id'      => $userId,
-
-            'product_name' => $request->getPost('product_name'),
-
-            'category'     => $request->getPost('category'),
-
-            'price'        => $request->getPost('price'),
-
-            'quantity'     => $request->getPost('quantity')
-
-        ];
-
-        $this->productModel->insertProduct($data);
+        $this->productModel->saveProduct($data);
 
         return [
 
-            'status' => true
+            'status'=>true,
 
+            'message'=>'Product Added Successfully'
         ];
     }
-    public function getUserProducts($userId){
-        return   $this->productModel->getUserProducts($userId);
+
+    public function updateProduct($id){
+
+        $validation=$this->productValidation
+            ->validateProduct();
+
+        if(!$validation['status'])
+            return $validation;
+
+        $data=$validation['data'];
+
+        $image=$validation['files']['image']??null;
+
+        if($image && $image->isValid()){
+
+            $imageName=$image->getRandomName();
+
+            $image->move(
+                FCPATH.'uploads/products',
+                $imageName
+            );
+
+            $data['image']='uploads/products/'.$imageName;
+        }else{
+            unset($data['image']);
+        }
+
+        $this->productModel->saveProduct($data,$id);
+
+        return [
+
+            'status'=>true,
+
+            'message'=>'Product Updated Successfully'
+        ];
     }
 
-    public function getProduct($id, $userId)
-{
-    return $this->productModel->getSingleProduct(
+    public function deleteProduct($id){
 
-        $id,
+        $this->productModel->deleteProduct($id);
 
-        $userId
+        return [
 
-    );
-}
-public function updateProduct($id, $request, $userId)
-{
-    $data = [
+            'status'=>true,
 
-        'product_name' => $request->getPost('product_name'),
-
-        'category' => $request->getPost('category'),
-
-        'price' => $request->getPost('price'),
-
-        'quantity' => $request->getPost('quantity')
-
-    ];
-
-    $this->productModel->updateProduct(
-
-        $id,
-
-        $userId,
-
-        $data
-
-    );
-
-    return [
-
-        'status' => true,
-
-        'message' => 'Product Updated Successfully'
-
-    ];
-}
-public function deleteProduct($id, $userId)
-{
-    $this->productModel->deleteProduct(
-
-        $id,
-
-        $userId
-
-    );
-
-    return [
-
-        'status' => true,
-
-        'message' => 'Product Deleted Successfully'
-
-    ];
-}
+            'message'=>'Product Deleted Successfully'
+        ];
+    }
+    
 }

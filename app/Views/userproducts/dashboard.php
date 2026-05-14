@@ -1,153 +1,283 @@
-<!DOCTYPE html>
-<html lang="en">
+<?= $this->extend('layouts/user_sidebar') ?>
 
-<head>
+<?= $this->section('content') ?>
 
-  <meta charset="UTF-8">
+<style>
+  body {
+    overflow-x: hidden;
+    background: #f1f5f9;
+  }
 
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+  .toast-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    min-width: 320px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    color: #fff;
+    font-weight: 600;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+  }
 
-  <title>Ecommerce Dashboard</title>
+  .toast-success {
+    background: #16a34a;
+  }
 
-  <meta
-    name="csrf-token"
-    content="<?= csrf_hash() ?>">
+  .toast-error {
+    background: #dc2626;
+  }
 
-  <!-- Bootstrap -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet" />
+  .main-content {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    padding: 30px;
+  }
 
-  <!-- Icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  .products-wrapper {
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, .05);
+  }
 
-  <style>
-    body {
-      background: #f4f6f9;
+  .top-bar {
+    padding: 25px 30px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .page-subtitle {
+    color: #64748b;
+    margin-top: 5px;
+  }
+
+  .search-box {
+    width: 320px;
+    max-width: 100%;
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    padding: 12px 18px 12px 45px;
+    transition: .2s;
+  }
+
+  .search-box:focus {
+    outline: none;
+    border-color: #111827;
+    box-shadow: none;
+  }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap i {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #94a3b8;
+  }
+
+  .table {
+    margin: 0;
+  }
+
+  .table thead th {
+    background: #111827 !important;
+    color: #fff !important;
+    border: none;
+    padding: 18px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .table tbody td {
+    padding: 18px;
+    vertical-align: middle;
+    border-color: #f1f5f9;
+    white-space: nowrap;
+  }
+
+  .table tbody tr:hover {
+    background: #f8fafc;
+  }
+
+  .product-img {
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 14px;
+    background: #e2e8f0;
+  }
+
+  .product-name {
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .category-badge {
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 7px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .price {
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .stock-in {
+    background: #dcfce7;
+    color: #166534;
+    padding: 7px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .stock-out {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 7px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .btn-cart {
+    border: none;
+    background: #111827;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .2s;
+  }
+
+  .btn-cart:hover {
+    background: #000;
+  }
+
+  .btn-cart:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  .pagination-wrap {
+    padding: 25px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .page-item .page-link {
+    border: none;
+    margin: 0 4px;
+    border-radius: 10px;
+    color: #111827;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .page-item.active .page-link {
+    background: #111827;
+    color: #fff;
+  }
+
+  .empty-box {
+    padding: 80px 20px;
+  }
+
+  @media(max-width:768px) {
+
+    .main-content {
+      margin-left: 0;
+      width: 100%;
+      padding: 15px;
     }
 
-    .dashboard-card {
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    }
-
-    .user-box {
-      background: #fff;
-      border-radius: 15px;
+    .top-bar {
       padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      margin-bottom: 30px;
     }
-  </style>
 
-</head>
+    .search-box {
+      width: 100%;
+    }
 
-<body>
+  }
+</style>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-dark bg-dark">
 
-    <div class="container">
+<div class="products-wrapper">
+  <div class="toast-box" id="toastBox"></div>
 
-      <a class="navbar-brand fw-bold">
+  <div class="top-bar d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-        <i class="bi bi-shop"></i>
+    <div>
 
-        Ecommerce Dashboard
+      <div class="page-title">
+        Products
+      </div>
 
-      </a>
-
-      <a
-        href="<?= base_url('logout') ?>"
-        class="btn btn-danger">
-
-        Logout
-
-      </a>
+      <div class="page-subtitle">
+        Browse available products
+      </div>
 
     </div>
 
-  </nav>
+    <a href="<?= base_url('user/cart') ?>" class="btn btn-dark px-4 py-2 rounded-3">
 
-  <!-- Main -->
-  <div class="container py-5">
+      <i class="bi bi-cart3 me-2"></i>
 
-    <!-- User -->
-    <div class="user-box">
+      Cart
 
-      <h3 id="userName"></h3>
+    </a>
 
-      <p class="mb-0" id="userEmail"></p>
+  </div>
 
-    </div>
+  <div class="p-4 border-bottom">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-      <div>
+      <div class="search-wrap">
 
-        <h2 class="fw-bold">
+        <i class="bi bi-search"></i>
 
-          Manage Products
-
-        </h2>
-
-        <p class="text-muted">
-
-          CRUD Dashboard
-
-        </p>
+        <input
+          type="text"
+          id="searchProduct"
+          class="search-box"
+          placeholder="Search products...">
 
       </div>
 
-      <a
-        href="<?= base_url('addproduct') ?>"
-        class="btn btn-primary">
+      <div class="d-flex align-items-center gap-2">
 
-        <i class="bi bi-plus-circle"></i>
+        <small class="text-muted">
+          Show
+        </small>
 
-        Add Product
+        <select id="limitProducts" class="form-select form-select-sm" style="width:90px;border-radius:10px;">
 
-      </a>
+          <option value="5">5</option>
 
-    </div>
+          <option value="10" selected>10</option>
 
-    <!-- Table -->
-    <div class="card dashboard-card p-4">
+          <option value="25">25</option>
 
-      <div class="table-responsive">
-
-        <table class="table table-hover">
-
-          <thead class="table-dark">
-
-            <tr>
-
-              <th>ID</th>
-
-              <th>Name</th>
-
-              <th>Category</th>
-
-              <th>Price</th>
-
-              <th>Quantity</th>
-
-              <th>Action</th>
-
-            </tr>
-
-          </thead>
-
-          <tbody id="productTableBody">
-
-          </tbody>
-
-        </table>
+        </select>
 
       </div>
 
@@ -155,527 +285,383 @@
 
   </div>
 
-  <!-- Update Modal -->
-  <div
-    class="modal fade"
-    id="updateProductModal"
-    tabindex="-1">
+  <div class="table-responsive">
 
-    <div class="modal-dialog">
+    <table class="table table-hover align-middle">
 
-      <div class="modal-content">
+      <thead>
 
-        <div class="modal-header">
+        <tr>
 
-          <h5 class="modal-title">
+          <th>ID</th>
 
-            Update Product
+          <th>Image</th>
 
-          </h5>
+          <th>Name</th>
 
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"></button>
+          <th>Category</th>
 
-        </div>
+          <th>Price</th>
 
-        <div class="modal-body">
+          <th>Availble</th>
 
-          <form id="updateProductForm">
+          <th>Action</th>
 
-            <?= csrf_field() ?>
+        </tr>
 
-            <input
-              type="hidden"
-              id="update_product_id"
-              name="product_id">
+      </thead>
 
-            <!-- Product -->
-            <div class="mb-3">
+      <tbody id="productTableBody"></tbody>
 
-              <label>
-
-                Product Name
-
-              </label>
-
-              <input
-                type="text"
-                class="form-control"
-                id="update_product_name"
-                name="product_name">
-
-              <small class="text-danger error-product_name"></small>
-
-            </div>
-
-            <!-- Category -->
-            <div class="mb-3">
-
-              <label>
-
-                Category
-
-              </label>
-
-              <input
-                type="text"
-                class="form-control"
-                id="update_category"
-                name="category">
-
-              <small class="text-danger error-category"></small>
-
-            </div>
-
-            <!-- Price -->
-            <div class="mb-3">
-
-              <label>
-
-                Price
-
-              </label>
-
-              <input
-                type="number"
-                class="form-control"
-                id="update_price"
-                name="price">
-
-              <small class="text-danger error-price"></small>
-
-            </div>
-
-            <!-- Quantity -->
-            <div class="mb-3">
-
-              <label>
-
-                Quantity
-
-              </label>
-
-              <input
-                type="number"
-                class="form-control"
-                id="update_quantity"
-                name="quantity">
-
-              <small class="text-danger error-quantity"></small>
-
-            </div>
-
-            <button
-              type="submit"
-              class="btn btn-primary w-100"
-              id="updateBtn">
-
-              Update Product
-
-            </button>
-
-          </form>
-
-        </div>
-
-      </div>
-
-    </div>
+    </table>
 
   </div>
 
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <div class="pagination-wrap d-flex justify-content-center">
 
-  <!-- Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <ul class="pagination mb-0" id="pagination"></ul>
 
-  <script>
-    /*
-|--------------------------------------------------------------------------
-| Load Products
-|--------------------------------------------------------------------------
-*/
+  </div>
 
-    $(document).ready(function() {
+</div>
 
-      loadProducts();
+</div>
 
-    });
+<?= $this->endSection() ?>
 
-    function loadProducts() {
-      $.ajax({
+<?= $this->section('script') ?>
 
-        url: "<?= base_url('getproducts') ?>",
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-        type: "GET",
+<script>
 
-        dataType: "json",
+let csrfName="<?= csrf_token() ?>";
+let csrfHash="<?= csrf_hash() ?>";
 
-        success: function(response) {
+function showToast(message,type='success'){
 
-          if (!response.status) {
+    $('#toastBox')
+    .removeClass('toast-success toast-error')
+    .addClass(type=='success' ? 'toast-success' : 'toast-error')
+    .html(message)
+    .fadeIn(200);
 
-            window.location.href =
-              response.redirect;
+    setTimeout(()=>{
+        $('#toastBox').fadeOut(200);
+    },2500);
 
-            return;
-          }
-          $('#userName').html(
-            'Welcome, ' + response.user.name
-          );
+}
 
-          $('#userEmail').html(
-            response.user.email
-          );
-          let rows = '';
-          if (response.products.length === 0) {
+function updateCsrf(token){
 
-            rows = `
+    csrfHash=token;
 
+}
+
+$(document).ready(function(){
+
+    loadProducts();
+
+});
+
+function loadProducts(page=1){
+
+    let search=$('#searchProduct').val();
+    let limit=$('#limitProducts').val();
+
+    $('#productTableBody').html(`
+        <tr>
+            <td colspan="7" class="text-center empty-box">
+                <div class="spinner-border text-dark"></div>
+            </td>
+        </tr>
+    `);
+
+    $.ajax({
+
+        url:"<?= base_url('getproducts') ?>",
+
+        type:"GET",
+
+        data:{
+            page,
+            limit,
+            search
+        },
+
+        dataType:"json",
+
+        success:function(response){
+
+            updateCsrf(response.token);
+
+            if(!response.status){
+
+                showToast(response.message || 'Unauthorized','error');
+
+                if(response.redirect){
+                    window.location.href=response.redirect;
+                }
+
+                return;
+
+            }
+
+            $('#userName').text(response.user.name);
+            $('#userEmail').text(response.user.email);
+
+            let rows='';
+
+            if(response.products.users.length<1){
+
+                rows=`
                     <tr>
+                        <td colspan="7" class="text-center empty-box">
 
-                        <td colspan="6"
-                            class="text-center">
+                            <i class="bi bi-box display-4 text-muted"></i>
 
-                            No Products Found
+                            <div class="mt-3 text-muted fw-semibold">
+                                No Products Found
+                            </div>
 
                         </td>
-
                     </tr>
-
                 `;
-          }
 
-          $.each(response.products, function(index, product) {
+            }else{
 
-            rows += `
+                $.each(response.products.users,function(i,product){
 
-                    <tr>
+                    rows+=`
+                        <tr>
 
-                        <td>${product.id}</td>
+                            <td>#${product.id}</td>
 
-                        <td>${product.product_name}</td>
+                            <td>
 
-                        <td>${product.category}</td>
+                                <img 
+                                    src="<?= base_url() ?>/${product.image}"
+                                    class="product-img"
+                                    onerror="this.src='https://placehold.co/65x65'"
+                                >
 
-                        <td>$${product.price}</td>
+                            </td>
 
-                        <td>${product.quantity}</td>
+                            <td>
 
-                        <td>
+                                <div class="product-name">
+                                    ${product.name}
+                                </div>
 
-    <!-- Edit -->
-    <button
-        class="btn btn-warning btn-sm editBtn"
-        data-id="${product.id}"
-    >
+                            </td>
 
-        <i class="bi bi-pencil-square"></i>
+                            <td>
 
-    </button>
+                                <span class="category-badge">
+                                    ${product.category || 'General'}
+                                </span>
 
-    <!-- Delete -->
-    <button
-        class="btn btn-danger btn-sm deleteBtn"
-        data-id="${product.id}"
-    >
+                            </td>
 
-        <i class="bi bi-trash-fill"></i>
+                            <td>
 
-    </button>
+                                <span class="price">
+                                    ₹${product.price}
+                                </span>
 
-</td>
+                            </td>
 
-                    </tr>
+                            <td>
 
-                `;
-          });
+                                ${
+                                    product.stock>0
+                                    ?
+                                    `<span class="stock-in">
+                                        ${product.stock} Available
+                                    </span>`
+                                    :
+                                    `<span class="stock-out">
+                                        Out Of Stock
+                                    </span>`
+                                }
 
-          $('#productTableBody').html(rows);
-        }
+                            </td>
 
-      });
-    }
+                            <td>
 
-    /*
-    |--------------------------------------------------------------------------
-    | Open Edit Modal
-    |--------------------------------------------------------------------------
-    */
+                                ${
+                                    product.stock>0
+                                    ?
+                                    `<button class="btn-cart addCartBtn" data-id="${product.id}">
+                                        <i class="bi bi-cart-plus me-1"></i>
+                                        Add To Cart
+                                    </button>`
+                                    :
+                                    `<button class="btn-cart" disabled>
+                                        Unavailable
+                                    </button>`
+                                }
 
-    $(document).on('click', '.editBtn', function() {
+                            </td>
 
-      let productId = $(this).data('id');
+                        </tr>
+                    `;
 
-      $.ajax({
-
-        url: "<?= base_url('get-product') ?>/" + productId,
-
-        type: "GET",
-
-        dataType: "json",
-
-        success: function(response) {
-
-          if (response.status) {
-
-            $('#update_product_id')
-              .val(response.product.id);
-
-            $('#update_product_name')
-              .val(response.product.product_name);
-
-            $('#update_category')
-              .val(response.product.category);
-
-            $('#update_price')
-              .val(response.product.price);
-
-            $('#update_quantity')
-              .val(response.product.quantity);
-
-            let modal =
-              new bootstrap.Modal(
-
-                document.getElementById(
-                  'updateProductModal'
-                )
-
-              );
-
-            modal.show();
-          }
-        }
-
-      });
-
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Product
-    |--------------------------------------------------------------------------
-    */
-
-    $('#updateProductForm').submit(function(e) {
-
-      e.preventDefault();
-
-      $('.text-danger').text('');
-
-      let productId =
-        $('#update_product_id').val();
-
-      let csrfName =
-        '<?= csrf_token() ?>';
-
-      let csrfHash =
-        $('meta[name="csrf-token"]')
-        .attr('content');
-
-      let formData =
-        $(this).serializeArray();
-
-      formData.push({
-
-        name: csrfName,
-
-        value: csrfHash
-
-      });
-
-      $.ajax({
-
-        url: "<?= base_url('update-product') ?>/" + productId,
-
-        type: "POST",
-
-        data: formData,
-
-        dataType: "json",
-
-        beforeSend: function() {
-
-          $('#updateBtn')
-            .prop('disabled', true)
-            .html('Updating...');
-        },
-
-        success: function(response) {
-
-          /*
-          |--------------------------------------------------------------------------
-          | Update CSRF
-          |--------------------------------------------------------------------------
-          */
-
-          if (response.csrf_hash) {
-
-            $('meta[name="csrf-token"]')
-              .attr('content',
-                response.csrf_hash
-              );
-
-            $('input[name="<?= csrf_token() ?>"]')
-              .val(response.csrf_hash);
-          }
-
-          /*
-          |--------------------------------------------------------------------------
-          | Validation Errors
-          |--------------------------------------------------------------------------
-          */
-
-          if (!response.status) {
-
-            if (response.errors) {
-
-              $.each(response.errors,
-                function(key, value) {
-
-                  $('.error-' + key)
-                    .text(value);
                 });
+
             }
 
-            if (response.message) {
+            $('#productTableBody').html(rows);
 
-              alert(response.message);
+            let pagination='';
+
+            for(let i=1;i<=response.totalPages;i++){
+
+                pagination+=`
+                    <li class="page-item ${response.products.page==i?'active':''}">
+                        <a href="#" class="page-link paginationBtn" data-page="${i}">
+                            ${i}
+                        </a>
+                    </li>
+                `;
+
             }
 
-            $('#updateBtn')
-              .prop('disabled', false)
-              .html('Update Product');
+            $('#pagination').html(pagination);
 
-            return;
-          }
-
-          /*
-          |--------------------------------------------------------------------------
-          | Success
-          |--------------------------------------------------------------------------
-          */
-
-          alert(response.message);
-
-          bootstrap.Modal
-            .getInstance(
-
-              document.getElementById(
-                'updateProductModal'
-              )
-
-            ).hide();
-
-          $('#updateProductForm')[0]
-            .reset();
-
-          loadProducts();
-
-          $('#updateBtn')
-            .prop('disabled', false)
-            .html('Update Product');
         },
 
-        error: function(xhr) {
+        error:function(xhr){
 
-          console.log(xhr.responseText);
+            if(xhr.responseJSON?.token){
+                updateCsrf(xhr.responseJSON.token);
+            }
 
-          alert('Something Went Wrong');
+            showToast(xhr.responseJSON?.message || 'Failed To Load Products','error');
 
-          $('#updateBtn')
-            .prop('disabled', false)
-            .html('Update Product');
+            $('#productTableBody').html(`
+                <tr>
+                    <td colspan="7" class="text-center text-danger empty-box">
+
+                        <i class="bi bi-wifi-off display-4"></i>
+
+                        <div class="mt-3 fw-semibold">
+                            Failed To Load Products
+                        </div>
+
+                    </td>
+                </tr>
+            `);
+
         }
 
-      });
-
     });
-  </script>
-  <script>
-    /*
-|--------------------------------------------------------------------------
-| Delete Product
-|--------------------------------------------------------------------------
-*/
 
-    $(document).on('click', '.deleteBtn', function() {
+}
 
-      if (!confirm('Are you sure you want to delete this product?')) {
+$(document).on('keyup','#searchProduct',function(){
 
-        return;
-      }
+    loadProducts(1);
 
-      let productId = $(this).data('id');
+});
 
-      let csrfName =
-        '<?= csrf_token() ?>';
+$(document).on('change','#limitProducts',function(){
 
-      let csrfHash =
-        $('meta[name="csrf-token"]')
-        .attr('content');
+    loadProducts(1);
 
-      $.ajax({
+});
 
-        url: "<?= base_url('delete-product') ?>/" + productId,
+$(document).on('click','.paginationBtn',function(e){
 
-        type: "POST",
+    e.preventDefault();
 
-        data: {
+    loadProducts($(this).data('page'));
 
-          [csrfName]: csrfHash
+});
+
+$(document).on('click','.addCartBtn',function(){
+
+    let productId=$(this).data('id');
+    let btn=$(this);
+
+    btn.prop('disabled',true);
+
+    btn.html(`
+        <span class="spinner-border spinner-border-sm"></span>
+    `);
+
+    $.ajax({
+
+        url:"<?= base_url('addtocart') ?>/"+productId,
+
+        type:"POST",
+
+        data:{
+            [csrfName]:csrfHash
         },
 
-        dataType: "json",
+        dataType:"json",
 
-        success: function(response) {
+        success:function(response){
 
-          /*
-          |--------------------------------------------------------------------------
-          | Update CSRF
-          |--------------------------------------------------------------------------
-          */
+            updateCsrf(response.token);
 
-          if (response.csrf_hash) {
+            if(!response.status){
 
-            $('meta[name="csrf-token"]')
-              .attr(
-                'content',
-                response.csrf_hash
-              );
-          }
+                showToast(response.message || 'Failed To Add Product','error');
 
-          /*
-          |--------------------------------------------------------------------------
-          | Success
-          |--------------------------------------------------------------------------
-          */
+                btn.prop('disabled',false);
 
-          if (response.status) {
+                btn.html(`
+                    <i class="bi bi-cart-plus me-1"></i>
+                    Add To Cart
+                `);
 
-            alert(response.message);
+                return;
 
-            loadProducts();
-          } else {
+            }
 
-            alert(response.message);
-          }
+            showToast(response.message || 'Product Added');
+
+            btn.html(`
+                <i class="bi bi-check-circle me-1"></i>
+                Added
+            `);
+
+            setTimeout(function(){
+
+                btn.prop('disabled',false);
+
+                btn.html(`
+                    <i class="bi bi-cart-plus me-1"></i>
+                    Add To Cart
+                `);
+
+            },1200);
+
         },
 
-        error: function(xhr) {
+        error:function(xhr){
 
-          console.log(xhr.responseText);
+            if(xhr.responseJSON?.token){
+                updateCsrf(xhr.responseJSON.token);
+            }
 
-          alert('Delete Failed');
+            showToast(xhr.responseJSON?.message || 'Something Went Wrong','error');
+
+            btn.prop('disabled',false);
+
+            btn.html(`
+                <i class="bi bi-cart-plus me-1"></i>
+                Add To Cart
+            `);
+
         }
 
-      });
-
     });
-  </script>
-</body>
 
-</html>
+});
+
+</script>
+
+<?= $this->endSection() ?>
