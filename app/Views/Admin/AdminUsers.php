@@ -1,142 +1,364 @@
 <?= $this->extend('layouts/sidebar') ?>
 <?= $this->section('content') ?>
-
 <style>
-    .page-header {
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        border-radius: 20px;
-        padding: 30px;
-        color: #fff;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+:root{
+    --primary:#6366f1;
+    --secondary:#8b5cf6;
+    --success:#10b981;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --dark:#0f172a;
+    --text:#0f172a;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --bg:#f8fafc;
+    --card:#ffffff;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,sans-serif;
+    overflow-x:hidden
+}
+
+.main-content{
+    min-height:100vh;
+    padding:22px
+}
+
+.container-fluid{
+    max-width:1380px
+}
+
+.page-header{
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    border-radius:20px;
+    padding:24px 28px;
+    margin-bottom:20px;
+    color:#fff;
+    box-shadow:0 10px 25px rgba(99,102,241,.18)
+}
+
+.page-header h2{
+    font-size:24px;
+    margin-bottom:6px
+}
+
+.page-header p{
+    font-size:13px;
+    opacity:.9
+}
+
+.row.g-4{
+    --bs-gutter-x:1rem;
+    --bs-gutter-y:1rem
+}
+
+.stats-card{
+    border:none;
+    border-radius:18px;
+    overflow:hidden;
+    transition:.25s;
+    background:var(--card);
+    box-shadow:0 4px 18px rgba(15,23,42,.05)
+}
+
+.stats-card:hover{
+    transform:translateY(-3px)
+}
+
+.stats-card.total{
+    background:linear-gradient(135deg,#eef2ff,#e0e7ff)
+}
+
+.stats-card.active{
+    background:linear-gradient(135deg,#ecfdf5,#d1fae5)
+}
+
+.stats-card.admin{
+    background:linear-gradient(135deg,#f5f3ff,#ede9fe)
+}
+
+.stats-card .card-body{
+    padding:18px!important
+}
+
+.stats-card p{
+    font-size:12px;
+    margin-bottom:5px;
+    color:#64748b
+}
+
+.stats-card h2{
+    font-size:24px;
+    margin:0
+}
+
+.icon-box{
+    width:52px;
+    height:52px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,.08)
+}
+
+.users-card{
+    border:none;
+    border-radius:20px;
+    overflow:hidden;
+    background:var(--card);
+    box-shadow:0 4px 18px rgba(15,23,42,.05)
+}
+
+.users-card .card-header{
+    background:#fff;
+    padding:20px 22px;
+    border:none
+}
+
+.users-card h4{
+    font-size:18px;
+    margin-bottom:2px
+}
+
+.users-card small{
+    font-size:12px
+}
+
+.search-box{
+    width:240px;
+    height:42px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    font-size:13px;
+    background:#fff;
+    transition:.2s
+}
+
+.search-box:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(99,102,241,.08)
+}
+
+.table{
+    margin:0
+}
+
+.table thead th{
+    border:none;
+    background:#f8fafc;
+    color:#64748b;
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    padding:16px 18px
+}
+
+.table tbody td{
+    padding:16px 18px;
+    vertical-align:middle;
+    border-color:#f1f5f9;
+    font-size:13px;
+    color:#0f172a
+}
+
+.table tbody tr{
+    transition:.2s
+}
+
+.table tbody tr:hover{
+    background:#f8fafc
+}
+
+.user-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    flex-shrink:0
+}
+
+.badge{
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:600
+}
+
+.action-btn{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.2s
+}
+
+.action-btn:hover{
+    transform:translateY(-1px)
+}
+
+.btn-primary.action-btn{
+    background:#eef2ff;
+    color:#4f46e5
+}
+
+.btn-primary.action-btn:hover{
+    background:#4f46e5;
+    color:#fff
+}
+
+.btn-danger.action-btn{
+    background:#fef2f2;
+    color:#ef4444
+}
+
+.btn-danger.action-btn:hover{
+    background:#ef4444;
+    color:#fff
+}
+
+.pagination{
+    gap:6px
+}
+
+.page-item .page-link{
+    border:none;
+    width:36px;
+    height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    color:#4f46e5;
+    background:#eef2ff;
+    font-size:13px;
+    font-weight:600
+}
+
+.page-item.active .page-link{
+    background:#4f46e5;
+    color:#fff
+}
+
+.form-select{
+    border-radius:10px;
+    border:1px solid var(--border);
+    font-size:13px
+}
+
+.modal-content{
+    border:none;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 15px 40px rgba(15,23,42,.12)
+}
+
+.modal-header{
+    border-bottom:1px solid #f1f5f9;
+    padding:18px 22px
+}
+
+.modal-title{
+    font-size:18px
+}
+
+.modal-body{
+    padding:22px!important
+}
+
+.form-control,
+.form-select{
+    height:44px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    font-size:13px
+}
+
+.form-control:focus,
+.form-select:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(99,102,241,.08)
+}
+
+.form-label{
+    font-size:13px;
+    margin-bottom:7px
+}
+
+.btn-custom{
+    height:46px;
+    border:none;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:600;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed)
+}
+
+.toast{
+    border:none!important;
+    border-radius:14px!important;
+    overflow:hidden;
+    font-size:13px
+}
+
+.toast-header{
+    border:none
+}
+
+.spinner-border{
+    width:2rem;
+    height:2rem
+}
+
+@media(max-width:768px){
+
+    .main-content{
+        padding:14px
     }
 
-    .stats-card {
-        border: none;
-        border-radius: 18px;
-        overflow: hidden;
-        transition: .3s ease;
-        position: relative;
+    .page-header{
+        padding:20px
     }
 
-    .stats-card:hover {
-        transform: translateY(-5px);
+    .page-header h2{
+        font-size:20px
     }
 
-    .stats-card .icon-box {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
+    .stats-card h2{
+        font-size:20px
     }
 
-    .stats-card.total {
-        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    .icon-box{
+        width:46px;
+        height:46px;
+        font-size:18px
     }
 
-    .stats-card.active {
-        background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    .search-box{
+        width:100%
     }
 
-    .stats-card.admin {
-        background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    .table thead th,
+    .table tbody td{
+        padding:13px
     }
 
-    .users-card {
-        border: none;
-        border-radius: 20px;
-        overflow: hidden;
-    }
-
-    .table thead th {
-        border: none;
-        font-size: 14px;
-        font-weight: 600;
-        color: #6b7280;
-        padding: 18px 15px;
-    }
-
-    .table tbody td {
-        vertical-align: middle;
-        padding: 18px 15px;
-        border-color: #f1f5f9;
-    }
-
-    .table tbody tr {
-        transition: .2s ease;
-    }
-
-    .table tbody tr:hover {
-        background: #f8fafc;
-    }
-
-    .user-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        color: white;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .search-box {
-        border-radius: 12px;
-        border: 1px solid #dbeafe;
-        padding: 10px 15px;
-        box-shadow: none !important;
-    }
-
-    .btn-custom {
-        border-radius: 12px;
-        padding: 10px 18px;
-        font-weight: 600;
-    }
-
-    .action-btn {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-content {
-        border-radius: 20px;
-        border: none;
-    }
-
-    .modal-header {
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .modal-footer {
-        border-top: 1px solid #f1f5f9;
-    }
-
-    .page-item .page-link {
-        border: none;
-        margin: 0 4px;
-        border-radius: 10px;
-        color: #4f46e5;
-    }
-
-    .page-item.active .page-link {
-        background: #4f46e5;
-        color: white;
-    }
-
-    .badge {
-        padding: 8px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-    }
+}
 </style>
 
 <div class="main-content flex-grow-1">

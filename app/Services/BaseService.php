@@ -2,14 +2,18 @@
 
 namespace App\Services;
 
+use App\Repositories\UserRepository;
+
 class BaseService{
 
-    protected $response,$request;
+    protected $response,$request,$user;
 
     public function __construct(){
 
         $this->response=service('response');
         $this->request=service('request');
+       $this->user = service('jwt')->decode(service('request')->getCookie('token'));
+
     }
     protected function json(
         $status=true,
@@ -139,4 +143,7 @@ class BaseService{
             500
         );
     }
+    // public function getUser(){
+    //     $this->user->user();
+    // }
 }

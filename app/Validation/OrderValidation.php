@@ -18,7 +18,7 @@ class OrderValidation extends BaseValidation{
 
                 'address'=>'required|min_length[10]|max_length[500]',
 
-                'payment_method'=>'required|in_list[cod,online]'
+                'payment_method'=>'required|in_list[cod,wallet]'
 
             ],
 

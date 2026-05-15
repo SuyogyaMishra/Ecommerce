@@ -46,6 +46,9 @@ class CartController extends BaseController
                 'status' => true,
                 'cart' => $result['data'],
                 'user' => $result['user'],
+                'tax' => $result['tax'],
+                'total'=>$result['total'],
+                'walletBalance' => $result['walletBalance']
             ]);
         } catch (\Exception $e) {
 

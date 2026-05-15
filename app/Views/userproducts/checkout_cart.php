@@ -101,24 +101,23 @@
     }
 
     .summary-total {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 20px;
-        margin-top: 20px;
-        border-top: 1px solid #e2e8f0
+        padding: 16px;
+        border-radius: 14px;
+        background: #fff;
     }
 
     .total-label {
-        font-size: 15px;
-        color: #64748b
+        font-size: 14px;
+        color: #666;
     }
 
     .total-price {
-        font-size: 34px;
-        font-weight: 800;
-        color: #111827
+        font-size: 14px;
+        font-weight: 600;
+        color: #111;
     }
+
+
 
     .place-btn {
         width: 100%;
@@ -170,6 +169,7 @@
         }
     }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <div class="toast-box" id="toastBox"></div>
 
@@ -179,7 +179,24 @@
 
         <div class="checkout-header">
 
-            <div class="page-title">Checkout</div>
+            <div class="d-flex align-items-center justify-content-between w-100">
+
+                <div class="page-title mb-0">Checkout</div>
+
+                <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-pill border bg-light">
+
+                    <div class="d-flex align-items-center justify-content-center rounded-circle bg-dark text-white" style="width:34px;height:34px">
+                        <i class="fas fa-wallet small"></i>
+                    </div>
+
+                    <div>
+                        <div class="small text-muted lh-1">Balance</div>
+                        <div class="fw-bold text-success" id="walletBalance">₹0</div>
+                    </div>
+
+                </div>
+
+            </div>
 
             <div class="page-subtitle">Complete your shipping and payment details</div>
 
@@ -219,7 +236,7 @@
 
                     <select class="form-control" id="payment_method">
                         <option value="cod">Cash On Delivery</option>
-                        <option value="online">Online Payment</option>
+                        <option value="wallet">Online Payment</option>
                     </select>
 
                 </div>
@@ -257,14 +274,18 @@
 
             <div id="checkoutProducts"></div>
 
-            <div class="summary-total">
+            <div class="summary-total border-top mt-2">
+                <h6>Price Brakedown</h1>
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                        <div class="total-label fw-bold">Sub Total</div>
+                        <div class="total-price " id="SubTotal">₹0</div>
+                    </div>
+                    <div class="taxes"></div>
 
-                <div>
-                    <div class="total-label">Grand Total</div>
-                </div>
-
-                <div class="total-price" id="grandTotal">₹0</div>
-
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                        <div class="total-label fw-bolder">Grand Total</div>
+                        <div class="total-price fw-bolder" id="grandTotal">₹0</div>
+                    </div>
             </div>
 
             <button class="place-btn mt-4" id="placeOrderBtn">
@@ -275,6 +296,29 @@
 
     </div>
 
+
+
+</div>
+
+<div class="modal fade" id="otpModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Wallet Verification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Enter the OTP sent to your registered mobile/email</p>
+
+                <input type="text" class="form-control text-center fs-4 fw-bold" id="walletOtp" maxlength="6" placeholder="Enter OTP">
+
+                <button class="btn btn-dark w-100 mt-3 rounded-3" id="verifyOtpBtn">
+                    Verify OTP
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?= $this->endSection() ?>
@@ -286,6 +330,10 @@
 <script>
     let csrfName = "<?= csrf_token() ?>";
     let csrfHash = "<?= csrf_hash() ?>";
+
+    $(document).on('change', '#payment_method', function() {
+        loadCheckoutCart();
+    });
 
     function updateCsrf(token) {
         csrfHash = token
@@ -321,6 +369,8 @@
                     $('#email').val(response.user.email);
                     $('#phone').val(response.user.phone);
                     $('#address').val(response.user.address);
+                    $('#walletBalance').html(`₹${response.walletBalance}`);
+
 
                 }
 
@@ -341,12 +391,28 @@
             dataType: "json",
 
             success: function(response) {
-
                 updateCsrf(response.token);
+                console.log(response);
 
                 if (!response.status) return;
                 $('#userName').text(response.user.name);
                 $('#userEmail').text(response.user.email);
+                $('#walletBalance').html(`₹${response.walletBalance}`);
+
+                let wallet = parseFloat(response.walletBalance || 0);
+                let grand = parseFloat(response.total.total || 0);
+
+                if ($('#payment_method').val() == 'wallet' && grand > wallet) {
+                    $('#placeOrderBtn').prop('disabled', true).css({
+                        opacity: .6,
+                        cursor: 'not-allowed'
+                    }).html('Insufficient Wallet Balance');
+                } else {
+                    $('#placeOrderBtn').prop('disabled', false).css({
+                        opacity: 1,
+                        cursor: 'pointer'
+                    }).html('Place Order');
+                }
                 let rows = '';
                 let total = 0;
 
@@ -367,16 +433,35 @@
                             <div class="product-meta">Qty : ${item.quantity}</div>
 
                         </div>
+                        
 
                         <div class="fw-bold">₹${subtotal}</div>
 
                     </div>
                 `;
+                });
+                $('#checkoutProducts').html(rows);
+
+                rows = '';
+
+                $.each(response.tax, function(name, amount) {
+
+                    rows += `
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                         <div class="total-label fw-bold">${name.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase())}</div>
+                         <div class="total-price">₹${amount}</div>
+                       </div>
+                      `;
 
                 });
 
-                $('#checkoutProducts').html(rows);
-                $('#grandTotal').text(`₹${total}`);
+                $(".taxes").html(rows);
+                $('#SubTotal').text(`₹${response.total.subtotal}`);
+
+                $('#grandTotal').text(`₹${response.total.total}`);
+                SubTotal
+
+
 
             }
 
@@ -421,12 +506,12 @@
 
                 }
                 showToast(response.message || 'Order Placed Successfully');
-                    if (response.order_id) {
-                            localStorage.setItem('order_id', response.order_id);
-                        }
+                if (response.order_id) {
+                    localStorage.setItem('order_id', response.order_id);
+                }
                 setTimeout(() => {
                     if (response.redirect_url)
-                    window.location.href = response.redirect_url;
+                        window.location.href = response.redirect_url;
                 }, 1000);
 
 

@@ -7,16 +7,17 @@ use App\Models\OrderModel;
 use App\Models\ProductModel;
 use App\Services\BaseService;
 use App\Models\PaymentModel;
-
+use App\Models\WalletModel;
 
 class PaymentService extends BaseService
 {
-    protected $orderModel, $paymentModel;
+    protected $orderModel, $paymentModel, $walletModel;
     public function __construct()
     {
         parent::__construct();
         $this->orderModel = new OrderModel();
         $this->paymentModel = new paymentModel();
+        $this->walletModel = new WalletModel();
     }
 
     public function getPayment($id)
@@ -36,31 +37,22 @@ class PaymentService extends BaseService
     {
         try {
 
-            $order = $this->orderModel
-                ->getOrderById($data['order_id']);
-            if (!$order)
-                return $this->error('Order not found');
-
-            if ($order['payment_status'] == 'paid')
-                return $this->error('Already paid');
-
             $gateway = $data['gateway'];
-
+            $user = (array)$this->user;
             $payment = PaymentMangerService
                 ::gateway($gateway);
             $response = $payment->createOrder([
-                'amount' => $order['total'],
-                'name' => $order['name'],
-                'email' => $order['email'],
-                'phone' => $order['phone'],
-                'receipt' => $order['order_id']
+                'amount' => $data['amount'],
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'receipt' => $user['id']
             ]);
 
             $this->paymentModel->createPayment([
-                'order_id' => $order['id'],
+                'order_id' => $user['id'],
                 'gateway' => $gateway,
                 'gateway_order_id' => $response['gateway_order_id'],
-                'amount' => $order['total'],
+                'amount' => $data['amount'],
                 'status' => 'pending'
             ]);
 
@@ -72,9 +64,9 @@ class PaymentService extends BaseService
             );
         } catch (\Exception $e) {
 
-            log_message(
-                'error',
-                'Payment Failed : ' . $e->getMessage()
+            customLog(
+
+                'Payment Failed : ' . $e->getMessage() . $e->getFile() . $e->getLine()
             );
 
             return $this->error($e->getMessage());
@@ -105,31 +97,45 @@ class PaymentService extends BaseService
                     ->request
                     ->getGet('razorpay_payment_id')
             ];
-
+             
             $paymentGateway = PaymentMangerService::gateway('razorpay');
-
+             
             $verified = $paymentGateway->verifyPayment($data);
-
+             
             if (!$verified['status'])
                 throw new \Exception('Payment verification failed');
+
+             
             $payment = $this->paymentModel->getByGatewayOrderId(
                 $verified['payment_link_id']
             );
-
+           
             if (!$payment)
                 throw new \Exception('Payment not found');
-
-            if ($payment['status'] === 'paid')
+             
+            
+            if ($payment['status'] === 'paid'){
                 return redirect()->to(base_url('user/orders'));
+            }
+            
 
             $this->paymentModel->markPaid($payment['id'], $verified['payment_id']);
+            $walletData = [
+                'user_id' => $payment['user_id'],
+                'type'  => 'credit',
+                'amount' => $payment['amount'],
+                'source' => 'online payment',
+                'reference_id' => $verified['payment_id'],
+                'note' =>  'online added'
 
-            $this->orderModel->markOrderPaid($payment['order_id']);
+            ];
+               
+            $this->walletModel->addWallet($walletData);
 
-            return redirect()->to(base_url('user/orders'));
+            return redirect()->to(base_url('wallet'));
         } catch (\Throwable $e) {
 
-            log_message('error', $e->getMessage());
+            customLog( $e->getMessage());
 
             return redirect()
                 ->back()
@@ -149,8 +155,8 @@ class PaymentService extends BaseService
             );
 
             if ($orderId) {
-                  VAR_DUMP($orderId);
-                  die;
+                VAR_DUMP($orderId);
+                die;
                 $this->orderModel->markOrderRefunded($orderId);
 
                 $this->paymentModel->updatePaymentStatus(
@@ -175,5 +181,4 @@ class PaymentService extends BaseService
             );
         }
     }
-    
 }

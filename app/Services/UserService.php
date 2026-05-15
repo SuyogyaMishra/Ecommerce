@@ -6,13 +6,12 @@ use App\Models\UserModel;
 use App\Services\JwtService;
 use App\Validation\SignupValidation;
 
-class UserService extends BaseService
+class UserService 
 {
     protected $userModel, $validation;
 
     public function __construct()
     {
-        parent::__construct();
         $this->userModel = new UserModel();
         $this->validation = new SignupValidation();
     }
@@ -119,7 +118,6 @@ class UserService extends BaseService
         }
 
         $pylod = $jwtService->encode($user, $data['remember_me'] ?? false);
-
         return [
 
             'status' => true,

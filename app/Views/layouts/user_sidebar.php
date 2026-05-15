@@ -46,6 +46,13 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a href="<?= base_url('wallet') ?>" class="nav-link <?= $uri->getSegment(2)=='wallet'?'active-menu':'' ?>">
+                <i class="bi bi-cart me-2"></i>
+               Wallet
+            </a>
+        </li>
+
         <li class="nav-item mt-4">
             <a href="<?= base_url('logout') ?>" class="btn btn-danger w-100">
                 <i class="bi bi-box-arrow-right me-2"></i>

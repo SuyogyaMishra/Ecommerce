@@ -2,108 +2,346 @@
 <?= $this->section('content') ?>
 
 <style>
+    :root {
+        --primary: #4f46e5;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #0f172a;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --bg: #f8fafc;
+        --card: #ffffff;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, sans-serif;
+        overflow-x: hidden
+    }
+
+    .main-content {
+        min-height: 100vh;
+        padding: 20px
+    }
+
+    .container-fluid {
+        max-width: 1380px
+    }
+
     .page-header {
         background: linear-gradient(135deg, #0f172a, #1e293b);
         border-radius: 20px;
-        padding: 30px;
+        padding: 24px 28px;
+        margin-bottom: 20px;
         color: #fff;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, .1);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, .12)
+    }
+
+    .page-header h2 {
+        font-size: 24px;
+        margin-bottom: 5px
+    }
+
+    .page-header p {
+        font-size: 13px;
+        opacity: .8
+    }
+
+    .row.g-4 {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1rem
     }
 
     .stats-card {
         border: none;
         border-radius: 18px;
         overflow: hidden;
-        transition: .3s ease;
+        transition: .25s;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, .05)
     }
 
     .stats-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .stats-card .icon-box {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
+        transform: translateY(-3px)
     }
 
     .stats-card.total {
-        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        background: linear-gradient(135deg, #eef2ff, #e0e7ff)
     }
 
     .stats-card.pending {
-        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        background: linear-gradient(135deg, #fff7ed, #fde68a)
     }
 
     .stats-card.completed {
-        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        background: linear-gradient(135deg, #ecfdf5, #d1fae5)
+    }
+
+    .stats-card .card-body {
+        padding: 18px !important
+    }
+
+    .stats-card p {
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: #64748b
+    }
+
+    .stats-card h2 {
+        font-size: 24px;
+        margin: 0
+    }
+
+    .icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .08)
     }
 
     .orders-card {
         border: none;
         border-radius: 20px;
         overflow: hidden;
+        background: #fff;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, .05)
+    }
+
+    .orders-card .card-header {
+        background: #fff;
+        border: none;
+        padding: 20px 22px
+    }
+
+    .orders-card h4 {
+        font-size: 18px;
+        margin-bottom: 2px
     }
 
     .search-box {
+        width: 240px;
+        height: 42px;
         border-radius: 12px;
-        border: 1px solid #dbeafe;
-        padding: 10px 15px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        background: #fff;
+        transition: .2s
+    }
+
+    .search-box:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, .08)
+    }
+
+    .table {
+        margin: 0
     }
 
     .table thead th {
         border: none;
-        font-size: 14px;
-        font-weight: 600;
-        color: #6b7280;
-        padding: 18px 15px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 16px 18px
     }
 
     .table tbody td {
+        padding: 16px 18px;
         vertical-align: middle;
-        padding: 18px 15px;
         border-color: #f1f5f9;
+        font-size: 13px;
+        color: #0f172a
+    }
+
+    .table tbody tr {
+        transition: .2s
     }
 
     .table tbody tr:hover {
-        background: #f8fafc;
-    }
-
-    .page-item .page-link {
-        border: none;
-        margin: 0 4px;
-        border-radius: 10px;
-        color: #111827;
-    }
-
-    .page-item.active .page-link {
-        background: #111827;
-        color: #fff;
+        background: #f8fafc
     }
 
     .badge {
-        padding: 8px 12px;
-        border-radius: 10px;
-        font-size: 12px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600
     }
 
     .action-btn {
-        width: 38px;
-        height: 38px;
+        width: 34px;
+        height: 34px;
+        border: none;
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: .2s
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px)
+    }
+
+    .btn-primary.action-btn {
+        background: #eef2ff;
+        color: #4f46e5
+    }
+
+    .btn-primary.action-btn:hover {
+        background: #4f46e5;
+        color: #fff
+    }
+
+    .btn-danger.action-btn {
+        background: #fef2f2;
+        color: #ef4444
+    }
+
+    .btn-danger.action-btn:hover {
+        background: #ef4444;
+        color: #fff
+    }
+
+    .pagination {
+        gap: 6px
+    }
+
+    .page-item .page-link {
+        border: none;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: 13px;
+        font-weight: 600
+    }
+
+    .page-item.active .page-link {
+        background: #4f46e5;
+        color: #fff
+    }
+
+    .form-select {
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 13px
     }
 
     .modal-content {
-        border-radius: 20px;
         border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, .12)
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 18px 22px
+    }
+
+    .modal-title {
+        font-size: 18px
+    }
+
+    .modal-body {
+        padding: 22px !important
+    }
+
+    .form-control,
+    .form-select {
+        height: 44px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-size: 13px
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, .08)
+    }
+
+    .form-label {
+        font-size: 13px;
+        margin-bottom: 7px
+    }
+
+    .toast {
+        border: none !important;
+        border-radius: 14px !important;
+        overflow: hidden;
+        font-size: 13px
+    }
+
+    .toast-header {
+        border: none
+    }
+
+    .spinner-border {
+        width: 2rem;
+        height: 2rem
+    }
+
+    .table-responsive {
+        min-height: 420px
+    }
+
+    small.text-muted {
+        font-size: 12px
+    }
+
+    .fw-semibold {
+        font-size: 13px
+    }
+
+    @media(max-width:768px) {
+
+        .main-content {
+            padding: 14px
+        }
+
+        .page-header {
+            padding: 20px
+        }
+
+        .page-header h2 {
+            font-size: 20px
+        }
+
+        .stats-card h2 {
+            font-size: 20px
+        }
+
+        .icon-box {
+            width: 46px;
+            height: 46px;
+            font-size: 18px
+        }
+
+        .search-box {
+            width: 100%
+        }
+
+        .table thead th,
+        .table tbody td {
+            padding: 13px
+        }
+
     }
 </style>
 
@@ -369,11 +607,12 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
-    function updateCsrf(tokenName,tokenHash){
-    $('input[name="'+tokenName+'"]').val(tokenHash);
-    window.CSRF_TOKEN_NAME=tokenName;
-    window.CSRF_TOKEN_HASH=tokenHash;
-}
+    function updateCsrf(tokenName, tokenHash) {
+        $('input[name="' + tokenName + '"]').val(tokenHash);
+        window.CSRF_TOKEN_NAME = tokenName;
+        window.CSRF_TOKEN_HASH = tokenHash;
+    }
+
     function showToast(message, type = 'success') {
         let toastEl = document.getElementById('liveToast');
 
@@ -658,8 +897,8 @@
         });
 
     });
-    window.CSRF_TOKEN_NAME='<?= csrf_token() ?>';
-    window.CSRF_TOKEN_HASH='<?= csrf_hash() ?>';
+    window.CSRF_TOKEN_NAME = '<?= csrf_token() ?>';
+    window.CSRF_TOKEN_HASH = '<?= csrf_hash() ?>';
 
     loadOrders();
 </script>

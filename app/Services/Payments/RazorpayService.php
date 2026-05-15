@@ -39,7 +39,7 @@ class RazorpayService extends BaseService implements paymentInterface
                 'customer' => [
                     'name' => $data['name'],
                     'email' => $data['email'],
-                    'contact' => $data['phone']
+                    
                 ],
 
                 'callback_url' => base_url(

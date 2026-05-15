@@ -71,11 +71,19 @@ $routes->group('', ['filter' => 'AuthUserFilter'], function ($routes) {
         'payment/cancel',
         'PaymentController::cancel'
     );
+
+
+
+
+
+
+
+
+    // walet routes
+    $routes->get('wallet', 'WalletController::index');
+    $routes->get('getwallet','WalletController::getUserByUserId');
+    
 });
-
-
-
-//     wallet , waleet trans histroy, users wallet balance, generate log;
 
 
 
