@@ -6,7 +6,8 @@ use App\Models\UserModel;
 use App\Services\JwtService;
 use App\Validation\SignupValidation;
 
-class UserService 
+
+class UserService extends BaseService
 {
     protected $userModel, $validation;
 
@@ -115,6 +116,13 @@ class UserService
 
                 'token' => csrf_hash()
             ];
+        }
+
+        if($user['role'] != 'user'){
+                   return [
+                      'status' => false,
+                      'message' => 'Not a user account'
+                   ];
         }
 
         $pylod = $jwtService->encode($user, $data['remember_me'] ?? false);
@@ -234,8 +242,15 @@ class UserService
                 'token' => csrf_hash()
             ];
         }
-
+       
         $pylod = $jwtService->encode($user, $data['remember'] ?? false);
+
+        if($user['role'] != 'admin'){
+                   return [
+                      'status' => false,
+                      'message' => 'Not a admin account'
+                   ];
+        }
 
         return [
 

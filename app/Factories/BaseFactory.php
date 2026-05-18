@@ -2,17 +2,30 @@
 
 namespace App\Factories;
 
-class BaseFactory{
+class BaseFactory
+{
 
-    protected static array $items=[];
+    protected static array $items = [];
 
-    public static function make($type){
+     public static function makeAll():array{
 
-        if(!isset(static::$items[$type])){
+        $services=[];
+
+        foreach(static::$items as $key=>$class){
+            $services[$key]=new $class;
+        }
+
+        return $services;
+    }
+
+    public static function make($type)
+    {
+
+        if (!isset(static::$items[$type])) {
             throw new \Exception('Invalid type');
         }
 
-        $class=static::$items[$type];
+        $class = static::$items[$type];
 
         return new $class;
     }

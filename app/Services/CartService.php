@@ -8,13 +8,14 @@ use App\Factories\TaxFactory;
 use App\Models\TaxModel;
 use App\Models\WalletModel;
 
-class CartService
+class CartService extends BaseService
 {
 
-    protected $cartModel, $productModel, $user, $tax,$walletModel;
+    protected $cartModel, $productModel, $user, $tax, $walletModel;
 
     public function __construct()
     {
+        parent::__construct();
         $this->cartModel = new CartModel();
         $this->productModel = new ProductModel();
         $this->user = service('jwt')->decode(service('request')->getCookie('token'));
@@ -23,9 +24,11 @@ class CartService
     }
 
     public function addCart($id)
-    {  
+    {
         $token = service('request')->getCookie('token');
         $userId = service('jwt')->decode($token)->id;
+
+
         $product = $this->productModel->getSingleProduct($id);
         if (!$product) {
             return [
@@ -50,8 +53,11 @@ class CartService
             ];
         }
         $data = ["product_id" => $product['id'], 'user_id' => $userId, 'quantity' => 1, 'price' => $product['price']];
+        $this->db->transBegin();
+
         $status = $this->cartModel->addToCart($data);
-        if (!$status) {
+        $this->db->transComplete();
+        if (!$this->db->transStatus()) {
             return [
                 'status' => false,
                 'message' => 'Failed to add product'
@@ -72,7 +78,8 @@ class CartService
                 return [
                     'status' => false,
                     'Message' => "Can Not find user cart",
-                    'data' => $result
+                    'data' => $result,
+                    'user' => $this->user,
                 ];
             }
             $subtotal = 0;
@@ -80,27 +87,31 @@ class CartService
                 $subtotal += $result[$key]['total'];
             }
 
-            $shipingService = TaxFactory::make('shiping');
-            $shipingCharges = $shipingService->calculate($subtotal);
-            $grandTotal = $subtotal + $shipingCharges['taxamount'];
+            $services = TaxFactory::makeAll();
 
-            
-            $tax = [
-                $shipingCharges['taxname'] => $shipingCharges['taxamount'],
-            ];
+            $tax = [];
+            $grandTotal = $subtotal;
+
+            foreach ($services as $service) {
+
+                $taxClass = $service->calculate($subtotal);
+
+                $tax[$taxClass['taxname']] = $taxClass['taxamount'];
+
+                $grandTotal += $taxClass['taxamount'];
+            }
             $total = [
                 'subtotal' => $subtotal,
-                'total'  => $grandTotal
+                'total'  => ceil( $grandTotal)
             ];
             $walletBalance = $this->walletModel->getBalance($this->user->id);
-
             return [
                 'status' => true,
-                'data' => $result,
+                'data' => $result ?? null,
                 'user' => $this->user,
                 'tax' => $tax,
                 'total' => $total,
-                 'walletBalance' =>$walletBalance
+                'walletBalance' => $walletBalance
 
 
             ];
@@ -112,9 +123,13 @@ class CartService
     public function deleteCart($id)
     {
         try {
-            $result = $this->cartModel->removeCart($id);
-            $taxDeleted = $this->tax->deleteByCartId($id);
-            if (!$result) {
+            $this->db->transBegin();
+            $this->cartModel->removeCart($id);
+
+
+            $this->db->transComplete();
+
+            if (!$this->db->transStatus()) {
                 return [
                     'status' => false,
                     'message' => "Cart item can not be deleted"
@@ -126,6 +141,7 @@ class CartService
             ];
         } catch (\Exception $e) {
             log_message('info', $e->getMessage() . $e->getLine());
+            $this->db->transRollback();
         }
     }
 
@@ -133,22 +149,6 @@ class CartService
     {
         try {
             $result = $this->cartModel->updateQuantity($id, $qty);
-            $result = $this->cartModel->getCartBYId($id);
-
-            $shipingTax = TaxFactory::make('shiping');
-            $shipingdata = $shipingTax->calculate($result['total']);
-
-            $taxes = [
-                [
-                    'user_id' => $result['user_id'],
-                    'cart_id' => $id,
-                    'name' => $shipingdata['taxname'],
-                    'amount' => $shipingdata['taxamount'],
-                    'status' => 'cart'
-                ]
-            ];
-            $status = $this->tax->insertTax($taxes);
-
             if (!$result) {
                 return [
                     'status' => 'false',

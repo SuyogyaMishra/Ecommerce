@@ -6,37 +6,37 @@ use App\Models\UserModel;
 
 class UserRepository
 {
+    private $total_users=null;
 
-    private $total_users = null;
+    protected static $user=null;
 
-    protected $user;
     protected $userModel;
 
     public function __construct()
     {
-        $this->userModel = new UserModel();
+        $this->userModel=new UserModel();
     }
 
     public function getTotalUsers()
     {
-        if ($this->total_users === null) {
-            $this->total_users = $this->userModel->totalUsers();
+        if($this->total_users===null){
+            $this->total_users=$this->userModel->totalUsers();
         }
 
         return $this->total_users;
     }
+
     public function setUser($id)
     {
-
-        if ($this->user === null)
-            $this->user = $this->userModel->repoUserById($id);
+        if(static::$user===null){
+            static::$user=$this->userModel->repoUserById($id);
+        }
 
         return $this;
     }
 
-    public function user()
+    public static function user()
     {
-
-        return $this->user;
+        return static::$user;
     }
 }

@@ -6,13 +6,13 @@ use App\Repositories\UserRepository;
 
 class BaseService{
 
-    protected $response,$request,$user;
-
+    protected $response,$request,$user,$db;
     public function __construct(){
 
         $this->response=service('response');
         $this->request=service('request');
-       $this->user = service('jwt')->decode(service('request')->getCookie('token'));
+        $this->db=\Config\Database::connect();
+        $this->user=UserRepository::user();
 
     }
     protected function json(

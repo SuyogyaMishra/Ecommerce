@@ -6,6 +6,7 @@ use App\Services\JwtService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
+use App\Repositories\UserRepository;
 
 class AuthFilter implements FilterInterface
 {
@@ -19,6 +20,8 @@ class AuthFilter implements FilterInterface
                 return redirect()->to(base_url('adminlogin'))->with('error','Unauthorized Access, Login as admin');
 
             $user = (new JwtService())->decode($token);
+
+            (new UserRepository())->setUser($user->id);
 
             if($user->role !== 'admin')
                 return redirect()->to(base_url('adminlogin'))->with('error','Must be an admin to access this page');

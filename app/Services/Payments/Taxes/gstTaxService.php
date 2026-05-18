@@ -3,14 +3,14 @@ namespace App\Services\Payments\Taxes;
  
 use App\Interfaces\TaxInterface;
 
-class shipingTaxService implements  TaxInterface{
+class gstTaxService implements  TaxInterface{
      
     public function calculate($amount){
               
-              (int) $shipingTax= $amount* 10/100;
+              (int) $Tax= $amount* 5/100;
                return [
-                   'taxname'=>'Shipping Tax',
-                   'taxamount'=>$shipingTax
+                   'taxname'=>'Gst',
+                   'taxamount'=>$Tax
                ];
 
     }

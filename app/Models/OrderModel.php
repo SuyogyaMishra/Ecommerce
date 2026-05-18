@@ -189,4 +189,57 @@ public function markOrderRefunded($id)
 
     return $this->db->query($sql,[$id]);
 }
+
+
+public function orderDetails($id)
+{
+    return $this->db->query(
+
+        "SELECT
+
+            o.id,
+            o.name customer_name,
+            o.email customer_email,
+            o.phone,
+            o.address,
+            o.payment_method,
+            o.payment_status,
+            o.order_status,
+            o.subtotal,
+            o.total,
+            o.transaction_id,
+            o.created_at,
+
+            oi.id item_id,
+            oi.product_id,
+            oi.product_name,
+            oi.product_price,
+            oi.quantity,
+            oi.total item_total,
+
+            p.image,
+
+            op.id payment_id,
+            op.name payment_name,
+            op.amount payment_amount,
+            op.status payment_row_status
+
+        FROM orders o
+
+        LEFT JOIN order_items oi
+        ON oi.order_id=o.id
+
+        LEFT JOIN products p
+        ON p.id=oi.product_id
+
+        LEFT JOIN order_payment op
+        ON op.order_id=o.id
+
+        WHERE o.id=?
+        AND o.is_deleted=0",
+
+        [$id]
+
+    )->getResultArray();
+}
 }

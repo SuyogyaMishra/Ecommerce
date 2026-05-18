@@ -82,6 +82,11 @@ $routes->group('', ['filter' => 'AuthUserFilter'], function ($routes) {
     // walet routes
     $routes->get('wallet', 'WalletController::index');
     $routes->get('getwallet','WalletController::getUserByUserId');
+
+
+    $routes->get('orderdetails/(:num)','OrderController::orderDetailsPage/$1');
+
+    $routes->get('getorderdetails/(:num)','OrderController::details/$1');
     
 });
 

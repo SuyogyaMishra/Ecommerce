@@ -34,7 +34,7 @@ class walletService extends BaseService
     {
         try {
 
-            $userId = $this->user->id;
+            $userId = $this->user['id'];
          
             $data = [
                 'balance' => $this->walletModel->getBalance($userId),

@@ -342,11 +342,13 @@
                         rows += `
                         <tr>
 
-                            <td>
-                                <span class="order-id">
-                                    #${order.id}
-                                </span>
-                            </td>
+                           <td>
+    <a 
+        href="<?= base_url('orderdetails') ?>/${order.id}"
+        class="order-id ">
+        #${order.id}
+    </a>
+</td>
 
                             <td>
                                 <span class="price">

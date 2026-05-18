@@ -33,7 +33,17 @@ class CartController extends BaseController
 
             $result = $this->cartService->getUserCart();
 
-            if (!$result) {
+            if(empty($result['data'])){
+
+                return $this->response->setJSON([
+                    'status' => true,
+                    'message' => 'Cart is empty',
+                    'cart' => [],
+                                    'user' => $result['user'],
+
+                ]);
+            }
+            if (!$result['status']) {
 
                 return $this->response->setJSON([
                     'status' => false,

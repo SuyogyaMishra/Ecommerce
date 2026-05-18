@@ -14,15 +14,12 @@ class TaxModel
 
     public function insertTax($data)
     {
-        $sql = "INSERT INTO taxes(user_id,order_id,name,amount,status) VALUES ";
+        $sql = "INSERT INTO order_payment(user_id,order_id,name,amount,status) VALUES ";
 
         $values = [];
         $params = [];
-
         foreach ($data as $tax) {
-
             $values[] = "(?,?,?,?,?)";
-
             $params[] = $tax['user_id'];
             $params[] = $tax['order_id'];
             $params[] = $tax['name'];
@@ -43,7 +40,7 @@ class TaxModel
     public function deleteByCartId($id)
     {
 
-        $sql = "UPDATE taxes SET is_deleted=1 WHERE cart_id=?";
+        $sql = "UPDATE order_payment SET is_deleted=1 WHERE cart_id=?";
 
         return $this->db->query($sql, [$id]);
     }
@@ -51,7 +48,7 @@ class TaxModel
     public function getTaxById($id)
     {
 
-        $sql = "SELECT * FROM taxes  WHERE user_id=? AND status = ? AND is_deleted =?";
+        $sql = "SELECT * FROM order_payment  WHERE user_id=? AND status = ? AND is_deleted =?";
 
         return $this->db->query($sql, [$id,'cart',0])->getResultArray();
     }
