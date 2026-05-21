@@ -30,7 +30,7 @@ class DashboardService extends BaseService
 
     public function showUsers($page)
     {
-        $result = $this->userModel->getAllUsers($page);
+        $result = $this->userModel->getAllUsers($column='id',$direction='DESC',$page);
         return $result;
     }
 
@@ -39,7 +39,7 @@ class DashboardService extends BaseService
          $totalUsers = $this->userRepository->getTotalUsers();
          $totalProduct = $this->productModel->totalProducts();
          $totalorders = $this->orderModel->countAdminOrders();
-         $users=  $this->userModel->getAllUsers($page);
+         $users=  $this->userModel->getAllUsers($column='id',$direction='DESC',$page);
 
            return $this->success('data fetched',   [
             'totalUsers'=>$totalUsers,

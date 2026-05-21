@@ -76,7 +76,7 @@ foreach($items as $i){
 <td class="box" style="text-align:right">
  <div class="title">INVOICE</div>
  <div class="small">
-  <b>Invoice ID:</b> #<?= $order['id'] ?><br>
+  <b>Invoice ID:</b> <?= $order['id'] ?><br>
   <b>Date:</b> <?= date('d-m-Y') ?><br>
  </div>
 </td>

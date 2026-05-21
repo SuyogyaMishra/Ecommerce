@@ -26,8 +26,9 @@ class ProductController extends BaseController
             $page=(int)($this->request->getGet('page') ?? 1);
             $limit=(int)($this->request->getGet('limit') ?? 10);
             $search=trim($this->request->getGet('search') ?? '');
-
-            $products=$this->productService->getProducts($page,$limit,$search);
+            $column = $this->request->getGet('sortColumn')??'id';
+            $direction = $this->request->getGet('sortDirection')??'ASC';
+            $products=$this->productService->getProducts($column,$direction,$page,$limit,$search);
 
             return $this->response->setJSON([
 

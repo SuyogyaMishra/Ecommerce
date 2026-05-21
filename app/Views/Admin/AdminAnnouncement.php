@@ -59,6 +59,32 @@
         <div class="card notification-card">
 
             <div class="card-body p-0">
+                <div class="d-flex justify-content-between align-items-center p-3">
+
+                    <div class="d-flex align-items-center gap-5">
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="searchAnnouncement"
+                            placeholder="Search announcements..."
+                            style="width:250px">
+
+                        <select
+                            class="form-select"
+                            id="perPageAnnouncement"
+                            style="width:120px">
+
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
 
                 <div class="table-responsive">
 
@@ -66,20 +92,85 @@
 
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Title</th>
-                                <th>Message</th>
-                                <th>Target</th>
-                                <th>Status</th>
-                                <th>Start</th>
-                                <th>End</th>
-                                <th width="120">Action</th>
+
+                                <th
+                                    class="sortColumn"
+                                    data-column="id"
+                                    data-callback="loadAnnouncements">
+
+                                    ID <i class="bi bi-arrow-down-up ms-1"></i>
+
+                                </th>
+
+                                <th
+                                    class="sortColumn"
+                                    data-column="title"
+                                    data-callback="loadAnnouncements">
+
+                                    Title <i class="bi bi-arrow-down-up ms-1"></i>
+
+                                </th>
+
+                                <th
+                                    class="sortColumn"
+                                    data-column="message"
+                                    data-callback="loadAnnouncements">
+
+                                    Message <i class="bi bi-arrow-down-up ms-1"></i>
+
+                                </th>
+
+                                <th
+                                    class="sortColumn"
+                                    data-column="target"
+                                    data-callback="loadAnnouncements">
+
+                                    Target <i class="bi bi-arrow-down-up ms-1"></i>
+
+                                </th>
+
+                                <th
+                                    class="sortColumn"
+                                    data-column="status"
+                                    data-callback="loadAnnouncements">
+
+                                    Status <i class="bi bi-arrow-down-up ms-1"></i>
+
+                                </th>
+
+                                <th
+                                    class="sortColumn"
+                                    data-column="start_date"
+                                    data-callback="loadAnnouncements">
+
+                                    Start <i class="bi bi-arrow-down-up ms-1"></i>
+
+                                </th>
+
+                                <th
+                                    class="sortColumn"
+                                    data-column="end_date"
+                                    data-callback="loadAnnouncements">
+
+                                    End <i class="bi bi-arrow-down-up ms-1"></i>
+
+                                </th>
+
+                                <th width="120">
+                                    Action
+                                </th>
+
                             </tr>
                         </thead>
 
                         <tbody id="announcementTable"></tbody>
 
                     </table>
+                    <div
+                        class="d-flex justify-content-center py-3"
+                        id="announcementPagination">
+
+                    </div>
 
                 </div>
 
@@ -187,10 +278,15 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= base_url('resources/script.js') ?>"></script>
+
 
 
 
 <script>
+    let keyword, limit = 10;
+    let currentPage = 1;;
+
     function showToast(message, type = 'dark') {
         $('#liveToast').removeClass('text-bg-dark text-bg-success text-bg-danger text-bg-warning').addClass('text-bg-' + type);
         $('#toastMessage').html(message);
@@ -220,7 +316,7 @@
         return message;
     }
 
-    function loadAnnouncements() {
+    function loadAnnouncements(page = 1) {
 
         $.ajax({
 
@@ -229,81 +325,154 @@
             type: "GET",
 
             dataType: "json",
+            data: {
+                page: page,
+                limit: limit,
+                search: keyword,
+                column: sortColumn,
+                direction: sortDirection
 
+            },
             success: function(res) {
-                console.log(res);
+
                 let html = '';
 
-                if (res.data.length < 1) {
+                // no data
+                if (!res.data || res.data.length < 1) {
 
                     html = `
-                    <tr>
-                        <td colspan="8" class="text-center p-5 text-muted">
-                            No announcements found
-                        </td>
-                    </tr>
-                    `;
+        <tr>
+            <td colspan="8" class="text-center p-5 text-muted">
+                No announcements found
+            </td>
+        </tr>
+        `;
 
-                } else {
+                    $('#announcementTable').html(html);
 
-                    $.each(res.data, function(i, row) {
+                    $('#announcementPagination').html('');
 
-                        html += `
-                        <tr>
-
-                            <td>${row.id}</td>
-
-                            <td>${row.title}</td>
-
-                            <td style="max-width:250px">${row.message}</td>
-
-                            <td>
-                                <span class="badge bg-dark">
-                                    ${row.target_type=='ALL_USERS'?'All Users':'Specific Users'}
-                                </span>
-                            </td>
-
-                            <td>
-                                <span class="badge ${row.status==1?'bg-success':'bg-danger'} badge-status">
-                                    ${row.status==1?'Active':'Inactive'}
-                                </span>
-                            </td>
-
-                            <td>${row.start_at??'-'}</td>
-
-                            <td>${row.end_at??'-'}</td>
-
-                             <td>
-
-   <button 
-class="btn btn-primary btn-sm editBtn"
-data-id="${row.id}"
-data-title="${row.title}"
-data-message="${row.message}"
-data-status="${row.status}"
-data-start_at="${row.start_at}"
-data-end_at="${row.end_at}"
-data-target_type="${row.target_type}"
-data-target_ids="${row.target_ids || ''}"
->
-    <i class="bi bi-pencil"></i>
-</button>
-
-    <button class="btn btn-danger btn-sm deleteBtn" data-id="${row.id}">
-        <i class="bi bi-trash"></i>
-    </button>
-
-</td>
-
-
-
-                        </tr>
-                        `;
-                    });
-
+                    return;
                 }
 
+                // rows
+                $.each(res.data, function(i, row) {
+
+                    html += `
+        <tr>
+
+            <td>${row.id}</td>
+
+            <td>${row.title}</td>
+
+            <td style="max-width:250px">
+                ${row.message}
+            </td>
+
+            <td>
+                <span class="badge bg-dark">
+                    ${row.target_type=='ALL_USERS'
+                        ?'All Users'
+                        :'Specific Users'}
+                </span>
+            </td>
+
+            <td>
+                <span class="badge ${
+                    row.status==1
+                        ?'bg-success'
+                        :'bg-danger'
+                } badge-status">
+
+                    ${row.status==1
+                        ?'Active'
+                        :'Inactive'}
+
+                </span>
+            </td>
+
+            <td>${row.start_at ?? '-'}</td>
+
+            <td>${row.end_at ?? '-'}</td>
+
+            <td>
+
+                <button 
+                    class="btn btn-primary btn-sm editBtn"
+                    data-id="${row.id}">
+
+                    <i class="bi bi-pencil"></i>
+
+                </button>
+
+                <button
+                    class="btn btn-danger btn-sm deleteBtn"
+                    data-id="${row.id}">
+
+                    <i class="bi bi-trash"></i>
+
+                </button>
+
+            </td>
+
+        </tr>
+        `;
+                });
+
                 $('#announcementTable').html(html);
+
+                // pagination
+                let pagination = '';
+
+                if (res.totalPages > 1) {
+
+                    // prev button
+                    pagination += `
+    
+    <button
+        class="btn btn-sm btn-outline-primary mx-1 paginationBtn"
+        data-page="${res.page - 1}"
+        ${res.page == 1 ? 'disabled' : ''}>
+        
+        Prev
+        
+    </button>
+    `;
+
+                    // page numbers
+                    for (let i = 1; i <= res.totalPages; i++) {
+
+                        pagination += `
+        
+        <button
+            class="btn btn-sm ${
+                i == res.page
+                    ? 'btn-primary'
+                    : 'btn-outline-primary'
+            } mx-1 paginationBtn"
+            data-page="${i}">
+            
+            ${i}
+            
+        </button>
+        `;
+                    }
+
+                    // next button
+                    pagination += `
+    
+    <button
+        class="btn btn-sm btn-outline-primary mx-1 paginationBtn"
+        data-page="${res.page + 1}"
+        ${res.page == res.totalPages ? 'disabled' : ''}>
+        
+        Next
+        
+    </button>
+    `;
+                }
+
+                $('#announcementPagination').html(pagination);
 
             }
 
@@ -312,7 +481,6 @@ data-target_ids="${row.target_ids || ''}"
     }
 
     function loadUsers() {
-
         return $.ajax({
 
             url: "<?= base_url('admin/allusers') ?>",
@@ -599,40 +767,6 @@ data-target_ids="${row.target_ids || ''}"
 
     });
 
-    $('#userSearch').on('keyup', function() {
-
-        let keyword = $(this).val();
-
-        $.ajax({
-            url: 'users/search',
-            type: 'GET',
-            data: {
-                keyword
-            },
-            success: function(res) {
-
-                let html = '';
-                console.log(html);
-
-                res.users.forEach(user => {
-
-                    html += `
-                     <div class="form-check border rounded-3 p-3 mb-2 d-flex gap-2">
-                       <input class="form-check-input mt-1 target_user" type="checkbox" value="${user.id}" id="user_${user.id}">
-        
-                          <label class="form-check-label w-100" for="user_${user.id}">
-                                   <div class="fw-semibold">${user.name}</div>
-                                   <small class="text-muted">${user.email}</small>
-                          </label>
-                      </div>
-                          `;
-                });
-
-                $('#usersList').html(html);
-            }
-        });
-
-    });
 
     $('#announcementModal').on('hidden.bs.modal', function() {
 
@@ -655,6 +789,34 @@ data-target_ids="${row.target_ids || ''}"
     });
 
     loadAnnouncements();
+
+    $('#searchAnnouncement').on('keyup', function() {
+
+        keyword = $(this).val();
+
+        currentPage = 1;
+
+        loadAnnouncements(currentPage);
+
+    });
+
+    $('#perPageAnnouncement').on('change', function() {
+
+        limit = $(this).val();
+
+        currentPage = 1;
+
+        loadAnnouncements(currentPage);
+
+    });
+
+    $(document).on('click', '.paginationBtn', function() {
+
+        currentPage = $(this).data('page');
+
+        loadAnnouncements(currentPage);
+
+    });
 </script>
 
 <?= $this->endSection() ?>

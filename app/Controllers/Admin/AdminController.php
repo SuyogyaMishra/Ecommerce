@@ -32,15 +32,6 @@ class AdminController extends BaseController
 
        return $this->AdminService->showDashboardData($page);
        
-        return $this->response->setJSON([
-            'status'=>true,
-            'totalUsers'=>$users['total'],
-            'users'=>$users['users'],
-            'page'=>$users['page'],
-            'limit'=>$users['limit'],
-            'totalPages'=>ceil($users['total']/$users['limit']),
-            'decodedToken'=>$decodedToken
-        ]);
     }
 
     public function userData()
@@ -48,12 +39,15 @@ class AdminController extends BaseController
         $page=$this->request->getGet('page')??1;
         $limit=$this->request->getGet('limit')??10;
         $search=$this->request->getGet('search')??"";
-
+        $column = $this->request->getGet('column')??'id';
+        $direction = $this->request->getGet('direction');
         $token=$this->jwtService->decode(
             $this->request->getCookie('token')
         );
 
         $result=$this->userDashboardService->usersdata(
+            $column,
+            $direction,
             $page,
             $limit,
             $search

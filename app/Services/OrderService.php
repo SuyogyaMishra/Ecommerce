@@ -292,12 +292,17 @@ class OrderService extends BaseService
 
             $search = service('request')->getGet('search');
 
+            $column = service('request')->getGet('sortColumn')??'id';
+             $direction= service('request')->getGet('sortDirection');
+
             $offset = ($page - 1) * $limit;
 
             $orders = $this->orderModel->getAdminOrders(
                 $limit,
                 $offset,
-                $search
+                $direction,
+                $search,
+                $column
             );
 
             $total = $this->orderModel->countAdminOrders($search);

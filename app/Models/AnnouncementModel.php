@@ -35,16 +35,67 @@ class AnnouncementModel
         return $this->db->insertID();
     }
 
-    public function allAnnouncement()
-    {
+    public function allAnnouncement( $limit, $offset, $search, $column, $dir) {
+        $sql = "SELECT 
+                t1.*,
+                MIN(t2.target_type) as target_type,
+                GROUP_CONCAT(t2.target_id) AS target_ids
 
-        $sql = "SELECT t1.*,MIN(t2.target_type) as target_type,GROUP_CONCAT(t2.target_id) AS target_ids
-    FROM announcements t1
-    INNER JOIN announcement_targets t2
-    ON t1.id=t2.announcement_id
-    GROUP BY t1.id";
+            FROM announcements t1
 
-        return $this->db->query($sql)->getResultArray();
+            INNER JOIN announcement_targets t2
+            ON t1.id=t2.announcement_id";
+
+        if ($search) {
+
+            $sql .= "
+            WHERE
+            t1.message LIKE '%{$search}%'
+            OR t1.title LIKE '%{$search}%'
+        ";
+        }
+
+        $sql .= "
+        GROUP BY t1.id
+        ORDER BY {$column} {$dir}
+        LIMIT {$limit}
+        OFFSET {$offset}
+    ";
+
+        $data = $this->db
+            ->query($sql)
+            ->getResultArray();
+
+        $totalSql = "
+        SELECT COUNT(DISTINCT t1.id) as total
+
+        FROM announcements t1
+
+        INNER JOIN announcement_targets t2
+        ON t1.id=t2.announcement_id
+    ";
+
+        if ($search) {
+
+            $totalSql .= "
+            WHERE
+            t1.message LIKE '%{$search}%'
+            OR t1.title LIKE '%{$search}%'
+        ";
+        }
+
+        $total = $this->db
+            ->query($totalSql)
+            ->getRow()
+            ->total;
+
+        return [
+
+            'data' => $data,
+
+            'total' => $total
+
+        ];
     }
 
     public function update($id, $data)
@@ -66,8 +117,9 @@ class AnnouncementModel
         );
     }
 
-    public function deleteById($id){
-        $sql ='Delete From announcements where id=?';
-        return $this->db->query($sql,[$id]);
+    public function deleteById($id)
+    {
+        $sql = 'Delete From announcements where id=?';
+        return $this->db->query($sql, [$id]);
     }
 }

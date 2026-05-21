@@ -7,6 +7,7 @@ use App\Models\AnnouncementTargetModel;
 use App\Models\UserModel;
 use App\Services\BaseService;
 use App\Validation\AnnouncementValidation;
+use PhpOffice\PhpSpreadsheet\Calculation\Web\Service;
 
 class AnnouncementService extends BaseService
 {
@@ -76,11 +77,18 @@ class AnnouncementService extends BaseService
     public function getAnnouncement()
     {
         try {
-            $result = $this->announcementModel->allAnnouncement();
+            $limit = Service('request')->getGet('limit')??10;
+            $keyword = Service('request')->getGet('search');
+            $page=  Service('request')->getGet('page');
+            $column= Service('request')->getGet('column');
+            $direction = Service('request')->getGet('direction');
+            $offset=($page-1)*$limit;
+            $result = $this->announcementModel->allAnnouncement($limit,$offset,$keyword,$column,$direction);
+            $totalPages = ceil($result['total'] / $limit);
             if (!$result) {
                 return $this->error('can not find details');
             }
-            return $this->success('found', ['data' => $result]);
+            return $this->success('found', ['data' => $result['data'],'page' => (int)$page,'totalPages' => $totalPages]);
         } catch (\Exception $e) {
             customLog($e->getMessage() . $e->getLine());
         }

@@ -113,7 +113,7 @@ class OrderModel
         )->getRowArray();
     }
 
-    public function getAdminOrders($limit, $offset, $search = null)
+    public function getAdminOrders($limit, $offset, $direction,$search = null,$cloumn = 'id')
     {
         $sql = "SELECT * FROM orders WHERE is_deleted=0";
 
@@ -122,11 +122,11 @@ class OrderModel
                  OR name LIKE '%$search%'
                  OR email LIKE '%$search%')";
 
-        $sql .= " ORDER BY id DESC LIMIT ? OFFSET ?";
+        $sql .= " ORDER BY {$cloumn} {$direction}  LIMIT ? OFFSET ?";
 
         return $this->db->query($sql, [
             (int)$limit,
-            (int)$offset
+            (int)$offset,
         ])->getResultArray();
     }
 

@@ -487,12 +487,54 @@
 
                         <tr>
 
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th
+                                class="sortColumn"
+                                data-column="id"
+                                data-callback="loadUsers">
+
+                                ID <i class="bi bi-arrow-down-up ms-1"></i>
+
+                            </th>
+
+                            <th
+                                class="sortColumn"
+                                data-column="name"
+                                data-callback="loadUsers">
+
+                                Name <i class="bi bi-arrow-down-up ms-1"></i>
+
+                            </th>
+
+                            <th
+                                class="sortColumn"
+                                data-column="email"
+                                data-callback="loadUsers">
+
+                                Email <i class="bi bi-arrow-down-up ms-1"></i>
+
+                            </th>
+
+                            <th
+                                class="sortColumn"
+                                data-column="role"
+                                data-callback="loadUsers">
+
+                                Role <i class="bi bi-arrow-down-up ms-1"></i>
+
+                            </th>
+
+                            <th
+                                class="sortColumn"
+                                data-column="status"
+                                data-callback="loadUsers">
+
+                                Status <i class="bi bi-arrow-down-up ms-1"></i>
+
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
 
                         </tr>
 
@@ -657,11 +699,14 @@
 <?= $this->section('script') ?>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= base_url('resources/script.js') ?>"></script>
+
 <script>
     function loadUsers(page = 1) {
         let keyword = $('#searchUser').val();
         let limit = $('#limitUsers').val();
-        console.log("function")
+        console.log(sortColumn,
+                sortDirection);
         $('#userTable').html(`
     <tr>
         <td colspan="6" class="text-center p-5">
@@ -681,7 +726,11 @@
             data: {
                 page: page,
                 limit: limit,
-                search: keyword
+                search: keyword,
+                column:sortColumn,
+                direction:sortDirection
+
+                        
             },
 
             success: function(res) {

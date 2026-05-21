@@ -518,13 +518,6 @@ body.dark-mode{
 
                 </div>
 
-                <div class="search-wrap">
-
-                    <i class="bi bi-search"></i>
-
-                    <input type="text" class="form-control custom-search" id="searchUser" placeholder="Search users...">
-
-                </div>
 
             </div>
 

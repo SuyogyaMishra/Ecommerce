@@ -19,17 +19,18 @@ class ProductService{
         $this->productValidation=new ProductValidation();
     }
 
-    public function getUserById($id){
+    public function getUserById(){
 
-        return $this->userrepo->getUserById($id);
+        return $this->userrepo->user();
     }
 
-    public function getProducts($page=1,$limit=10,$search=''){
+    public function getProducts($column,$direction,$page=1,$limit=10,$search=''){
 
         return $this->productModel->getProducts(
+             $column,$direction,
             $page,
             $limit,
-            $search
+            $search,
         );
     }
 

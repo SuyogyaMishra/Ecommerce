@@ -27,9 +27,9 @@ class UserDashboardService extends BaseService
         $this->orderModel = new OrderModel();
         $this->cartModel = new CartModel();
     }
-    public function usersdata($page, $limit)
+    public function usersdata($column,$direction,$page, $limit)
     {
-        $Users = $this->userModel->getAllUsers($page, $limit);
+        $Users = $this->userModel->getAllUsers($column,$direction,$page, $limit);
         $totalPages = ceil($Users['total'] / $Users['limit']);
         $totalUsers = $this->userRepository->getTotalUsers();
         $activeUsers = $this->userModel->activeUsers();

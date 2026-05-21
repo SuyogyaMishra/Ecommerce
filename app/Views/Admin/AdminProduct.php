@@ -470,13 +470,60 @@
 
                 <thead class="table-light">
                     <tr>
-                        <th>ID</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Status</th>
-                        <th>Action</th>
+
+                        <th
+                            class="sortColumn"
+                            data-column="id"
+                            data-callback="loadProducts">
+
+                            ID <i class="bi bi-arrow-down-up ms-1"></i>
+
+                        </th>
+
+                        <th>
+                            Image
+                        </th>
+
+                        <th
+                            class="sortColumn"
+                            data-column="name"
+                            data-callback="loadProducts">
+
+                            Name <i class="bi bi-arrow-down-up ms-1"></i>
+
+                        </th>
+
+                        <th
+                            class="sortColumn"
+                            data-column="price"
+                            data-callback="loadProducts">
+
+                            Price <i class="bi bi-arrow-down-up ms-1"></i>
+
+                        </th>
+
+                        <th
+                            class="sortColumn"
+                            data-column="stock"
+                            data-callback="loadProducts">
+
+                            Stock <i class="bi bi-arrow-down-up ms-1"></i>
+
+                        </th>
+
+                        <th
+                            class="sortColumn"
+                            data-column="status"
+                            data-callback="loadProducts">
+
+                            Status <i class="bi bi-arrow-down-up ms-1"></i>
+
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
                     </tr>
                 </thead>
 
@@ -712,6 +759,8 @@
 <?= $this->section('script') ?>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="<?= base_url('resources/script.js') ?>"></script>
+
 
 <script>
     let csrfName = '<?= csrf_token() ?>';
@@ -752,7 +801,7 @@
     }
 
     function loadProducts(page = 1) {
-
+         console.log(sortColumn);
         let search = $('#searchProduct').val();
         let limit = $('#limitProducts').val();
 
@@ -773,7 +822,10 @@
             data: {
                 page,
                 limit,
-                search
+                search,
+                sortColumn,
+                sortDirection
+
             },
 
             success: function(res) {
@@ -1088,66 +1140,66 @@
     });
 </script>
 <script>
-$('#openBulkUploadModal').click(function(){
+    $('#openBulkUploadModal').click(function() {
 
-    $('#bulkUploadForm')[0].reset();
+        $('#bulkUploadForm')[0].reset();
 
-    new bootstrap.Modal(
-        document.getElementById('bulkUploadModal')
-    ).show();
-
-});
-
-$('#bulkUploadForm').submit(function(e){
-
-    e.preventDefault();
-
-    let formData=new FormData(this);
-
-    formData.append(csrfName,csrfHash);
-
-    $.ajax({
-
-        url:"<?= base_url('admin/importproducts') ?>",
-
-        type:"POST",
-
-        data:formData,
-
-        processData:false,
-
-        contentType:false,
-
-        success:function(res){
-
-            updateCsrf(res);
-
-            bootstrap.Modal.getInstance(
-                document.getElementById('bulkUploadModal')
-            ).hide();
-
-            $('#bulkUploadForm')[0].reset();
-
-            loadProducts();
-
-            showToast(res.message);
-
-        },
-
-        error:function(xhr){
-
-            updateCsrf(xhr.responseJSON||{});
-
-            showToast(
-                xhr.responseJSON?.message || 'Upload failed',
-                'danger'
-            );
-
-        }
+        new bootstrap.Modal(
+            document.getElementById('bulkUploadModal')
+        ).show();
 
     });
 
-});
+    $('#bulkUploadForm').submit(function(e) {
+
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        formData.append(csrfName, csrfHash);
+
+        $.ajax({
+
+            url: "<?= base_url('admin/importproducts') ?>",
+
+            type: "POST",
+
+            data: formData,
+
+            processData: false,
+
+            contentType: false,
+
+            success: function(res) {
+
+                updateCsrf(res);
+
+                bootstrap.Modal.getInstance(
+                    document.getElementById('bulkUploadModal')
+                ).hide();
+
+                $('#bulkUploadForm')[0].reset();
+
+                loadProducts();
+
+                showToast(res.message);
+
+            },
+
+            error: function(xhr) {
+
+                updateCsrf(xhr.responseJSON || {});
+
+                showToast(
+                    xhr.responseJSON?.message || 'Upload failed',
+                    'danger'
+                );
+
+            }
+
+        });
+
+    });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

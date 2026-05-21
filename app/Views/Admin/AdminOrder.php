@@ -630,6 +630,8 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
+    let sortColumn ;
+    let sortDirection ='ASC';
     function updateCsrf(tokenName, tokenHash) {
         $('input[name="' + tokenName + '"]').val(tokenHash);
         window.CSRF_TOKEN_NAME = tokenName;
@@ -677,7 +679,9 @@
             data: {
                 page,
                 limit,
-                search
+                search,
+                sortDirection,
+                sortColumn
             },
 
             dataType: "json",
@@ -935,20 +939,20 @@
     $(document).on('click', '.sortColumn', function() {
 
         let column = $(this).data('column');
-
+         console.log(column);
         if (sortColumn === column) {
 
             sortDirection = sortDirection === 'ASC' ?
                 'DESC' :
                 'ASC';
-
+               
         } else {
 
             sortColumn = column;
             sortDirection = 'ASC';
         }
 
-        loadOrders(1);
+        loadOrders();
     });
 
     loadOrders();
