@@ -14,6 +14,9 @@ use Config\View;
 
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
+
+        $routes->get('profile',[UserController::class, 'getUser']);
+
     $routes->get('dashboard', function () {
         return View('Admin/AdminDashboard');
     });
@@ -39,7 +42,6 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
     $routes->delete('deleteproduct/(:num)', [ProductController::class, 'deleteProduct']);
 
-
     $routes->get('orders','Admin\AdminController::orders');
 
     $routes->get('getorders','OrderController::getOrders');
@@ -47,6 +49,23 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->put('updateorder', 'OrderController::updateOrder');
     
     $routes->delete('deleteorder/(:num)', 'OrderController::deleteOrder/$1');
+
+    $routes->get('announcements','AnnouncementController::index');
+
+    $routes->get('allusers','UserController::getUsers');
+
+    $routes->get('announcements','AnnouncementController::index');
+
+
+    $routes->post('storeannouncement', 'AnnouncementController::store');
+     
+    $routes->get('getannouncements', 'AnnouncementController::getAnnoucement');
+    $routes->put('updateannouncement/(:num)', 'AnnouncementController::update/$1');
+    $routes->get('users/search','AnnouncementController::searchUsers');
+
+    $routes->delete('deleteannouncement/(:num)','AnnouncementController::delete/$1');
+
+    $routes->get('invoice/(:num)','OrderController::invoice/$1');
 
     $routes->get('logout', [UserController::class, 'adminLogout']);
 });

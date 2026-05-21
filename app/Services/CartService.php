@@ -11,14 +11,13 @@ use App\Models\WalletModel;
 class CartService extends BaseService
 {
 
-    protected $cartModel, $productModel, $user, $tax, $walletModel;
+    protected $cartModel, $productModel, $tax, $walletModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->cartModel = new CartModel();
         $this->productModel = new ProductModel();
-        $this->user = service('jwt')->decode(service('request')->getCookie('token'));
         $this->tax = new TaxModel();
         $this->walletModel = new WalletModel();
     }
@@ -73,15 +72,17 @@ class CartService extends BaseService
     public function getUserCart()
     {
         try {
-            $result = $this->cartModel->getCartByUser($this->user->id);
+            $result = $this->cartModel->getCartByUser($this->user['id']);
+            $walletBalance = $this->walletModel->getBalance($this->user['id']);
             if (!$result) {
-                return [
-                    'status' => false,
-                    'Message' => "Can Not find user cart",
-                    'data' => $result,
+                return $this->success('User cart is empty add items', [
+                    'cart' => $result,
                     'user' => $this->user,
-                ];
+                    'walletBalance' => $walletBalance
+                ]);
+                
             }
+          
             $subtotal = 0;
             foreach ($result as $key => $item) {
                 $subtotal += $result[$key]['total'];
@@ -104,17 +105,15 @@ class CartService extends BaseService
                 'subtotal' => $subtotal,
                 'total'  => ceil( $grandTotal)
             ];
-            $walletBalance = $this->walletModel->getBalance($this->user->id);
-            return [
-                'status' => true,
-                'data' => $result ?? null,
+            return $this->success( 'order details',[
+                'cart' => $result ?? null,
                 'user' => $this->user,
                 'tax' => $tax,
                 'total' => $total,
                 'walletBalance' => $walletBalance
 
 
-            ];
+            ]);
         } catch (\Exception $e) {
             log_message('info', 'cart fetch error' . $e->getMessage());
         }

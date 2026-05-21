@@ -211,6 +211,12 @@ public function adminUsers()
     return $result['admin'];
 }
 
+public function getUsers()
+{
+    $sql = "SELECT id,name ,email FROM users where role = 'user' And status='1'";
+    return $this->db->query($sql)->getResultArray();
+}
+
 public function getUserByName($name){
       
         $sql = "SELECT *
@@ -242,4 +248,13 @@ public function getUserByName($name){
 
     ]);
 }
+
+public function getSearchedUser($keyword){
+        $sql = "SELECT id,name,email
+                FROM users
+                WHERE name Like ? or email Like ?
+                ";
+
+       return $this->db->query($sql,["%".$keyword."%","%".$keyword."%"])->getResultArray();
+    }
 }

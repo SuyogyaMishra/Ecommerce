@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Repositories\UserRepository;
+
 class CartModel
 {
-    protected $db;
+    protected $db,$user;
 
     public function __construct()
     {
         $this->db = \Config\Database::connect();
+        $this->user= UserRepository::user();
     }
 
     public function addToCart($data)
@@ -74,7 +77,7 @@ class CartModel
     public function clearCart($userId)
     {
         return $this->db->query(
-            "UPDATE carts SET is_deleted=1 WHERE user_id=?",
+            "DELETE FROM carts WHERE user_id=?",
             [$userId]
         );
     }
@@ -87,12 +90,12 @@ class CartModel
         )->getRowArray();
     }
 
-    public function cartCount($userId)
+    public function cartCount()
     {
         return $this->db->query(
             "SELECT COUNT(*) as total FROM carts WHERE user_id=? AND status=1 AND is_deleted=0",
-            [$userId]
-        )->getRowArray();
+            [$this->user['id']]
+        )->getRowArray()['total'];
     }
 
     public function getCartItems($userId)

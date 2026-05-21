@@ -22,14 +22,16 @@ class AdminController extends BaseController
 
     public function dashboard()
     {
+
+    
         $page=$this->request->getGet('page')??1;
 
         $token=$this->request->getCookie('token');
 
         $decodedToken=$this->jwtService->decode($token);
 
-        $users=$this->AdminService->showUsers($page);
-
+       return $this->AdminService->showDashboardData($page);
+       
         return $this->response->setJSON([
             'status'=>true,
             'totalUsers'=>$users['total'],

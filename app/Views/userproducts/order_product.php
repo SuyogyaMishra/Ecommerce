@@ -387,6 +387,12 @@
             `
             :`<span class="text-muted small">N/A</span>`
         }
+            <a 
+        href="invoice/${order.id}" 
+        class="btn btn-primary btn-sm ms-1"
+        target="_blank">
+        Invoice
+    </a>
     </td>
 
 

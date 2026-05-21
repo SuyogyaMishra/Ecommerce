@@ -19,7 +19,7 @@
 
 <div class="card shadow border-0 p-4" style="width:430px;">
 
-<h2 class="text-center text-primary mb-4">Create User</h2>
+<h2 class="text-center text-primary mb-4">Register as Admin</h2>
 
 <div id="msg"></div>
 
@@ -40,11 +40,10 @@
 <div class="mb-3">
 <label class="form-label">Role</label>
 
-<select name="role" class="form-select" required>
+<select name="role" class="form-select" disabled required>
 
 <option value="">Select Role</option>
-<option value="user">User</option>
-<option value="admin">Admin</option>
+<option value="admin" selected>Admin</option>
 
 </select>
 
@@ -61,7 +60,7 @@
 </div>
 
 <button type="submit" class="btn btn-primary w-100" id="btn">
-Create User
+Regiter
 </button>
 
 </form>

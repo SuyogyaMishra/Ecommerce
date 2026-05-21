@@ -2,383 +2,398 @@
 <?= $this->section('content') ?>
 
 <style>
-    :root{
-    --primary:#4f46e5;
-    --secondary:#7c3aed;
-    --success:#10b981;
-    --danger:#ef4444;
-    --warning:#f59e0b;
-    --dark:#0f172a;
-    --text:#0f172a;
-    --muted:#64748b;
-    --border:#e2e8f0;
-    --bg:#f8fafc;
-    --card:#ffffff;
-}
-
-body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:Inter,sans-serif;
-    overflow-x:hidden
-}
-
-.main-content{
-    min-height:100vh;
-    padding:20px
-}
-
-.container-fluid{
-    max-width:1380px
-}
-
-.page-header{
-    background:linear-gradient(135deg,#0f172a,#1e293b);
-    border-radius:20px;
-    padding:24px 28px;
-    margin-bottom:20px;
-    color:#fff;
-    box-shadow:0 10px 25px rgba(15,23,42,.12)
-}
-
-.page-header h2{
-    font-size:24px;
-    margin-bottom:5px
-}
-
-.page-header p{
-    font-size:13px;
-    opacity:.8
-}
-
-.btn-custom{
-    height:42px;
-    border:none;
-    border-radius:12px;
-    padding:0 18px;
-    font-size:13px;
-    font-weight:600
-}
-
-.row.g-4{
-    --bs-gutter-x:1rem;
-    --bs-gutter-y:1rem
-}
-
-.stats-card{
-    border:none;
-    border-radius:18px;
-    overflow:hidden;
-    transition:.25s;
-    box-shadow:0 4px 18px rgba(15,23,42,.05)
-}
-
-.stats-card:hover{
-    transform:translateY(-3px)
-}
-
-.stats-card.total{
-    background:linear-gradient(135deg,#eef2ff,#e0e7ff)
-}
-
-.stats-card.active{
-    background:linear-gradient(135deg,#ecfdf5,#d1fae5)
-}
-
-.stats-card.stock{
-    background:linear-gradient(135deg,#fff7ed,#fed7aa)
-}
-
-.stats-card .card-body{
-    padding:18px!important
-}
-
-.stats-card p{
-    font-size:12px;
-    margin-bottom:4px;
-    color:#64748b
-}
-
-.stats-card h2{
-    font-size:24px;
-    margin:0
-}
-
-.icon-box{
-    width:52px;
-    height:52px;
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#fff;
-    font-size:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,.08)
-}
-
-.users-card{
-    border:none;
-    border-radius:20px;
-    overflow:hidden;
-    background:#fff;
-    box-shadow:0 4px 18px rgba(15,23,42,.05)
-}
-
-.users-card .card-header{
-    background:#fff;
-    border:none;
-    padding:20px 22px
-}
-
-.users-card h4{
-    font-size:18px;
-    margin-bottom:2px
-}
-
-.search-box{
-    width:240px;
-    height:42px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    font-size:13px;
-    background:#fff;
-    transition:.2s
-}
-
-.search-box:focus{
-    border-color:var(--primary);
-    box-shadow:0 0 0 4px rgba(79,70,229,.08)
-}
-
-.table{
-    margin:0
-}
-
-.table thead th{
-    border:none;
-    background:#f8fafc;
-    color:#64748b;
-    font-size:11px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.5px;
-    padding:16px 18px
-}
-
-.table tbody td{
-    padding:16px 18px;
-    vertical-align:middle;
-    border-color:#f1f5f9;
-    font-size:13px;
-    color:#0f172a
-}
-
-.table tbody tr{
-    transition:.2s
-}
-
-.table tbody tr:hover{
-    background:#f8fafc
-}
-
-.product-img{
-    width:48px;
-    height:48px;
-    border-radius:12px;
-    object-fit:cover;
-    border:1px solid #e2e8f0
-}
-
-.badge{
-    padding:7px 12px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:600
-}
-
-.action-btn{
-    width:34px;
-    height:34px;
-    border:none;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:.2s
-}
-
-.action-btn:hover{
-    transform:translateY(-1px)
-}
-
-.btn-primary.action-btn{
-    background:#eef2ff;
-    color:#4f46e5
-}
-
-.btn-primary.action-btn:hover{
-    background:#4f46e5;
-    color:#fff
-}
-
-.btn-danger.action-btn{
-    background:#fef2f2;
-    color:#ef4444
-}
-
-.btn-danger.action-btn:hover{
-    background:#ef4444;
-    color:#fff
-}
-
-.pagination{
-    gap:6px
-}
-
-.page-item .page-link{
-    border:none;
-    width:36px;
-    height:36px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:10px;
-    background:#eef2ff;
-    color:#4f46e5;
-    font-size:13px;
-    font-weight:600
-}
-
-.page-item.active .page-link{
-    background:#4f46e5;
-    color:#fff
-}
-
-.form-select{
-    border-radius:10px;
-    border:1px solid var(--border);
-    font-size:13px
-}
-
-.modal-content{
-    border:none;
-    border-radius:20px;
-    overflow:hidden;
-    box-shadow:0 20px 40px rgba(15,23,42,.12)
-}
-
-.modal-header{
-    border-bottom:1px solid #f1f5f9;
-    padding:18px 22px
-}
-
-.modal-title{
-    font-size:18px
-}
-
-.modal-body{
-    padding:22px!important
-}
-
-.form-control,
-.form-select{
-    height:44px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    font-size:13px
-}
-
-.form-control:focus,
-.form-select:focus{
-    border-color:var(--primary);
-    box-shadow:0 0 0 4px rgba(79,70,229,.08)
-}
-
-.form-label{
-    font-size:13px;
-    margin-bottom:7px
-}
-
-.toast{
-    border:none!important;
-    border-radius:14px!important;
-    overflow:hidden;
-    font-size:13px
-}
-
-.toast-header{
-    border:none
-}
-
-.spinner-border{
-    width:2rem;
-    height:2rem
-}
-
-.table-responsive{
-    min-height:400px
-}
-
-@media(max-width:768px){
-
-    .main-content{
-        padding:14px
+    :root {
+        --primary: #4f46e5;
+        --secondary: #7c3aed;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --dark: #0f172a;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --bg: #f8fafc;
+        --card: #ffffff;
     }
 
-    .page-header{
-        padding:20px
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, sans-serif;
+        overflow-x: hidden
     }
 
-    .page-header h2{
-        font-size:20px
+    .main-content {
+        min-height: 100vh;
+        padding: 20px
     }
 
-    .stats-card h2{
-        font-size:20px
+    .container-fluid {
+        max-width: 1380px
     }
 
-    .icon-box{
-        width:46px;
-        height:46px;
-        font-size:18px
+    .page-header {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        border-radius: 20px;
+        padding: 24px 28px;
+        margin-bottom: 20px;
+        color: #fff;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, .12)
     }
 
-    .search-box{
-        width:100%
+    .page-header h2 {
+        font-size: 24px;
+        margin-bottom: 5px
     }
 
-    .table thead th,
-    .table tbody td{
-        padding:13px
+    .page-header p {
+        font-size: 13px;
+        opacity: .8
     }
 
-    .product-img{
-        width:42px;
-        height:42px
+    .btn-custom {
+        height: 42px;
+        border: none;
+        border-radius: 12px;
+        padding: 0 18px;
+        font-size: 13px;
+        font-weight: 600
     }
 
-}
+    .row.g-4 {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1rem
+    }
+
+    .stats-card {
+        border: none;
+        border-radius: 18px;
+        overflow: hidden;
+        transition: .25s;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, .05)
+    }
+
+    .stats-card:hover {
+        transform: translateY(-3px)
+    }
+
+    .stats-card.total {
+        background: linear-gradient(135deg, #eef2ff, #e0e7ff)
+    }
+
+    .stats-card.active {
+        background: linear-gradient(135deg, #ecfdf5, #d1fae5)
+    }
+
+    .stats-card.stock {
+        background: linear-gradient(135deg, #fff7ed, #fed7aa)
+    }
+
+    .stats-card .card-body {
+        padding: 18px !important
+    }
+
+    .stats-card p {
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: #64748b
+    }
+
+    .stats-card h2 {
+        font-size: 24px;
+        margin: 0
+    }
+
+    .icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .08)
+    }
+
+    .users-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, .05)
+    }
+
+    .users-card .card-header {
+        background: #fff;
+        border: none;
+        padding: 20px 22px
+    }
+
+    .users-card h4 {
+        font-size: 18px;
+        margin-bottom: 2px
+    }
+
+    .search-box {
+        width: 240px;
+        height: 42px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        background: #fff;
+        transition: .2s
+    }
+
+    .search-box:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, .08)
+    }
+
+    .table {
+        margin: 0
+    }
+
+    .table thead th {
+        border: none;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 16px 18px
+    }
+
+    .table tbody td {
+        padding: 16px 18px;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+        font-size: 13px;
+        color: #0f172a
+    }
+
+    .table tbody tr {
+        transition: .2s
+    }
+
+    .table tbody tr:hover {
+        background: #f8fafc
+    }
+
+    .product-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0
+    }
+
+    .badge {
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600
+    }
+
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: .2s
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px)
+    }
+
+    .btn-primary.action-btn {
+        background: #eef2ff;
+        color: #4f46e5
+    }
+
+    .btn-primary.action-btn:hover {
+        background: #4f46e5;
+        color: #fff
+    }
+
+    .btn-danger.action-btn {
+        background: #fef2f2;
+        color: #ef4444
+    }
+
+    .btn-danger.action-btn:hover {
+        background: #ef4444;
+        color: #fff
+    }
+
+    .pagination {
+        gap: 6px
+    }
+
+    .page-item .page-link {
+        border: none;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: 13px;
+        font-weight: 600
+    }
+
+    .page-item.active .page-link {
+        background: #4f46e5;
+        color: #fff
+    }
+
+    .form-select {
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 13px
+    }
+
+    .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, .12)
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 18px 22px
+    }
+
+    .modal-title {
+        font-size: 18px
+    }
+
+    .modal-body {
+        padding: 22px !important
+    }
+
+    .form-control,
+    .form-select {
+        height: 44px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-size: 13px
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, .08)
+    }
+
+    .form-label {
+        font-size: 13px;
+        margin-bottom: 7px
+    }
+
+    .toast {
+        border: none !important;
+        border-radius: 14px !important;
+        overflow: hidden;
+        font-size: 13px
+    }
+
+    .toast-header {
+        border: none
+    }
+
+    .spinner-border {
+        width: 2rem;
+        height: 2rem
+    }
+
+    .table-responsive {
+        min-height: 400px
+    }
+
+    @media(max-width:768px) {
+
+        .main-content {
+            padding: 14px
+        }
+
+        .page-header {
+            padding: 20px
+        }
+
+        .page-header h2 {
+            font-size: 20px
+        }
+
+        .stats-card h2 {
+            font-size: 20px
+        }
+
+        .icon-box {
+            width: 46px;
+            height: 46px;
+            font-size: 18px
+        }
+
+        .search-box {
+            width: 100%
+        }
+
+        .table thead th,
+        .table tbody td {
+            padding: 13px
+        }
+
+        .product-img {
+            width: 42px;
+            height: 42px
+        }
+
+    }
 </style>
 
-<div class="main-content flex-grow-1">
+<div class="main-content flex-grow-3">
 
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+
         <div>
-            <h2 class="fw-bold mb-2">
+
+            <h2 class="fw-bold mb-1 d-flex align-items-center">
+
                 <i class="bi bi-box-seam-fill me-2"></i>
+
                 Products Management
+
             </h2>
 
             <p class="mb-0 opacity-75">
                 Manage all products
             </p>
+
         </div>
 
-        <button class="btn btn-light btn-custom shadow-sm" id="openAddModal">
-            <i class="bi bi-plus-circle-fill me-2"></i>
-            Add Product
-        </button>
+        <div class="d-flex align-items-center flex-wrap gap-2">
+
+            <button class="btn  btn-light btn-custom shadow-sm" id="openAddModal">
+
+                <i class="bi bi-plus-circle-fill me-2"></i>
+
+                Add Product
+
+            </button>
+
+        </div>
+
     </div>
+
 
     <div class="row g-4 mb-4">
 
@@ -634,6 +649,59 @@ body{
         </div>
 
         <div class="toast-body" id="toastMessage"></div>
+
+    </div>
+
+</div>
+<!-- BULK UPLOAD MODAL -->
+
+<div class="modal fade" id="bulkUploadModal" tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Bulk Upload Products</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <form id="bulkUploadForm" enctype="multipart/form-data">
+
+                    <?= csrf_field() ?>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Excel File
+                        </label>
+
+                        <input type="file" class="form-control" name="file" accept=".xls,.xlsx,.csv" required>
+
+                    </div>
+
+                    <div class="alert alert-light border small mb-4">
+
+                        Required Columns:
+                        <b>name, price, stock, status</b>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 btn-custom">
+
+                        <i class="bi bi-upload me-2"></i>
+
+                        Upload Products
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -1018,6 +1086,68 @@ body{
         });
 
     });
+</script>
+<script>
+$('#openBulkUploadModal').click(function(){
+
+    $('#bulkUploadForm')[0].reset();
+
+    new bootstrap.Modal(
+        document.getElementById('bulkUploadModal')
+    ).show();
+
+});
+
+$('#bulkUploadForm').submit(function(e){
+
+    e.preventDefault();
+
+    let formData=new FormData(this);
+
+    formData.append(csrfName,csrfHash);
+
+    $.ajax({
+
+        url:"<?= base_url('admin/importproducts') ?>",
+
+        type:"POST",
+
+        data:formData,
+
+        processData:false,
+
+        contentType:false,
+
+        success:function(res){
+
+            updateCsrf(res);
+
+            bootstrap.Modal.getInstance(
+                document.getElementById('bulkUploadModal')
+            ).hide();
+
+            $('#bulkUploadForm')[0].reset();
+
+            loadProducts();
+
+            showToast(res.message);
+
+        },
+
+        error:function(xhr){
+
+            updateCsrf(xhr.responseJSON||{});
+
+            showToast(
+                xhr.responseJSON?.message || 'Upload failed',
+                'danger'
+            );
+
+        }
+
+    });
+
+});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

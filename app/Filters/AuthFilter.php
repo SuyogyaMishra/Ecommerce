@@ -23,6 +23,8 @@ class AuthFilter implements FilterInterface
 
             (new UserRepository())->setUser($user->id);
 
+           
+
             if($user->role !== 'admin')
                 return redirect()->to(base_url('adminlogin'))->with('error','Must be an admin to access this page');
 

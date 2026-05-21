@@ -29,8 +29,7 @@ class OrderController extends BaseController
 
     public function addOrders()
     {
-        $result = $this->orderService->addOrder();
-        return $this->response->setJSON($result);
+        return $this->orderService->addOrder();
     }
 
     public function getOrderByUser()
@@ -62,9 +61,11 @@ class OrderController extends BaseController
         return view('userproducts/order_detail');
     }
 
-    public function details($id){
+    public function details($id)
+    {
         return $this->orderService->orderDetails($id);
     }
-
-    
+    public function invoice($id){
+        return $this->orderService->invoice($id);
+    }
 }

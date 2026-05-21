@@ -143,7 +143,5 @@ class BaseService{
             500
         );
     }
-    // public function getUser(){
-    //     $this->user->user();
-    // }
+  
 }

@@ -1,364 +1,364 @@
 <?= $this->extend('layouts/sidebar') ?>
 <?= $this->section('content') ?>
 <style>
-:root{
-    --primary:#6366f1;
-    --secondary:#8b5cf6;
-    --success:#10b981;
-    --danger:#ef4444;
-    --warning:#f59e0b;
-    --dark:#0f172a;
-    --text:#0f172a;
-    --muted:#64748b;
-    --border:#e2e8f0;
-    --bg:#f8fafc;
-    --card:#ffffff;
-}
-
-body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:Inter,sans-serif;
-    overflow-x:hidden
-}
-
-.main-content{
-    min-height:100vh;
-    padding:22px
-}
-
-.container-fluid{
-    max-width:1380px
-}
-
-.page-header{
-    background:linear-gradient(135deg,#4f46e5,#7c3aed);
-    border-radius:20px;
-    padding:24px 28px;
-    margin-bottom:20px;
-    color:#fff;
-    box-shadow:0 10px 25px rgba(99,102,241,.18)
-}
-
-.page-header h2{
-    font-size:24px;
-    margin-bottom:6px
-}
-
-.page-header p{
-    font-size:13px;
-    opacity:.9
-}
-
-.row.g-4{
-    --bs-gutter-x:1rem;
-    --bs-gutter-y:1rem
-}
-
-.stats-card{
-    border:none;
-    border-radius:18px;
-    overflow:hidden;
-    transition:.25s;
-    background:var(--card);
-    box-shadow:0 4px 18px rgba(15,23,42,.05)
-}
-
-.stats-card:hover{
-    transform:translateY(-3px)
-}
-
-.stats-card.total{
-    background:linear-gradient(135deg,#eef2ff,#e0e7ff)
-}
-
-.stats-card.active{
-    background:linear-gradient(135deg,#ecfdf5,#d1fae5)
-}
-
-.stats-card.admin{
-    background:linear-gradient(135deg,#f5f3ff,#ede9fe)
-}
-
-.stats-card .card-body{
-    padding:18px!important
-}
-
-.stats-card p{
-    font-size:12px;
-    margin-bottom:5px;
-    color:#64748b
-}
-
-.stats-card h2{
-    font-size:24px;
-    margin:0
-}
-
-.icon-box{
-    width:52px;
-    height:52px;
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#fff;
-    font-size:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,.08)
-}
-
-.users-card{
-    border:none;
-    border-radius:20px;
-    overflow:hidden;
-    background:var(--card);
-    box-shadow:0 4px 18px rgba(15,23,42,.05)
-}
-
-.users-card .card-header{
-    background:#fff;
-    padding:20px 22px;
-    border:none
-}
-
-.users-card h4{
-    font-size:18px;
-    margin-bottom:2px
-}
-
-.users-card small{
-    font-size:12px
-}
-
-.search-box{
-    width:240px;
-    height:42px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    font-size:13px;
-    background:#fff;
-    transition:.2s
-}
-
-.search-box:focus{
-    border-color:var(--primary);
-    box-shadow:0 0 0 4px rgba(99,102,241,.08)
-}
-
-.table{
-    margin:0
-}
-
-.table thead th{
-    border:none;
-    background:#f8fafc;
-    color:#64748b;
-    font-size:11px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.5px;
-    padding:16px 18px
-}
-
-.table tbody td{
-    padding:16px 18px;
-    vertical-align:middle;
-    border-color:#f1f5f9;
-    font-size:13px;
-    color:#0f172a
-}
-
-.table tbody tr{
-    transition:.2s
-}
-
-.table tbody tr:hover{
-    background:#f8fafc
-}
-
-.user-avatar{
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#6366f1,#8b5cf6);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#fff;
-    font-size:13px;
-    font-weight:700;
-    flex-shrink:0
-}
-
-.badge{
-    padding:7px 12px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:600
-}
-
-.action-btn{
-    width:34px;
-    height:34px;
-    border:none;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:.2s
-}
-
-.action-btn:hover{
-    transform:translateY(-1px)
-}
-
-.btn-primary.action-btn{
-    background:#eef2ff;
-    color:#4f46e5
-}
-
-.btn-primary.action-btn:hover{
-    background:#4f46e5;
-    color:#fff
-}
-
-.btn-danger.action-btn{
-    background:#fef2f2;
-    color:#ef4444
-}
-
-.btn-danger.action-btn:hover{
-    background:#ef4444;
-    color:#fff
-}
-
-.pagination{
-    gap:6px
-}
-
-.page-item .page-link{
-    border:none;
-    width:36px;
-    height:36px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:10px;
-    color:#4f46e5;
-    background:#eef2ff;
-    font-size:13px;
-    font-weight:600
-}
-
-.page-item.active .page-link{
-    background:#4f46e5;
-    color:#fff
-}
-
-.form-select{
-    border-radius:10px;
-    border:1px solid var(--border);
-    font-size:13px
-}
-
-.modal-content{
-    border:none;
-    border-radius:20px;
-    overflow:hidden;
-    box-shadow:0 15px 40px rgba(15,23,42,.12)
-}
-
-.modal-header{
-    border-bottom:1px solid #f1f5f9;
-    padding:18px 22px
-}
-
-.modal-title{
-    font-size:18px
-}
-
-.modal-body{
-    padding:22px!important
-}
-
-.form-control,
-.form-select{
-    height:44px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    font-size:13px
-}
-
-.form-control:focus,
-.form-select:focus{
-    border-color:var(--primary);
-    box-shadow:0 0 0 4px rgba(99,102,241,.08)
-}
-
-.form-label{
-    font-size:13px;
-    margin-bottom:7px
-}
-
-.btn-custom{
-    height:46px;
-    border:none;
-    border-radius:12px;
-    font-size:13px;
-    font-weight:600;
-    background:linear-gradient(135deg,#4f46e5,#7c3aed)
-}
-
-.toast{
-    border:none!important;
-    border-radius:14px!important;
-    overflow:hidden;
-    font-size:13px
-}
-
-.toast-header{
-    border:none
-}
-
-.spinner-border{
-    width:2rem;
-    height:2rem
-}
-
-@media(max-width:768px){
-
-    .main-content{
-        padding:14px
+    :root {
+        --primary: #6366f1;
+        --secondary: #8b5cf6;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --dark: #0f172a;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --bg: #f8fafc;
+        --card: #ffffff;
     }
 
-    .page-header{
-        padding:20px
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, sans-serif;
+        overflow-x: hidden
     }
 
-    .page-header h2{
-        font-size:20px
+    .main-content {
+        min-height: 100vh;
+        padding: 22px
     }
 
-    .stats-card h2{
-        font-size:20px
+    .container-fluid {
+        max-width: 1380px
     }
 
-    .icon-box{
-        width:46px;
-        height:46px;
-        font-size:18px
+    .page-header {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 20px;
+        padding: 24px 28px;
+        margin-bottom: 20px;
+        color: #fff;
+        box-shadow: 0 10px 25px rgba(99, 102, 241, .18)
     }
 
-    .search-box{
-        width:100%
+    .page-header h2 {
+        font-size: 24px;
+        margin-bottom: 6px
     }
 
-    .table thead th,
-    .table tbody td{
-        padding:13px
+    .page-header p {
+        font-size: 13px;
+        opacity: .9
     }
 
-}
+    .row.g-4 {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1rem
+    }
+
+    .stats-card {
+        border: none;
+        border-radius: 18px;
+        overflow: hidden;
+        transition: .25s;
+        background: var(--card);
+        box-shadow: 0 4px 18px rgba(15, 23, 42, .05)
+    }
+
+    .stats-card:hover {
+        transform: translateY(-3px)
+    }
+
+    .stats-card.total {
+        background: linear-gradient(135deg, #eef2ff, #e0e7ff)
+    }
+
+    .stats-card.active {
+        background: linear-gradient(135deg, #ecfdf5, #d1fae5)
+    }
+
+    .stats-card.admin {
+        background: linear-gradient(135deg, #f5f3ff, #ede9fe)
+    }
+
+    .stats-card .card-body {
+        padding: 18px !important
+    }
+
+    .stats-card p {
+        font-size: 12px;
+        margin-bottom: 5px;
+        color: #64748b
+    }
+
+    .stats-card h2 {
+        font-size: 24px;
+        margin: 0
+    }
+
+    .icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .08)
+    }
+
+    .users-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--card);
+        box-shadow: 0 4px 18px rgba(15, 23, 42, .05)
+    }
+
+    .users-card .card-header {
+        background: #fff;
+        padding: 20px 22px;
+        border: none
+    }
+
+    .users-card h4 {
+        font-size: 18px;
+        margin-bottom: 2px
+    }
+
+    .users-card small {
+        font-size: 12px
+    }
+
+    .search-box {
+        width: 240px;
+        height: 42px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        background: #fff;
+        transition: .2s
+    }
+
+    .search-box:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, .08)
+    }
+
+    .table {
+        margin: 0
+    }
+
+    .table thead th {
+        border: none;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 16px 18px
+    }
+
+    .table tbody td {
+        padding: 16px 18px;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+        font-size: 13px;
+        color: #0f172a
+    }
+
+    .table tbody tr {
+        transition: .2s
+    }
+
+    .table tbody tr:hover {
+        background: #f8fafc
+    }
+
+    .user-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        flex-shrink: 0
+    }
+
+    .badge {
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600
+    }
+
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: .2s
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px)
+    }
+
+    .btn-primary.action-btn {
+        background: #eef2ff;
+        color: #4f46e5
+    }
+
+    .btn-primary.action-btn:hover {
+        background: #4f46e5;
+        color: #fff
+    }
+
+    .btn-danger.action-btn {
+        background: #fef2f2;
+        color: #ef4444
+    }
+
+    .btn-danger.action-btn:hover {
+        background: #ef4444;
+        color: #fff
+    }
+
+    .pagination {
+        gap: 6px
+    }
+
+    .page-item .page-link {
+        border: none;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        color: #4f46e5;
+        background: #eef2ff;
+        font-size: 13px;
+        font-weight: 600
+    }
+
+    .page-item.active .page-link {
+        background: #4f46e5;
+        color: #fff
+    }
+
+    .form-select {
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 13px
+    }
+
+    .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(15, 23, 42, .12)
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 18px 22px
+    }
+
+    .modal-title {
+        font-size: 18px
+    }
+
+    .modal-body {
+        padding: 22px !important
+    }
+
+    .form-control,
+    .form-select {
+        height: 44px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-size: 13px
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, .08)
+    }
+
+    .form-label {
+        font-size: 13px;
+        margin-bottom: 7px
+    }
+
+    .btn-custom {
+        height: 46px;
+        border: none;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed)
+    }
+
+    .toast {
+        border: none !important;
+        border-radius: 14px !important;
+        overflow: hidden;
+        font-size: 13px
+    }
+
+    .toast-header {
+        border: none
+    }
+
+    .spinner-border {
+        width: 2rem;
+        height: 2rem
+    }
+
+    @media(max-width:768px) {
+
+        .main-content {
+            padding: 14px
+        }
+
+        .page-header {
+            padding: 20px
+        }
+
+        .page-header h2 {
+            font-size: 20px
+        }
+
+        .stats-card h2 {
+            font-size: 20px
+        }
+
+        .icon-box {
+            width: 46px;
+            height: 46px;
+            font-size: 18px
+        }
+
+        .search-box {
+            width: 100%
+        }
+
+        .table thead th,
+        .table tbody td {
+            padding: 13px
+        }
+
+    }
 </style>
 
 <div class="main-content flex-grow-1">
@@ -656,6 +656,7 @@ body{
 
 <?= $this->section('script') ?>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function loadUsers(page = 1) {
         let keyword = $('#searchUser').val();
@@ -684,83 +685,87 @@ body{
             },
 
             success: function(res) {
-                console.log(res);
-                $('#totalUsers').text(res.totalUsers);
-                $('#activeUsers').text(res.activeUsers);
-                $('#adminUsers').text(res.adminUsers);
-                $('#adminName').text(res.user.name);
-                $('#adminEmail').text(res.user.email);
-                console.log(res);
+
+                $('#totalUsers').text(res.data.totalUsers);
+                $('#activeUsers').text(res.data.activeUsers);
+                $('#adminUsers').text(res.data.adminUsers);
+
+                $('#adminName').text(res.data.user.name);
+                $('#adminEmail').text(res.data.user.email);
+
+                let users = res.data.users.users;
+                let currentPage = res.data.users.page;
+                let totalPages = res.data.totalPages;
+
                 let html = '';
 
-                if (res.users.length < 1) {
+                if (users.length < 1) {
+
                     html = `
-                <tr>
-                    <td colspan="6" class="text-center text-muted p-5">
-                        No users found
-                    </td>
-                </tr>
-                `;
+        <tr>
+            <td colspan="6" class="text-center text-muted p-5">
+                No users found
+            </td>
+        </tr>
+        `;
+
                 } else {
-                    $.each(res.users.users, function(i, user) {
+
+                    $.each(users, function(i, user) {
 
                         html += `
-                    <tr>
+            <tr>
 
-                        <td>${user.id}</td>
+                <td>${user.id}</td>
 
-                        <td>
-                            <div class="d-flex align-items-center gap-3">
+                <td>
+                    <div class="d-flex align-items-center gap-3">
 
-                                <div class="user-avatar">
-                                    ${user.name.charAt(0).toUpperCase()}
-                                </div>
+                        <div class="user-avatar">
+                            ${user.name.charAt(0).toUpperCase()}
+                        </div>
 
-                                <div>
-                                    <div class="fw-semibold">
-                                        ${user.name}
-                                    </div>
-                                </div>
-
+                        <div>
+                            <div class="fw-semibold">
+                                ${user.name}
                             </div>
-                        </td>
+                        </div>
 
-                        <td>${user.email}</td>
+                    </div>
+                </td>
 
-                        <td>
-                            <span class="badge ${user.role=='admin'?'bg-dark':'bg-primary'}">
-                                ${user.role}
-                            </span>
-                        </td>
+                <td>${user.email}</td>
 
-                        <td>
-                            <span class="badge ${user.status=='active'?'bg-success':'bg-danger'}">
-                                ${user.status}
-                            </span>
-                        </td>
+                <td>
+                    <span class="badge ${user.role=='admin'?'bg-dark':'bg-primary'}">
+                        ${user.role}
+                    </span>
+                </td>
 
-                        <td>
+                <td>
+                    <span class="badge ${user.status=='1'?'bg-success':'bg-danger'}">
+                        ${user.status=='1'?'active':'inactive'}
+                    </span>
+                </td>
 
-                            <div class="d-flex gap-2">
+                <td>
 
-                                <button
-                                    class="btn btn-primary btn-sm action-btn editBtn"
-                                    data-id="${user.id}">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+                    <div class="d-flex gap-2">
 
-                                <button
-                                    class="btn btn-danger btn-sm action-btn deleteBtn"
-                                    data-id="${user.id}">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                        <button class="btn btn-primary btn-sm action-btn editBtn" data-id="${user.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
 
-                            </div>
+                        <button class="btn btn-danger btn-sm action-btn deleteBtn" data-id="${user.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
 
-                        </td>
+                    </div>
 
-                    </tr>
-                    `;
+                </td>
+
+            </tr>
+            `;
                     });
                 }
 
@@ -768,16 +773,15 @@ body{
 
                 let pagination = '';
 
-                for (let i = 1; i <= res.totalPages; i++) {
+                for (let i = 1; i <= totalPages; i++) {
+
                     pagination += `
-                <li class="page-item ${res.users.page==i?'active':''}">
-                    <a href="#"
-                       class="page-link"
-                       onclick="loadUsers(${i})">
-                        ${i}
-                    </a>
-                </li>
-                `;
+        <li class="page-item ${currentPage==i?'active':''}">
+            <a href="javascript:void(0)" class="page-link" onclick="loadUsers(${i})">
+                ${i}
+            </a>
+        </li>
+        `;
                 }
 
                 $('#pagination').html(pagination);
@@ -905,11 +909,11 @@ body{
 
             success: function(res) {
 
-                $('#user_id').val(res.user.id);
-                $('#name').val(res.user.name);
-                $('#email').val(res.user.email);
-                $('#role').val(res.user.role);
-                $('#status').val(res.user.status);
+                $('#user_id').val(res.data.id);
+                $('#name').val(res.data.name);
+                $('#email').val(res.data.email);
+                $('#role').val(res.data.role);
+                $('#status').val(res.data.status);
 
                 let modal = new bootstrap.Modal(
                     document.getElementById('updateUserModal')

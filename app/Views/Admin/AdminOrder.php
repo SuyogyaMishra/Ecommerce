@@ -473,14 +473,37 @@
 
                     <tr>
 
-                        <th>ID</th>
-                        <th>Customer</th>
-                        <th>Total</th>
-                        <th>Payment</th>
-                        <th>Payment Status</th>
-                        <th>Order Status</th>
-                        <th>Date</th>
-                        <th>Action</th>
+                        <th class="sortColumn" data-column="id">
+                            ID <i class="bi bi-arrow-down-up ms-1"></i>
+                        </th>
+
+                        <th>
+                            Customer
+                        </th>
+
+                        <th class="sortColumn" data-column="total">
+                            Total <i class="bi bi-arrow-down-up ms-1"></i>
+                        </th>
+
+                        <th class="sortColumn" data-column="payment_method">
+                            Payment <i class="bi bi-arrow-down-up ms-1"></i>
+                        </th>
+
+                        <th class="sortColumn" data-column="payment_status">
+                            Payment Status <i class="bi bi-arrow-down-up ms-1"></i>
+                        </th>
+
+                        <th class="sortColumn" data-column="order_status">
+                            Order Status <i class="bi bi-arrow-down-up ms-1"></i>
+                        </th>
+
+                        <th class="sortColumn" data-column="created_at">
+                            Date <i class="bi bi-arrow-down-up ms-1"></i>
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
 
                     </tr>
 
@@ -746,6 +769,15 @@
                                         data-id="${order.id}">
                                         <i class="bi bi-trash"></i>
                                     </button>
+                                     <a 
+                                        href="<?= base_url() ?>admin/invoice/${order.id}"
+                                        class="btn btn-primary btn-sm ms-1"
+                                        target="_blank"
+                                        title="Download Invoice"
+                                        data-bs-toggle="tooltip">
+                                        
+                                        <i class="fa fa-download"></i>
+                                    </a>
 
                                 </div>
 
@@ -899,6 +931,25 @@
     });
     window.CSRF_TOKEN_NAME = '<?= csrf_token() ?>';
     window.CSRF_TOKEN_HASH = '<?= csrf_hash() ?>';
+
+    $(document).on('click', '.sortColumn', function() {
+
+        let column = $(this).data('column');
+
+        if (sortColumn === column) {
+
+            sortDirection = sortDirection === 'ASC' ?
+                'DESC' :
+                'ASC';
+
+        } else {
+
+            sortColumn = column;
+            sortDirection = 'ASC';
+        }
+
+        loadOrders(1);
+    });
 
     loadOrders();
 </script>

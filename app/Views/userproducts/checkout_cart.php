@@ -236,7 +236,7 @@
 
                     <select class="form-control" id="payment_method">
                         <option value="cod">Cash On Delivery</option>
-                        <option value="wallet">Online Payment</option>
+                        <option value="wallet">wallet</option>
                     </select>
 
                 </div>
@@ -331,6 +331,44 @@
     let csrfName = "<?= csrf_token() ?>";
     let csrfHash = "<?= csrf_hash() ?>";
 
+    function handleResponseErrors(response) {
+        console.log(response);
+        updateCsrf(response.token);
+
+        if (response.status) return false;
+
+        let errors = response.errors?.errors || {};
+
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        if (response.errors?.walletBalance !== undefined) {
+            $('#walletBalance').html(`₹${response.errors.walletBalance}`);
+        }
+
+        $.each(errors, function(key, message) {
+
+            let field = $(`#${key}`);
+
+            field.addClass('is-invalid');
+
+            field.after(`
+            <div class="invalid-feedback d-block">
+                ${message}
+            </div>
+        `);
+
+        });
+
+        showToast(
+            response.message ||
+            Object.values(response.errors?.errors || {})[0] ||
+            'Something went wrong',
+            'error'
+        );
+
+        return true;
+    }
+
     $(document).on('change', '#payment_method', function() {
         loadCheckoutCart();
     });
@@ -363,18 +401,28 @@
 
             success: function(response) {
 
-                if (response.status) {
+                if (handleResponseErrors(response)) {
 
-                    $('#name').val(response.user.name);
-                    $('#email').val(response.user.email);
-                    $('#phone').val(response.user.phone);
-                    $('#address').val(response.user.address);
-                    $('#walletBalance').html(`₹${response.walletBalance}`);
+                    btn.prop('disabled', false).html('Place Order');
 
-
+                    return;
                 }
 
-            }
+                showToast(response.message || 'Order Placed Successfully');
+
+                if (response.order_id) {
+                    localStorage.setItem('order_id', response.order_id);
+                }
+
+                setTimeout(() => {
+
+                    if (response.redirect_url) {
+                        window.location.href = response.redirect_url;
+                    }
+
+                }, 1000);
+
+            },
 
         });
 
@@ -463,6 +511,16 @@
 
 
 
+            },
+
+            error: function(xhr) {
+
+                let response = xhr.responseJSON;
+
+                console.log(response);
+
+                handleResponseErrors(response);
+
             }
 
         });
@@ -519,11 +577,17 @@
 
             error: function(xhr) {
 
-                if (xhr.responseJSON?.token) updateCsrf(xhr.responseJSON.token);
+                let response = xhr.responseJSON;
 
-                showToast(xhr.responseJSON?.message || 'Something Went Wrong', 'error');
+                if (handleResponseErrors(response)) {
+
+                    btn.prop('disabled', false).html('Place Order');
+
+                    return;
+                }
 
                 btn.prop('disabled', false).html('Place Order');
+
 
             }
 

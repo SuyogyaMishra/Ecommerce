@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-
+use App\Services\AdminServices\UserDashboardService;
 use App\Services\UserService;
 
 use App\Validation\SignupValidation;
@@ -11,16 +11,16 @@ use App\Services\JwtService;
 
 class UserController extends BaseController
 {
-    protected $signupService, $validation;
+    protected $signupService, $validation,$userDashboadService;
 
     public function __construct()
     {
         helper('cookie');
         $this->signupService = new UserService();
         $this->validation = \Config\Services::validation();
+        $this->userDashboadService = new UserDashboardService();
+
     }
-
-
     public function signupuser()
     {
         $data = $this->request->getPost();
@@ -39,47 +39,13 @@ class UserController extends BaseController
 
     public function loginuser()
     {
-        
-
-        $result = $this->signupService->loginUser(
-
-            $this->request->getPost()
-        );
-
-        if (!$result['status']) {
-
-            return $this->response->setJSON($result);
-        }
+        return  $this->signupService->loginUser();
      
-        return $this->response
-
-            ->setJSON([
-
-                'status' => true,
-
-                'message' => $result['message'],
-
-                'redirect' => base_url('/dashboard'),
-
-                'token' => csrf_hash()
-            ])
-
-            ->setCookie([
-
-                'name'     => 'token',
-
-                'value'    => $result['jwt'],
-
-                'expire'   => $result['expire'],
-
-                'httponly' => true,
-
-                'secure'   => false, // true on HTTPS
-
-                'path'     => '/'
-            ]);
     }
-
+   
+    public function getUser(){
+        return $this->signupService->getUser();
+    }
 
 
     public function logout()
@@ -111,7 +77,7 @@ class UserController extends BaseController
 
             'email' =>  $data['email'],
 
-            'role' => $data['role'],
+            'role' => 'admin',
 
             'password' =>  $data['password']
 
@@ -148,5 +114,15 @@ class UserController extends BaseController
     }
     public function orders(){
         return view('userproducts/order_product');
+    }
+
+    public function getUsers(){
+        return $this->signupService->getUsers();
+    }
+    public function dashboard(){
+        return view('userproducts/user_dashboard');
+    }
+    public function userstats(){
+      return $this->userDashboadService->userstats();
     }
 }

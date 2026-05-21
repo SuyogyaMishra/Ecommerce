@@ -24,7 +24,7 @@
 
     <div class="text-center border-bottom pb-3 mb-4">
         <i class="bi bi-person-circle fs-1"></i>
-        <h5 class="mt-2 mb-0" id="userName">User</h5>
+        <h5 class="mt-2 mb-0" id="userName">Loading...</h5>
         <small class="text-secondary" id="userEmail"></small>
     </div>
 
@@ -32,12 +32,21 @@
 
     <ul class="nav flex-column gap-2">
 
-        <li class="nav-item">
+
+       <li class="nav-item">
             <a href="<?= base_url('dashboard') ?>" class="nav-link <?= $uri->getSegment(1)=='dashboard'?'active-menu':'' ?>">
+                 <i class="bi bi-grid me-2"></i>
+                Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="<?= base_url('products') ?>" class="nav-link <?= $uri->getSegment(1)=='products'?'active-menu':'' ?>">
                 <i class="bi bi-speedometer2 me-2"></i>
                 Products
             </a>
         </li>
+
+      
 
         <li class="nav-item">
             <a href="<?= base_url('user/orders') ?>" class="nav-link <?= $uri->getSegment(2)=='orders'?'active-menu':'' ?>">
@@ -47,9 +56,9 @@
         </li>
 
         <li class="nav-item">
-            <a href="<?= base_url('wallet') ?>" class="nav-link <?= $uri->getSegment(2)=='wallet'?'active-menu':'' ?>">
-                <i class="bi bi-cart me-2"></i>
-               Wallet
+            <a href="<?= base_url('wallet') ?>" class="nav-link <?= $uri->getSegment(1)=='wallet'?'active-menu':'' ?>">
+                <i class="bi bi-wallet2 me-2"></i>
+                Wallet
             </a>
         </li>
 
@@ -69,6 +78,18 @@
 </div>
 
 <?= $this->renderSection('script') ?>
+
+<script>
+fetch("<?= base_url('user/profile') ?>")
+.then(r=>r.json())
+.then(res=>{
+    if(res.status){
+        document.getElementById('userName').innerText=res.name;
+        document.getElementById('userEmail').innerText=res.email;
+    }
+})
+.catch(()=>console.log('User fetch failed'));
+</script>
 
 </body>
 </html>
