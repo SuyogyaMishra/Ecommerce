@@ -31,22 +31,18 @@ class CartController extends BaseController
     {
 
            return $this->cartService->getUserCart();
-
-
     }
 
 
     public function updateCart($id)
     {
-        $quantity = $this->request->getPost('quantity');
-
-        $result = $this->cartService->changeQty($id, $quantity);
-        return $this->response->setJSON($result);
+        return  $this->cartService->changeQty($id);
+        // return $this->response->setJSON($result);
     }
 
     public function deleteCart($id)
     {
-        $result = $this->cartService->deleteCart($id);
-        return $this->response->setJSON($result);
+        return $this->cartService->deleteCart($id);
+        // return $this->response->setJSON($result);
     }
 }

@@ -706,7 +706,7 @@
         let keyword = $('#searchUser').val();
         let limit = $('#limitUsers').val();
         console.log(sortColumn,
-                sortDirection);
+            sortDirection);
         $('#userTable').html(`
     <tr>
         <td colspan="6" class="text-center p-5">
@@ -727,10 +727,10 @@
                 page: page,
                 limit: limit,
                 search: keyword,
-                column:sortColumn,
-                direction:sortDirection
+                column: sortColumn,
+                direction: sortDirection
 
-                        
+
             },
 
             success: function(res) {
@@ -1013,10 +1013,29 @@
 
             error: function(xhr) {
 
-                showToast(
-                    xhr.responseJSON?.message || 'Something went wrong',
-                    'danger'
-                );
+                let message = 'Something went wrong';
+
+                if (xhr.responseJSON) {
+
+                    if (xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    if (xhr.responseJSON.errors) {
+
+                        let errors = xhr.responseJSON.errors.errors || xhr.responseJSON.errors;
+
+                        if (typeof errors === 'object') {
+                            message = Object.values(errors).join('<br>');
+                        } else {
+                            message = errors;
+                        }
+
+                    }
+
+                }
+
+                showToast(message, 'danger');
             }
 
         });
@@ -1074,7 +1093,7 @@
             'text-bg-danger'
         );
 
-        $('#toastMessage').text(message);
+        $('#toastMessage').html(message);
 
         new bootstrap.Toast(toastEl).show();
     }

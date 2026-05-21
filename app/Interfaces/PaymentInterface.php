@@ -8,5 +8,4 @@ interface PaymentInterface{
 
     public function verifyPayment($data);
 
-    public function refund($paymentId,$amount=null);
 }

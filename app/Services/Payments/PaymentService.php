@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\Factories\PaymentFactory;
 use App\Models\CartModel;
 use App\Models\OrderModel;
 use App\Models\ProductModel;
@@ -11,13 +12,14 @@ use App\Models\WalletModel;
 
 class PaymentService extends BaseService
 {
-    protected $orderModel, $paymentModel, $walletModel;
+    protected $orderModel, $paymentModel, $walletModel,$paymentFactory;
     public function __construct()
     {
         parent::__construct();
         $this->orderModel = new OrderModel();
         $this->paymentModel = new paymentModel();
         $this->walletModel = new WalletModel();
+
     }
 
     public function getPayment($id)
@@ -39,8 +41,12 @@ class PaymentService extends BaseService
 
             $gateway = $data['gateway'];
             $user = (array)$this->user;
-            $payment = PaymentMangerService
-                ::gateway($gateway);
+            $payment = paymentFactory::make($gateway);
+
+
+                $this->db->transStart();
+
+
             $response = $payment->createOrder([
                 'amount' => $data['amount'],
                 'name' => $user['name'],
@@ -55,6 +61,12 @@ class PaymentService extends BaseService
                 'amount' => $data['amount'],
                 'status' => 'pending'
             ]);
+            $this->db->transComplete();
+
+              if(!$this->db->transStatus()){
+                $this->db->transRollback();
+                return $this->error('some error occured');
+              }
 
             return $this->success(
                 'Payment initiated',
@@ -63,7 +75,7 @@ class PaymentService extends BaseService
                 ]
             );
         } catch (\Exception $e) {
-
+            $this->db->transRollback();
             customLog(
 
                 'Payment Failed : ' . $e->getMessage() . $e->getFile() . $e->getLine()
@@ -98,7 +110,8 @@ class PaymentService extends BaseService
                     ->getGet('razorpay_payment_id')
             ];
              
-            $paymentGateway = PaymentMangerService::gateway('razorpay');
+            $paymentGateway = PaymentFactory::make('razorpay');
+
              
             $verified = $paymentGateway->verifyPayment($data);
              
@@ -118,6 +131,7 @@ class PaymentService extends BaseService
                 return redirect()->to(base_url('user/orders'));
             }
             
+            $this->db->transStart();
 
             $this->paymentModel->markPaid($payment['id'], $verified['payment_id']);
             $walletData = [
@@ -132,8 +146,17 @@ class PaymentService extends BaseService
                
             $this->walletModel->addWallet($walletData);
 
+            $this->db->transComplete();
+
+            if(!$this->db->transStatus()){
+                $this->db->transRollback();
+                return $this->error('some error occured');
+            }
+
             return redirect()->to(base_url('wallet'));
         } catch (\Throwable $e) {
+
+            $this->db->transRollback();
 
             customLog( $e->getMessage());
 
@@ -143,42 +166,5 @@ class PaymentService extends BaseService
         }
     }
 
-    public function refundPayment($paymentId, $gateway, $amount = null, $orderId = null)
-    {
-        try {
 
-            $paymentGateway = PaymentMangerService::gateway($gateway);
-
-            $refund = $paymentGateway->refund(
-                $paymentId,
-                $amount
-            );
-
-            if ($orderId) {
-                VAR_DUMP($orderId);
-                die;
-                $this->orderModel->markOrderRefunded($orderId);
-
-                $this->paymentModel->updatePaymentStatus(
-                    $paymentId,
-                    'refunded'
-                );
-            }
-
-            return $this->success(
-                'Refund initiated',
-                $refund
-            );
-        } catch (\Throwable $e) {
-
-            log_message(
-                'error',
-                'Refund Failed : ' . $e->getMessage()
-            );
-
-            return $this->error(
-                $e->getMessage()
-            );
-        }
-    }
 }

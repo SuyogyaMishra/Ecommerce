@@ -21,8 +21,7 @@ class OrderController extends BaseController
 
     public function getOrders()
     {
-        $result = $this->orderService->adminOrders();
-        return $this->response->setJSON($result);
+        return $this->orderService->adminOrders();
     }
 
     public function getUserOrder() {}
@@ -34,26 +33,22 @@ class OrderController extends BaseController
 
     public function getOrderByUser()
     {
-        $result = $this->orderService->getOrders();
-        return $this->response->setJSON($result);
+       return $this->orderService->getOrders();
     }
 
     public function updateOrder()
     {
-        $result = $this->orderService->updateOrder();
-        return $this->response->setJSON($result);
+        return $this->orderService->updateOrder();
     }
 
     public function deleteOrder($id)
     {
-        $result = $this->orderService->deleteOrder($id);
-        return $this->response->setJSON($result);
+        return $this->orderService->deleteOrder($id);
     }
 
     public function deleteUserOrder($id)
     {
-        $result = $this->orderService->deleteUserOrder($id);
-        return $this->response->setJSON($result);
+        return $this->orderService->deleteUserOrder($id);
     }
     public function orderDetailsPage($id)
     {

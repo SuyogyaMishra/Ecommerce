@@ -34,16 +34,7 @@ class PaymentController extends BaseController
     }
     public function verifyPayment()
 {
-    try{
        return $this->PaymentService->verifyPayment( );
 
-    }catch(\Throwable $e){
-
-        return $this->response->setJSON([
-            'status'=>false,
-            'message'=>$e->getMessage()
-        ]);
-
-    }
 }
 }

@@ -75,8 +75,7 @@ class BaseService{
         );
     }
 
-    protected function validationError(
-        $errors=[]
+    protected function validationError($errors=[]
     ){
 
         return $this->json(

@@ -55,14 +55,7 @@ class OrderService extends BaseService
             $cartItems = $this->cartModel->getCartByUser($userId);
 
             if (!$cartItems) {
-                return [
-                    'status' => false,
-                    'message' => 'Cart is empty',
-                    'csrf' => [
-                        'token' => csrf_token(),
-                        'hash' => csrf_hash()
-                    ]
-                ];
+               return $this->error('Cart is empty');
             }
 
             $data['user_id'] = $userId;
@@ -74,8 +67,8 @@ class OrderService extends BaseService
                 $data['payment_status'] = 'cod_pending';
                 $data['order_status'] = 'confirmed';
             } else {
-                $data['payment_status'] = 'unpaid';
-                $data['order_status'] = 'awaiting_payment';
+                $data['payment_status'] = 'paid';
+                $data['order_status'] = 'confirmed';
             }
 
             $services = TaxFactory::makeAll();
@@ -120,14 +113,7 @@ class OrderService extends BaseService
             if (!$orderId) {
                 $this->db->transRollback();
 
-                return [
-                    'status' => false,
-                    'message' => 'Failed to create order',
-                    'csrf' => [
-                        'token' => csrf_token(),
-                        'hash' => csrf_hash()
-                    ]
-                ];
+               return $this->error('no order found');
             }
 
 
@@ -257,8 +243,11 @@ class OrderService extends BaseService
             );
 
             $total = $this->orderModel->countOrders($userId);
-
-            return [
+            
+            if(!$total){
+               return $this->error('No orders Found');
+            }
+            return $this->success('orders found', [
                 'status' => true,
                 'message' => 'Orders fetched successfully',
                 'orders' => [
@@ -269,15 +258,12 @@ class OrderService extends BaseService
                 'totalPages' => ceil($total / $limit),
                 'totalRecords' => (int)$total,
                 'user' => $this->user
-            ];
+            ]);
         } catch (\Throwable $e) {
 
-            log_message('error', $e->getMessage());
+            customLog($e->getMessage());
 
-            return [
-                'status' => false,
-                'message' => 'Failed to fetch orders'
-            ];
+            return $this->error('some error occurs');
         }
     }
 
@@ -311,8 +297,8 @@ class OrderService extends BaseService
 
             $completed = $this->orderModel->countCompletedOrders();
 
-            return [
-                'status' => true,
+
+            return $this->success('found',[
                 'orders' => [
                     'users' => $orders,
                     'page' => $page,
@@ -322,7 +308,8 @@ class OrderService extends BaseService
                 'totalOrders' => $total,
                 'pendingOrders' => $pending,
                 'completedOrders' => $completed
-            ];
+            ]);
+
         } catch (\Exception $e) {
 
             return [
@@ -338,54 +325,29 @@ class OrderService extends BaseService
         $status = $data['order_status'];
         $result = $this->orderModel->updateOrderStatus($orderId, $status);
         if (!$result) {
-            return [
-                'status' => false,
-                'message' => 'Failed to update order',
-                'csrf' => [
-                    'token' => csrf_token(),
-                    'hash' => csrf_hash()
-                ]
-            ];
+           return $this->error('unable to updtae data');
         }
-        return [
+
+
+        return $this->success('fetched',[
             'status' => true,
             'message' => 'Order updated successfully',
-            'csrf' => [
-                'token' => csrf_token(),
-                'hash' => csrf_hash()
-            ]
-        ];
+        ]);
     }
     public function deleteOrder($id)
     {
         $order = $this->orderModel->getOrderById($id);
 
         if (!$order['order_status'] == 'pending') {
-            return [
-                'status' => true,
-                'message' => 'Order can not be cancelled afer pending status'
-            ];
+            return $this->error('Order can not be cancelled afer pending status');
+
         }
         $result = $this->orderModel->deleteOrder($id);
 
         if (!$result) {
-            return [
-                'status' => false,
-                'message' => 'Failed to delete order',
-                'csrf' => [
-                    'token' => csrf_token(),
-                    'hash' => csrf_hash()
-                ]
-            ];
+           return $this->error('failled to delete orders');
         }
-        return [
-            'status' => true,
-            'message' => 'Order deleted successfully',
-            'csrf' => [
-                'token' => csrf_token(),
-                'hash' => csrf_hash()
-            ]
-        ];
+       return $this->success('Order Deleted Successfully');
     }
 
     public function deleteUserOrder($id)
@@ -393,46 +355,18 @@ class OrderService extends BaseService
         $order = $this->orderModel->getSingleOrder($id, $this->user['id']);
 
         if (!$order['order_status'] == 'pending' || !$order['order_status'] == 'confirmed') {
-            return [
-                'status' => true,
-                'message' => 'Order can not be cancelled afer pending status bfore confirmed'
-            ];
-        }
-        if ($order['payment_status'] == 'paid' && $order['payment_method'] != 'cod') {
-            $payment = $this->paymentModel->getPaymentByOrderId($order['id']);
-            return  $this->paymentService->refundPayment($payment['gateway_payment_id'], $payment['amount'], $payment['gateway'], $order['order_id']);
+            return $this->error('Order can not be cancelled afer pending status bfore confirmed');
+          
         }
         $result = $this->orderModel->deleteUserOrder($id, $this->user['id']);
 
         if (!$result) {
-            return [
-                'status' => false,
-                'message' => 'Failed to delete order',
-                'csrf' => [
-                    'token' => csrf_token(),
-                    'hash' => csrf_hash()
-                ]
-            ];
+            return $this->error('Order can not be cancelled some error occured');
+
         }
 
-        if (!$result) {
-            return [
-                'status' => false,
-                'message' => 'Failed to delete order',
-                'csrf' => [
-                    'token' => csrf_token(),
-                    'hash' => csrf_hash()
-                ]
-            ];
-        }
-        return [
-            'status' => true,
-            'message' => 'Order deleted successfully',
-            'csrf' => [
-                'token' => csrf_token(),
-                'hash' => csrf_hash()
-            ]
-        ];
+       
+        return $this->success('order delted successfully');
     }
 
 

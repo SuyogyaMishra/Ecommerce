@@ -30,26 +30,17 @@ class CartService extends BaseService
 
         $product = $this->productModel->getSingleProduct($id);
         if (!$product) {
-            return [
-                'status' => false,
-                'message' => 'Product not found'
-            ];
+            return $this->error('product not found');
         }
 
         if (($product['stock'] ?? 0) <= 0) {
-            return [
-                'status' => false,
-                'message' => 'Product out of stock'
-            ];
+            return $this->error('Product out of stock');
         }
 
 
         $isAlready = $this->cartModel->getAlreadyCart($id, $userId);
         if ($isAlready) {
-            return [
-                'status' => true,
-                'message' => 'Already in your cart'
-            ];
+            return $this->error('Product availble in cart');
         }
         $data = ["product_id" => $product['id'], 'user_id' => $userId, 'quantity' => 1, 'price' => $product['price']];
         $this->db->transBegin();
@@ -57,16 +48,11 @@ class CartService extends BaseService
         $status = $this->cartModel->addToCart($data);
         $this->db->transComplete();
         if (!$this->db->transStatus()) {
-            return [
-                'status' => false,
-                'message' => 'Failed to add product'
-            ];
+            $this->db->transRollback();
+            return $this->error('Failed to add in cart');
         }
 
-        return [
-            'status' => $status ? true : false,
-            'message' => $status ? 'Product added to cart' : 'Failed to add product',
-        ];
+        return $this->success('Product added to cart');
     }
 
     public function getUserCart()
@@ -129,38 +115,30 @@ class CartService extends BaseService
             $this->db->transComplete();
 
             if (!$this->db->transStatus()) {
-                return [
-                    'status' => false,
-                    'message' => "Cart item can not be deleted"
-                ];
+                return $this->error('Can not delete cart item');
             }
-            return [
-                'status' => true,
-                'message' => "Cart item deleted"
-            ];
+            return $this->success('Cart Item deleted successfully');
         } catch (\Exception $e) {
             log_message('info', $e->getMessage() . $e->getLine());
             $this->db->transRollback();
         }
     }
 
-    public function changeQty($id, $qty)
+    public function changeQty($id)
     {
+        //$this->response->setJSON($result);
         try {
-            $result = $this->cartModel->updateQuantity($id, $qty);
+            $qty=$this->request->getPost('quantity');
+            $result = $this->cartModel->updateQuantity($id,$qty);
             if (!$result) {
-                return [
-                    'status' => 'false',
-                    'message' => 'can not update cart'
-                ];
+                return $this->error('Unable to update cart');
             }
-            return [
-                'status' => 'true',
-                'message' => 'cart updated successfuly'
 
-            ];
+            return $this->success('Cart updated Successfuly');
+            
         } catch (\Exception $e) {
-            log_message('info cart increse', 'cant be updated cart');
+           return $this->error('some error occurs');
+
         }
     }
 }

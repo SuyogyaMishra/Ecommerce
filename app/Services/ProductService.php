@@ -6,12 +6,12 @@ use App\Models\ProductModel;
 use App\Repositories\UserRepository;
 use App\Validation\ProductValidation;
 
-class ProductService{
+class ProductService extends BaseService{
 
     protected $productModel,$userrepo,$productValidation;
 
     public function __construct(){
-
+         parent::__construct();
         $this->productModel=new ProductModel();
 
         $this->userrepo=new UserRepository();
@@ -24,14 +24,43 @@ class ProductService{
         return $this->userrepo->user();
     }
 
-    public function getProducts($column,$direction,$page=1,$limit=10,$search=''){
+    public function getProducts(){
 
-        return $this->productModel->getProducts(
+             $page = (int)($this->request->getGet('page') ?? 1);
+            $limit = (int)($this->request->getGet('limit') ?? 10);
+            $search = trim($this->request->getGet('search') ?? '');
+            $column = $this->request->getGet('sortColumn') ?? 'id';
+            $direction = $this->request->getGet('sortDirection') ?? 'ASC';
+
+        $result= $this->productModel->getProducts(
              $column,$direction,
             $page,
             $limit,
             $search,
         );
+        if(!$result){
+          return $this->error('Product Not Found');
+        }
+        return $this->success('',[
+
+                'status' => true,
+
+                'message' => 'Products fetched successfully',
+
+                'products' => $result,
+
+                'user' => $this->user,
+
+                'totalProducts' => $this->totalProducts(),
+
+                'activeProducts' => $this->activeProducts(),
+
+                'outStockProducts' => $this->outStockProducts(),
+
+                'totalPages' => ceil(($products['total'] ?? 0) / $limit),
+
+
+            ]);
     }
 
     public function totalProducts(){
@@ -51,16 +80,27 @@ class ProductService{
 
     public function getProduct($id){
 
-        return $this->productModel->getSingleProduct($id);
+       try{
+
+          $product= $this->productModel->getSingleProduct($id);
+        if(!$product){
+            return $this->error('can not find product');
+        }
+        return $this->success('',['product' => $product]);
+       }
+       catch(\Exception $e){
+        customLog('some error occured while geting users');
+       }
     }
 
     public function addProduct(){
+        try{
 
         $validation=$this->productValidation
             ->validateProduct();
 
         if(!$validation['status'])
-            return $validation;
+            return $this->validationError($validation);
 
         $data=$validation['data'];
 
@@ -80,12 +120,11 @@ class ProductService{
 
         $this->productModel->saveProduct($data);
 
-        return [
-
-            'status'=>true,
-
-            'message'=>'Product Added Successfully'
-        ];
+        return $this->success('product added succesfuly');
+        }
+        catch(\Exception $e){
+            customLog($e->getMessage());
+        }
     }
 
     public function updateProduct($id){
@@ -94,7 +133,7 @@ class ProductService{
             ->validateProduct();
 
         if(!$validation['status'])
-            return $validation;
+            return $this->validationError($validation);
 
         $data=$validation['data'];
 
@@ -116,24 +155,17 @@ class ProductService{
 
         $this->productModel->saveProduct($data,$id);
 
-        return [
-
-            'status'=>true,
-
-            'message'=>'Product Updated Successfully'
-        ];
+       return $this->success('Product updated succesfully');
     }
 
     public function deleteProduct($id){
 
-        $this->productModel->deleteProduct($id);
+        $delted=  $this->productModel->deleteProduct($id);
 
-        return [
-
-            'status'=>true,
-
-            'message'=>'Product Deleted Successfully'
-        ];
+        if(!$delted){
+            return $this->error('can not delete product');
+        }
+        return $this->success('Product Deleted Successfully');
     }
     
 }

@@ -23,18 +23,8 @@ class UserController extends BaseController
     }
     public function signupuser()
     {
-        $data = $this->request->getPost();
-        $result=$this->signupService->createUser([
+        return $this->signupService->createUser();
 
-            'name' => $data['name'],
-
-            'email' =>  $data['email'],
-
-            'password' =>  $data['password']
-
-        ]);
-
-        return $this->response->setJSON($result);
     }
 
     public function loginuser()
@@ -70,47 +60,19 @@ class UserController extends BaseController
     //admin functions 08/05
     public function createAdminUser()
     {
-        $data = $this->request->getPost();
-        $result =$this->signupService->createAdminUser([
+        return $this->signupService->createAdminUser();
 
-            'name' => $data['name'],
-
-            'email' =>  $data['email'],
-
-            'role' => 'admin',
-
-            'password' =>  $data['password']
-
-        ]);
-
-        return $this->response->setJSON($result);
+       
     }
     public function adminlogin()
     {
-        $data = $this->request->getPost();
-        $result = $this->signupService->loginadmin($data);
-        if (!$result['status']) {
-
-            return $this->response->setJSON($result);
-        }
-        return $this->response->setJSON([
-            'status'=>true,
-            'message'=>'Login Succes,Redirecting admin dashboard',
-            'redirect'=>'admin\dashboard'
-        ])->setCookie([
-            'name' => 'token',
-            'value' => $result['jwt'],
-            'expire' => 86400,
-            'httponly' => true
-        ]);
+        return $this->signupService->loginadmin();
+      
     }
     public function adminLogout()
     {
         session()->destroy();
-
-        return redirect()->to(base_url('adminlogin'))
-            ->deleteCookie('token')
-            ->with('success', 'Logout successful');
+        return redirect()->to(base_url('adminlogin')) ->deleteCookie('token')->with('success', 'Logout successful');
     }
     public function orders(){
         return view('userproducts/order_product');

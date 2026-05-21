@@ -19,22 +19,16 @@ class UserService extends BaseService
         $this->validation = new SignupValidation();
     }
 
-    public function createUser($data)
+    public function createUser()
     {
+
+       
         $validation = $this->validation
             ->validateSignup();
 
         if (!$validation['status']) {
 
-            return [
-
-                'status' => false,
-
-                'message' => $validation['message'],
-
-                'errors' => $validation['errors']
-
-            ];
+            return $this->validationError($validation);
         }
         $data = $validation['data'];
         $salt = bin2hex(random_bytes(16));
@@ -52,21 +46,17 @@ class UserService extends BaseService
             'Salt' => $salt
         ]);
         if(!$result){
-            return[
-               'status'=>false,
-               'message'=>"Login Failed"
-            ];
+            return $this->error('Sign up failed');
         }
-        return [
+        return $this->success('', [
 
             'status' => true,
 
             'message' => 'User registered successfully <a href="' . base_url('loginform') . '">
 
             Login Here </a>',
-            'token' => csrf_hash()
 
-        ];
+        ]);
     }
 
     public function loginUser()
@@ -116,22 +106,14 @@ class UserService extends BaseService
 
 
     //// Admin starts here 08/05
-    public function createAdminUser($data)
+    public function createAdminUser()
     {
         $validation = $this->validation
             ->validateSignup();
 
         if (!$validation['status']) {
 
-            return [
-
-                'status' => false,
-
-                'message' => $validation['message'],
-
-                'errors' => $validation['errors']
-
-            ];
+            return $this->validationError($validation);
         }
         $data = $validation['data'];
         $salt = bin2hex(random_bytes(16));
@@ -150,12 +132,9 @@ class UserService extends BaseService
             'salt' => $salt,
         ]);
          if(!$result){
-            return[
-               'status'=>false,
-               'message'=>"Login Failed"
-            ];
+             return $this->error('creation failed');
         }
-        return [
+        return $this->success('',[
 
             'status' => true,
 
@@ -164,25 +143,16 @@ class UserService extends BaseService
             Login Here </a>',
             'token' => csrf_hash()
 
-        ];
+        ]);
     }
 
-    public function loginadmin($data)
+    public function loginadmin()
     {
         $validation = $this->validation
             ->validateLogin();
 
         if (!$validation['status']) {
-
-            return [
-
-                'status' => false,
-
-                'message' => $validation['message'],
-
-                'errors' => $validation['errors']
-
-            ];
+           return $this->validationError($validation);
         }
         $data = $validation['data'];
         $jwtService = new JwtService();
@@ -194,49 +164,29 @@ class UserService extends BaseService
         }
         if (!$user) {
 
-            return [
-
-                'status' => false,
-
-                'message' => 'User not found',
-
-                'token' => csrf_hash()
-            ];
+           return $this->error('Admin not found');
         }
 
         $finalPassword = $data['password'] . $user['salt'];
         if (!password_verify($finalPassword, $user['password'])) {
 
-            return [
-
-                'status' => false,
-
-                'message' => 'Invalid password',
-
-                'token' => csrf_hash()
-            ];
+            return $this->error('invalid credetionles');
         }
        
         $pylod = $jwtService->encode($user, $data['remember'] ?? false);
 
         if($user['role'] != 'admin'){
-                   return [
-                      'status' => false,
-                      'message' => 'Not a admin account'
-                   ];
+                   return $this->error('Not an admin account');
         }
 
-        return [
-
-            'status' => true,
-
-            'message' => 'Login successful redirecting to dashboard..',
-
-            'token' => csrf_hash(),
-
-            'jwt' => $pylod['jwt'],
-            'expire' => $pylod['expire']
-        ];
+         return $this->success('Login successful redirecting to dashboard..',[ 'redirect'=>'admin\dashboard'])->setcookie(
+            [
+            'name' => 'token',
+            'value' => $pylod['jwt'],
+            'expire' =>  $pylod['expire'],
+            'httponly' => true
+        ]
+        );
     }
 
     public function getUser(){ 

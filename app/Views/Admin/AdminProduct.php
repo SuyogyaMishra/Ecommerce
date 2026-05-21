@@ -794,14 +794,14 @@
             'text-bg-danger'
         );
 
-        $('#toastMessage').text(message);
+        $('#toastMessage').html(message);
 
         new bootstrap.Toast(toastEl).show();
 
     }
 
     function loadProducts(page = 1) {
-         console.log(sortColumn);
+        console.log(sortColumn);
         let search = $('#searchProduct').val();
         let limit = $('#limitProducts').val();
 
@@ -1001,15 +1001,30 @@
 
             error: function(xhr) {
 
-                updateCsrf(xhr.responseJSON || {});
+                let message = 'Something went wrong';
 
-                showToast(
-                    xhr.responseJSON?.message || 'Something went wrong',
-                    'danger'
-                );
+                if (xhr.responseJSON) {
 
+                    if (xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    if (xhr.responseJSON.errors) {
+
+                        let errors = xhr.responseJSON.errors.errors || xhr.responseJSON.errors;
+
+                        if (typeof errors === 'object') {
+                            message = Object.values(errors).join('<br>');
+                        } else {
+                            message = errors;
+                        }
+
+                    }
+
+                }
+
+                showToast(message, 'danger');
             }
-
         });
 
     });
@@ -1084,13 +1099,29 @@
 
             error: function(xhr) {
 
-                updateCsrf(xhr.responseJSON || {});
+                let message = 'Something went wrong';
 
-                showToast(
-                    xhr.responseJSON?.message || 'Something went wrong',
-                    'danger'
-                );
+                if (xhr.responseJSON) {
 
+                    if (xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    if (xhr.responseJSON.errors) {
+
+                        let errors = xhr.responseJSON.errors.errors || xhr.responseJSON.errors;
+
+                        if (typeof errors === 'object') {
+                            message = Object.values(errors).join('<br>');
+                        } else {
+                            message = errors;
+                        }
+
+                    }
+
+                }
+
+                showToast(message, 'danger');
             }
 
         });

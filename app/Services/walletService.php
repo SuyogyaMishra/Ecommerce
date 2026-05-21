@@ -11,11 +11,12 @@ use App\Models\PaymentModel;
 use App\Models\WalletModel;
 use App\Services\Payments\PaymentService;
 use App\Services\BaseService;
+use App\Factories\PaymentFactory;
 
 class walletService extends BaseService
 {
 
-    protected $cartModel, $productModel, $paymentService, $user, $orderModel, $orderItemModel, $paymentModel, $orderValidation, $tax, $walletModel;
+    protected $cartModel, $productModel, $paymentService, $user, $orderModel, $orderItemModel, $paymentModel, $orderValidation, $tax, $walletModel,$paymentFactory;
 
     public function __construct()
     {
@@ -28,6 +29,7 @@ class walletService extends BaseService
         $this->paymentService = new PaymentService();
         $this->orderValidation = new OrderValidation();
         $this->walletModel = new WalletModel();
+        $this->paymentFactory = new PaymentFactory();
     }
 
     public function getCartByUserId()

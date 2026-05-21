@@ -652,7 +652,7 @@
             'text-bg-danger'
         );
 
-        $('#toastMessage').text(message);
+        $('#toastMessage').html(message);
 
         new bootstrap.Toast(toastEl).show();
     }
@@ -876,17 +876,29 @@
             },
             error: function(xhr) {
 
-                if (xhr.responseJSON?.csrf) {
-                    updateCsrf(
-                        xhr.responseJSON.csrf.token,
-                        xhr.responseJSON.csrf.hash
-                    );
+                let message = 'Something went wrong';
+
+                if (xhr.responseJSON) {
+
+                    if (xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    if (xhr.responseJSON.errors) {
+
+                        let errors = xhr.responseJSON.errors.errors || xhr.responseJSON.errors;
+
+                        if (typeof errors === 'object') {
+                            message = Object.values(errors).join('<br>');
+                        } else {
+                            message = errors;
+                        }
+
+                    }
+
                 }
 
-                showToast(
-                    xhr.responseJSON?.message || 'Something went wrong',
-                    'danger'
-                );
+                showToast(message, 'danger');
             }
         });
 

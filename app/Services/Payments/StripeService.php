@@ -46,10 +46,5 @@ class StripeService implements PaymentInterface{
         return true;
     }
 
-    public function refund($paymentId,$amount=null){
-
-        return \Stripe\Refund::create([
-            'payment_intent'=>$paymentId
-        ]);
-    }
+    
 }

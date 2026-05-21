@@ -93,14 +93,5 @@ class RazorpayService extends BaseService implements paymentInterface
     }
 }
 
-    public function refund($paymentId, $amount = null)
-    {
-
-        return $this->api->payment
-            ->fetch($paymentId)
-            ->refund([
-                'amount' => $amount
-            ]);
-    }
 
 }
