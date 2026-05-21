@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Validation;
+use App\Constants\Literals;
 
 class AnnouncementValidation extends BaseValidation
 {
@@ -14,23 +15,9 @@ class AnnouncementValidation extends BaseValidation
                 'message' => 'required|min_length[5]|max_length[1000]',
                 'status' => 'required|in_list[0,1]',
                 'start_at' => 'required|valid_date[Y-m-d\TH:i]|future_date',
-                'end_at' => 'required|valid_date[Y-m-d\TH:i]|greater_than_start[start_at]'
-
-            ],
-
-            [
-
-                'start_at' => [
-
-                    'future_date' => 'Start date cannot be backdated'
-
-                ],
-
-                'end_at' => [
-
-                    'greater_than_start' => 'End date must be greater than start date'
-
-                ]
+                'end_at' => 'required|valid_date[Y-m-d\TH:i]|greater_than_start[start_at]',
+                'target_type' => 'required|in_list[' .Literals::ALL_USERS . ',' . Literals::SPECIFIC_USER .
+                ']'
 
             ]
 

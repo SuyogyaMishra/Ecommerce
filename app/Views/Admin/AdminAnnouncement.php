@@ -399,7 +399,15 @@
 
                 <button 
                     class="btn btn-primary btn-sm editBtn"
-                    data-id="${row.id}">
+
+                    data-id="${row.id}"
+                    data-title="${row.title}"
+                    data-message="${row.message}"
+                    data-status="${row.status}"
+                    data-start_at="${row.start_at}"
+                    data-end_at="${row.end_at}"
+                    data-target_type="${row.target_type}"
+                    data-target_ids="${row.target_ids || ''}">
 
                     <i class="bi bi-pencil"></i>
 

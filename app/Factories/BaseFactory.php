@@ -22,7 +22,7 @@ class BaseFactory
     {
 
         if (!isset(static::$items[$type])) {
-            throw new \Exception('Invalid type');
+            throw new \Exception('Service Not Availble');
         }
 
         $class = static::$items[$type];

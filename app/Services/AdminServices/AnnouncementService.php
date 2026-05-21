@@ -8,6 +8,7 @@ use App\Models\UserModel;
 use App\Services\BaseService;
 use App\Validation\AnnouncementValidation;
 use PhpOffice\PhpSpreadsheet\Calculation\Web\Service;
+use APP\Constants\Literals;
 
 class AnnouncementService extends BaseService
 {
@@ -35,7 +36,7 @@ class AnnouncementService extends BaseService
             $announcementId = $this->announcementModel->insert($data);
             $anncouncementTaarget = [];
 
-            if ($data["target_type"] == "SPECIFIC_USER") {
+            if ($data["target_type"] == Literals::SPECIFIC_USER) {
                 foreach ($data["target_ids"] as $id) {
                     $anncouncementTaarget = [
                         'id' => $announcementId,
