@@ -29,33 +29,10 @@ class CartController extends BaseController
     }
     public function getCart()
     {
-        try {
 
-            $result = $this->cartService->getUserCart();
+           return $this->cartService->getUserCart();
 
-            if (!$result) {
 
-                return $this->response->setJSON([
-                    'status' => false,
-                    'message' => 'Cart not found',
-                    'cart' => [],
-                ]);
-            }
-
-            return $this->response->setJSON([
-                'status' => true,
-                'cart' => $result['data'],
-                'user' => $result['user'],
-            ]);
-        } catch (\Exception $e) {
-
-            log_message('error', 'Cart Fetch Error : ' . $e->getMessage());
-
-            return [
-                'status' => false,
-                'message' => 'Something went wrong',
-            ];
-        }
     }
 
 

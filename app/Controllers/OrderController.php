@@ -10,7 +10,7 @@ use App\Services\ProductService;
 
 class OrderController extends BaseController
 {
-    protected $productService, $cartService,$orderService;
+    protected $productService, $cartService, $orderService;
 
     public function __construct()
     {
@@ -18,39 +18,54 @@ class OrderController extends BaseController
         $this->cartService = new CartService();
         $this->orderService = new OrderService();
     }
-     
-    public function getOrders(){
+
+    public function getOrders()
+    {
         $result = $this->orderService->adminOrders();
         return $this->response->setJSON($result);
     }
 
-    public function getUserOrder(){
+    public function getUserOrder() {}
 
+    public function addOrders()
+    {
+        return $this->orderService->addOrder();
     }
 
-    public function addOrders(){
-       $result = $this->orderService->addOrder();
-       return $this->response->setJSON($result);
+    public function getOrderByUser()
+    {
+        $result = $this->orderService->getOrders();
+        return $this->response->setJSON($result);
     }
 
-    public function getOrderByUser(){
-       $result = $this->orderService->getOrders();
-       return $this->response->setJSON($result);
-    }
-
-    public function updateOrder(){
+    public function updateOrder()
+    {
         $result = $this->orderService->updateOrder();
         return $this->response->setJSON($result);
-     }
-     
-        public function deleteOrder($id){
-            $result = $this->orderService->deleteOrder($id);
-            return $this->response->setJSON($result);
-        }
+    }
 
-        public function deleteUserOrder($id){
-            $result = $this->orderService->deleteUserOrder($id);
-            return $this->response->setJSON($result);
-         }
+    public function deleteOrder($id)
+    {
+        $result = $this->orderService->deleteOrder($id);
+        return $this->response->setJSON($result);
+    }
 
+    public function deleteUserOrder($id)
+    {
+        $result = $this->orderService->deleteUserOrder($id);
+        return $this->response->setJSON($result);
+    }
+    public function orderDetailsPage($id)
+    {
+
+        return view('userproducts/order_detail');
+    }
+
+    public function details($id)
+    {
+        return $this->orderService->orderDetails($id);
+    }
+    public function invoice($id){
+        return $this->orderService->invoice($id);
+    }
 }

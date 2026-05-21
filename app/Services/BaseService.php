@@ -2,14 +2,18 @@
 
 namespace App\Services;
 
+use App\Repositories\UserRepository;
+
 class BaseService{
 
-    protected $response,$request;
-
+    protected $response,$request,$user,$db;
     public function __construct(){
 
         $this->response=service('response');
         $this->request=service('request');
+        $this->db=\Config\Database::connect();
+        $this->user=UserRepository::user();
+
     }
     protected function json(
         $status=true,
@@ -139,4 +143,5 @@ class BaseService{
             500
         );
     }
+  
 }

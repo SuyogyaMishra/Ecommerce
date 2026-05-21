@@ -4,7 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class UserModel{
+class UserModel
+{
     protected $db;
 
     public function __construct()
@@ -50,7 +51,7 @@ class UserModel{
         ]);
     }
 
-  
+
 
     public function loginUser($email)
     {
@@ -61,8 +62,8 @@ class UserModel{
                 LIMIT 1";
 
         return $this->db
-                    ->query($sql, [$email])
-                    ->getRowArray();
+            ->query($sql, [$email])
+            ->getRowArray();
     }
 
 
@@ -92,8 +93,8 @@ class UserModel{
                 LIMIT 1";
 
         return $this->db
-                    ->query($sql, [$token])
-                    ->getRowArray();
+            ->query($sql, [$token])
+            ->getRowArray();
     }
 
 
@@ -107,28 +108,50 @@ class UserModel{
     }
 
 
-  public function getAllUsers($page=1,$limit=4)
-{
-    $offset=($page-1)*$limit;
+    public function getAllUsers($column,$direction,$page = 1, $limit = 4)
+    {
+        $offset = ($page - 1) * $limit;
 
-    return [
-        'users'=>$this->db
-        ->table('users')
-        ->select('id,name,email,role,status,created_at')
-        ->orderBy('id','DESC')
-        ->limit($limit,$offset)
-        ->get()
-        ->getResultArray(),
+        $sql = "
+        SELECT 
+            id,
+            name,
+            email,
+            role,
+            status,
+            created_at
+        FROM users
+        ORDER BY {$column} {$direction}
+        LIMIT ? OFFSET ?
+    ";
 
-        'total'=>$this->db
-        ->table('users')
-        ->countAllResults(),
+        $users = $this->db
+            ->query($sql, [
+                (int)$limit,
+                (int)$offset
+            ])
+            ->getResultArray();
 
-        'page'=>$page,
-        'limit'=>$limit
-    ];
-}
- 
+        $totalSql = "SELECT COUNT(*) as total FROM users";
+
+        $total = $this->db
+            ->query($totalSql)
+            ->getRow()
+            ->total;
+
+        return [
+
+            'users' => $users,
+
+            'total' => $total,
+
+            'page' => $page,
+
+            'limit' => $limit
+
+        ];
+    }
+
     public function getUserById($id)
     {
         $sql = "SELECT *
@@ -137,11 +160,11 @@ class UserModel{
                 LIMIT 1";
 
         return $this->db
-                    ->query($sql, [$id])
-                    ->getRowArray();
+            ->query($sql, [$id])
+            ->getRowArray();
     }
 
-    
+
     public function repoUserById($id)
     {
         $sql = "SELECT id,name,role,email
@@ -150,8 +173,8 @@ class UserModel{
                 LIMIT 1";
 
         return $this->db
-                    ->query($sql, [$id])
-                    ->getRowArray();
+            ->query($sql, [$id])
+            ->getRowArray();
     }
 
 
@@ -180,50 +203,57 @@ class UserModel{
 
         ]);
     }
-      
-    
+
+
 
     // // admin methods with the hash and salting 
 
 
-   public function insertAdmin($data)
-{
-    return $this->db->query("INSERT INTO users(name,email,password,salt,role,created_at,updated_at) VALUES
-    (".$this->db->escape($data['name']).",".$this->db->escape($data['email']).",".$this->db->escape($data['password']).",".$this->db->escape($data['salt']).",".$this->db->escape($data['role']).",NOW(),NOW())");
-}
+    public function insertAdmin($data)
+    {
+        return $this->db->query("INSERT INTO users(name,email,password,salt,role,created_at,updated_at) VALUES
+    (" . $this->db->escape($data['name']) . "," . $this->db->escape($data['email']) . "," . $this->db->escape($data['password']) . "," . $this->db->escape($data['salt']) . "," . $this->db->escape($data['role']) . ",NOW(),NOW())");
+    }
 
-public function totalUsers()
-{
-    $sql = "SELECT COUNT(*) AS total FROM users";
-    $result = $this->db->query($sql)->getRowArray();
-    return $result['total'];
-}
-public function activeUsers()
-{
-    $sql = "SELECT COUNT(*) AS active FROM users where status=1 ";
-    $result = $this->db->query($sql)->getRowArray();
-    return $result['active'];
-}
-public function adminUsers()
-{
-    $sql = "SELECT COUNT(*) AS  admin  FROM users where role = 'admin'";
-    $result = $this->db->query($sql)->getRowArray();
-    return $result['admin'];
-}
+    public function totalUsers()
+    {
+        $sql = "SELECT COUNT(*) AS total FROM users";
+        $result = $this->db->query($sql)->getRowArray();
+        return $result['total'];
+    }
+    public function activeUsers()
+    {
+        $sql = "SELECT COUNT(*) AS active FROM users where status=1 ";
+        $result = $this->db->query($sql)->getRowArray();
+        return $result['active'];
+    }
+    public function adminUsers()
+    {
+        $sql = "SELECT COUNT(*) AS  admin  FROM users where role = 'admin'";
+        $result = $this->db->query($sql)->getRowArray();
+        return $result['admin'];
+    }
 
-public function getUserByName($name){
-      
+    public function getUsers()
+    {
+        $sql = "SELECT id,name ,email FROM users where role = 'user' And status='1'";
+        return $this->db->query($sql)->getResultArray();
+    }
+
+    public function getUserByName($name)
+    {
+
         $sql = "SELECT *
                 FROM users
                 WHERE name Like ?
                 ";
 
-       return $this->db->query($sql,["%".$name."%"])->getResultArray();
+        return $this->db->query($sql, ["%" . $name . "%"])->getResultArray();
     }
 
     public function updateUser($data)
-{
-    $sql="UPDATE users
+    {
+        $sql = "UPDATE users
           SET
             name=?,
             email=?,
@@ -232,14 +262,24 @@ public function getUserByName($name){
             updated_at=NOW()
           WHERE id=?";
 
-    return $this->db->query($sql,[
+        return $this->db->query($sql, [
 
-        $data['name'],
-        $data['email'],
-        $data['role'],
-        $data['status'],
-         $data['id']
+            $data['name'],
+            $data['email'],
+            $data['role'],
+            $data['status'],
+            $data['id']
 
-    ]);
-}
+        ]);
+    }
+
+    public function getSearchedUser($keyword)
+    {
+        $sql = "SELECT id,name,email
+                FROM users
+                WHERE name Like ? or email Like ?
+                ";
+
+        return $this->db->query($sql, ["%" . $keyword . "%", "%" . $keyword . "%"])->getResultArray();
+    }
 }

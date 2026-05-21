@@ -11,7 +11,7 @@ class PaymentModel extends Model{
     public function createPayment($data)
     {
         $sql="INSERT INTO payments(
-                order_id,
+                user_id,
                 gateway,
                 gateway_order_id,
                 amount,

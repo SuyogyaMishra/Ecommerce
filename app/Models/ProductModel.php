@@ -10,7 +10,7 @@ class ProductModel{
         $this->db=\Config\Database::connect();
     }
 
-    public function getProducts($page=1,$limit=10,$search=''){
+    public function getProducts( $column,$direction,$page=1,$limit=10,$search=''){
 
         $offset=($page-1)*$limit;
 
@@ -29,7 +29,8 @@ class ProductModel{
 
         $total=count($countQuery->getResultArray());
 
-        $sql.=" ORDER BY id DESC LIMIT ? OFFSET ?";
+        $sql.=" ORDER BY {$column} {$direction}  LIMIT ? OFFSET ?";
+
 
         $params[]=(int)$limit;
         $params[]=(int)$offset;

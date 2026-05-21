@@ -127,14 +127,14 @@
                      Orders
                  </a>
              </li>
-<!-- 
+             
              <li class="nav-item">
-                 <a href="<?= base_url('admin/settings') ?>"
-                     class="nav-link <?= $uri->getSegment(2) == 'settings' ? 'active-menu' : '' ?>">
-                     <i class="bi bi-gear me-2"></i>
-                     Settings
+                 <a href="<?= base_url('admin/announcements') ?>"
+                     class="nav-link <?= $uri->getSegment(2) == 'announcements' ? 'active-menu' : '' ?>">
+                     <i class="bi bi-bell me-2"></i>
+                     Announcements
                  </a>
-             </li> -->
+             </li>
 
              <!-- <li class="nav-item">
                  <a href="<?= base_url('admin/reports') ?>"
@@ -160,6 +160,18 @@
          </ul>
 
      </div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+     <script>
+         fetch("<?= base_url('admin/profile') ?>")
+             .then(r => r.json())
+             .then(res => {
+                 if (res.status) {
+                     document.getElementById('adminName').innerText = res.name;
+                     document.getElementById('adminEmail').innerText = res.email;
+                 }
+             })
+             .catch(() => console.log('Admin fetch failed'));
+     </script>
 
      <?= $this->renderSection('content') ?>
      </div>

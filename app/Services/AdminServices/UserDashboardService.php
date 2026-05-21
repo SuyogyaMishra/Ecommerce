@@ -2,26 +2,34 @@
 
 namespace App\Services\AdminServices;
 
+use App\Models\AnnouncementTargetModel;
+use App\Models\CartModel;
+use App\Models\OrderModel;
 use App\Models\ProductModel;
 use App\Models\UserModel;
 use App\Services\JwtService;
 use PhpParser\Node\Stmt\Catch_;
 use App\Repositories\UserRepository;
+use App\Services\BaseService;
 
-class UserDashboardService
+class UserDashboardService extends BaseService
 {
-    protected $productModel, $userModel, $jwtServices, $userRepository;
+    protected $productModel, $userModel, $jwtServices, $userRepository,$announcement,$orderModel,$cartModel;
 
     public function __construct()
     {
+        parent::__construct();
         $this->productModel = new ProductModel();
         $this->userModel = new UserModel();
         $this->jwtServices = new JwtService;
         $this->userRepository = new UserRepository();
+        $this->announcement=new AnnouncementTargetModel();
+        $this->orderModel = new OrderModel();
+        $this->cartModel = new CartModel();
     }
-    public function usersdata($page, $limit)
+    public function usersdata($column,$direction,$page, $limit)
     {
-        $Users = $this->userModel->getAllUsers($page, $limit);
+        $Users = $this->userModel->getAllUsers($column,$direction,$page, $limit);
         $totalPages = ceil($Users['total'] / $Users['limit']);
         $totalUsers = $this->userRepository->getTotalUsers();
         $activeUsers = $this->userModel->activeUsers();
@@ -140,6 +148,22 @@ class UserDashboardService
         }
         catch(\Exception $e){
             log_message('info',$e->getMessage());
+        }
+    }
+
+    public function userstats(){
+        try{
+
+           $announcement=$this->announcement->getByUser();
+    
+           $totalOrders = $this->orderModel->countOrders();
+          $totalCarts = $this->cartModel->cartCount();
+          return $this->success('details found',['totalOrders'=>$totalOrders,'totatCarts'=>$totalCarts,'announcements'=>$announcement]);
+
+        }
+        catch(\Exception $e){
+            customLog($e->getMessage().$e->getLine());
+            return $this->error("Some thing wnt wrong");
         }
     }
 }

@@ -9,16 +9,20 @@ use App\Models\ProductModel;
 use App\Validation\OrderValidation;
 use App\Models\PaymentModel;
 use App\Services\Payments\PaymentService;
+use App\Factories\TaxFactory;
+use APP\Models\TaxModel;
+use App\Models\WalletModel;
+use App\Services\BaseService;
+use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf as Dompdf;
 
-
-
-class OrderService
+class OrderService extends BaseService
 {
 
-    protected $cartModel, $productModel,$paymentService, $user, $orderModel, $orderItemModel,$paymentModel, $orderValidation;
+    protected $cartModel, $productModel, $paymentService, $orderModel, $orderItemModel, $paymentModel, $orderValidation, $tax, $walletModel;
 
     public function __construct()
     {
+        parent::__construct();
         $this->cartModel = new CartModel();
         $this->productModel = new ProductModel();
         $this->orderModel = new OrderModel();
@@ -26,78 +30,207 @@ class OrderService
         $this->paymentModel = new PaymentModel();
         $this->paymentService = new PaymentService();
         $this->orderValidation = new OrderValidation();
-        $this->user = service('jwt')->decode(service('request')->getCookie('token'));
+        $this->tax = new TaxModel();
+        $this->walletModel = new WalletModel();
     }
 
     public function addOrder()
     {
-        $validation = $this->orderValidation
-            ->validateOrder();
+        try {
+            $validation = $this->orderValidation->validateOrder();
 
-        if (!$validation['status'])
-            return $validation;
-        $userId = $this->user->id;
+            if (!$validation['status']) {
+                return $this->validationError($validation);
+            }
 
-        $data = service('request')->getPost();
+            $userId = $this->user['id'];
+            $data = service('request')->getPost();
 
-        $total = $this->cartModel->cartTotal($userId);
+            $total = $this->cartModel->cartTotal($userId);
 
-        $data['user_id'] = $userId;
-        $data['subtotal'] = $total['total'];
-        $data['total'] = $total['total'];
-        $data['order_id']= generateOrderId();
+            if (empty($total) || empty($total['total'])) {
+                return $this->error('No items in cart to place oreder');
+            }
 
-        if ($data['payment_method'] == 'cod') {
-            $data['payment_status'] = 'cod_pending';
-            $data['order_status'] = 'confirmed';
-        } else {
-            $data['payment_status'] = 'pending';
-            $data['order_status'] = 'awaiting_payment';
-        }
+            $cartItems = $this->cartModel->getCartByUser($userId);
 
-        $orderId = $this->orderModel->createOrder($data);
+            if (!$cartItems) {
+                return [
+                    'status' => false,
+                    'message' => 'Cart is empty',
+                    'csrf' => [
+                        'token' => csrf_token(),
+                        'hash' => csrf_hash()
+                    ]
+                ];
+            }
 
-        $cartItems = $this->cartModel->getCartByUser($userId);
+            $data['user_id'] = $userId;
+            $data['subtotal'] = $total['total'];
+            $data['total'] = $total['total'];
+            $data['order_id'] = generateOrderId();
 
-        foreach ($cartItems as $item) {
-            $this->orderItemModel->createOrderItem([
-                'order_id' => $orderId,
-                'user_id' => $userId,
-                'product_id' => $item['product_id'],
-                'product_name' => $item['name'],
-                'quantity' => $item['quantity'],
-                'product_price' => $item['price'],
-                'total' => $item['quantity'] * $item['price']
-            ]);
-        }
+            if ($data['payment_method'] == 'cod') {
+                $data['payment_status'] = 'cod_pending';
+                $data['order_status'] = 'confirmed';
+            } else {
+                $data['payment_status'] = 'unpaid';
+                $data['order_status'] = 'awaiting_payment';
+            }
 
-        if ($data['payment_method'] === 'cod') {
-            $this->cartModel->clearCart($userId);
+            $services = TaxFactory::makeAll();
 
-            return [
-                'status' => true,
-                'message' => 'Order placed',
-                'redirect_url' => base_url('user/orders'),
-                'order_id' => $orderId,
-                'csrf' => [
-                    'token' => csrf_token(),
-                    'hash' => csrf_hash()
+
+
+            $this->db->transBegin();
+            foreach ($services as $service) {
+
+                $taxClass = $service->calculate($data['subtotal']);
+                ceil($data['total'] += $taxClass['taxamount']);
+            }
+            $data['total'] = ceil($data['total']);
+            $orderId = $this->orderModel->createOrder($data);
+            $tax = [
+                [
+                    'user_id' => $userId,
+                    'order_id' => $orderId,
+                    'name' => 'total price',
+                    'amount' => ceil($data['subtotal']),
+                    'status' =>  $data['payment_method'] === 'cod' ? 'unpaid' : 'paid'
                 ]
             ];
+
+
+
+
+            foreach ($services as $service) {
+
+                $taxClass = $service->calculate($data['subtotal']);
+
+                $tax[] = [
+                    'user_id' => $userId,
+                    'order_id' => $orderId,
+                    'name' => $taxClass['taxname'],
+                    'amount' => $taxClass['taxamount'],
+                    'status' => $data['payment_method'] === 'cod' ? 'unpaid' : 'paid'
+                ];
+            }
+
+
+            if (!$orderId) {
+                $this->db->transRollback();
+
+                return [
+                    'status' => false,
+                    'message' => 'Failed to create order',
+                    'csrf' => [
+                        'token' => csrf_token(),
+                        'hash' => csrf_hash()
+                    ]
+                ];
+            }
+
+
+
+            foreach ($cartItems as $item) {
+
+                $this->orderItemModel->createOrderItem([
+                    'order_id' => $orderId,
+                    'user_id' => $userId,
+                    'product_id' => $item['product_id'],
+                    'product_name' => $item['name'],
+                    'quantity' => $item['quantity'],
+                    'product_price' => $item['price'],
+                    'total' => $item['quantity'] * $item['price']
+                ]);
+            }
+
+            if ($data['payment_method'] === 'cod') {
+                $this->tax->insertTax($tax);
+
+                $this->cartModel->clearCart($userId);
+
+                $this->db->transComplete();
+
+                if (!$this->db->transStatus()) {
+
+                    return [
+                        'status' => false,
+                        'message' => 'Failed to place order',
+                        'csrf' => [
+                            'token' => csrf_token(),
+                            'hash' => csrf_hash()
+                        ]
+                    ];
+                }
+
+                return $this->success('order placed', [
+                    'redirect_url' => base_url('user/orders'),
+                    'order_id' => $orderId,
+                    'csrf' => [
+                        'token' => csrf_token(),
+                        'hash' => csrf_hash()
+                    ]
+                ],);
+            }
+
+            if ($data['payment_method'] === 'wallet') {
+
+                $balance = $this->walletModel->getBalance($userId);
+
+                if ($balance < $data['total']) {
+
+                    $this->db->transRollback();
+
+                    return $this->error('Insufficent balance in account');
+                }
+
+                $this->tax->insertTax($tax);
+
+                $transactionId = 'WALLET-' . $orderId;
+
+                $this->walletModel->addWallet([
+                    'user_id' => $userId,
+                    'type' => 'debit',
+                    'source' => 'order payment',
+                    'amount' => $data['total'],
+                    'reference_id' => $transactionId,
+                    'note' => 'Order payment'
+                ]);
+
+
+                $this->orderModel->updatePayment($orderId, $transactionId, 'paid');
+
+                $this->orderModel->updateOrderStatus($orderId, 'confirmed');
+
+                $this->cartModel->clearCart($userId);
+
+                $this->db->transComplete();
+
+                if (!$this->db->transStatus()) {
+
+                    return $this->error('Failed to place oreder');
+                }
+
+                return $this->success('order placed', [
+                    'status' => true,
+                    'message' => 'Order placed',
+                    'redirect_url' => base_url('user/orders'),
+                    'order_id' => $orderId,
+                    'csrf' => [
+                        'token' => csrf_token(),
+                        'hash' => csrf_hash()
+                    ]
+                ],);
+            }
+
+            $this->db->transRollback();
+            return $this->error('Invalid Payment Method');
+        } catch (\Exception $e) {
+            customLog('error' . $e->getFile() . $e->getLine() . $e->getMessage());
+            $this->db->transRollback();
+            return $this->error('Some thinfg went erong' . $e->getMessage(), []);
         }
-
-        return [
-            'status' => true,
-            'message' => 'Order created, redirecting to payment',
-            'redirect_url' => base_url('payment'),
-            'order_id' => $orderId,
-            'user' => ['name' => $this->user->name, 'email' => $this->user->email],
-            'csrf' => [
-                'token' => csrf_token(),
-                'hash' => csrf_hash()
-            ]
-
-        ];
     }
 
 
@@ -105,18 +238,22 @@ class OrderService
     {
         try {
 
-            $userId = $this->user->id;
+            $userId = $this->user['id'];
 
             $page = (int) service('request')->getGet('page') ?? 1;
 
             $limit = (int) service('request')->getGet('limit') ?? 10;
 
+            $keyword = service('request')->getGet('search');
+
             $offset = ($page - 1) * $limit;
+
 
             $orders = $this->orderModel->getOrders(
                 $userId,
                 $limit,
-                $offset
+                $offset,
+                $keyword
             );
 
             $total = $this->orderModel->countOrders($userId);
@@ -155,12 +292,17 @@ class OrderService
 
             $search = service('request')->getGet('search');
 
+            $column = service('request')->getGet('sortColumn')??'id';
+             $direction= service('request')->getGet('sortDirection');
+
             $offset = ($page - 1) * $limit;
 
             $orders = $this->orderModel->getAdminOrders(
                 $limit,
                 $offset,
-                $search
+                $direction,
+                $search,
+                $column
             );
 
             $total = $this->orderModel->countAdminOrders($search);
@@ -248,7 +390,7 @@ class OrderService
 
     public function deleteUserOrder($id)
     {
-        $order = $this->orderModel->getSingleOrder($id, $this->user->id);
+        $order = $this->orderModel->getSingleOrder($id, $this->user['id']);
 
         if (!$order['order_status'] == 'pending' || !$order['order_status'] == 'confirmed') {
             return [
@@ -256,12 +398,12 @@ class OrderService
                 'message' => 'Order can not be cancelled afer pending status bfore confirmed'
             ];
         }
-        if($order['payment_status'] == 'paid' && $order['payment_method'] != 'cod'){
-            $payment=$this->paymentModel->getPaymentByOrderId($order['id']);
-             return  $this->paymentService->refundPayment($payment['gateway_payment_id'],$payment['amount'],$payment['gateway'],$order['order_id']);
+        if ($order['payment_status'] == 'paid' && $order['payment_method'] != 'cod') {
+            $payment = $this->paymentModel->getPaymentByOrderId($order['id']);
+            return  $this->paymentService->refundPayment($payment['gateway_payment_id'], $payment['amount'], $payment['gateway'], $order['order_id']);
         }
-        $result = $this->orderModel->deleteUserOrder($id, $this->user->id);
-      
+        $result = $this->orderModel->deleteUserOrder($id, $this->user['id']);
+
         if (!$result) {
             return [
                 'status' => false,
@@ -291,5 +433,116 @@ class OrderService
                 'hash' => csrf_hash()
             ]
         ];
+    }
+
+
+    public function orderDetails($id)
+    {
+        try {
+
+            $rows = $this->orderModel->orderDetails($id);
+
+            if (!$rows) {
+
+                return $this->response->setJSON([
+                    'status' => false,
+                    'message' => 'Order not found'
+                ]);
+            }
+
+            $first = $rows[0];
+
+            $items = [];
+            $payments = [];
+
+            foreach ($rows as $row) {
+
+                if ($row['item_id']) {
+
+                    $items[$row['item_id']] = [
+                        'id' => $row['item_id'],
+                        'product_id' => $row['product_id'],
+                        'product_name' => $row['product_name'],
+                        'image' => base_url($row['image']),
+                        'quantity' => $row['quantity'],
+                        'price' => $row['product_price'],
+                        'total' => $row['item_total']
+                    ];
+                }
+
+                if ($row['payment_id']) {
+
+                    $payments[$row['payment_id']] = [
+                        'id' => $row['payment_id'],
+                        'name' => $row['payment_name'],
+                        'amount' => $row['payment_amount'],
+                        'status' => $row['payment_row_status']
+                    ];
+                }
+            }
+
+            return $this->response->setJSON([
+
+                'status' => true,
+
+                'order' => [
+
+                    'id' => $first['id'],
+                    'customer_name' => $first['customer_name'],
+                    'customer_email' => $first['customer_email'],
+                    'phone' => $first['phone'],
+
+                    'address' => [
+                        'address' => $first['address']
+                    ],
+
+                    'payment' => [
+                        'method' => $first['payment_method'],
+                        'status' => $first['payment_status']
+                    ],
+
+                    'status' => $first['order_status'],
+                    'subtotal' => $first['subtotal'],
+                    'total' => $first['total'],
+                    'transaction_id' => $first['transaction_id'],
+                    'created_at' => $first['created_at']
+
+                ],
+
+                'items' => array_values($items),
+
+                'payments' => array_values($payments)
+
+            ]);
+        } catch (\Exception $e) {
+
+            customLog(
+                $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine()
+            );
+
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Internal server error'
+            ]);
+        }
+    }
+
+    public function invoice($id)
+    {
+        try {
+
+            $data['items'] = $this->orderModel->orderInvoiceDetails($id);
+
+            $html = view('layouts/invoice', $data);
+
+            $dompdf = new \Dompdf\Dompdf();
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            $dompdf->stream("invoice_$id.pdf", ["Attachment" => 0]);
+        } catch (\Exception $e) {
+            customLog($e->getFile() . " " . $e->getLine() . " " . $e->getMessage());
+        }
     }
 }

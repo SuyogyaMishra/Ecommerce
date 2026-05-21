@@ -217,10 +217,112 @@
     }
 
   }
+  
+</style>
+<style>
+
+.announcement-wrapper{
+    background:#111827;
+    color:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:25px;
+    position:relative;
+    height:60px;
+    display:flex;
+    align-items:center;
+}
+
+.announcement-label{
+    background:#dc2626;
+    height:100%;
+    padding:0 22px;
+    display:flex;
+    align-items:center;
+    font-weight:700;
+    white-space:nowrap;
+    z-index:2;
+}
+
+.announcement-marquee{
+    overflow:hidden;
+    position:relative;
+    flex:1;
+    height:100%;
+    display:flex;
+    align-items:center;
+}
+
+.announcement-track{
+    display:flex;
+    align-items:center;
+    white-space:nowrap;
+    position:absolute;
+    will-change:transform;
+    animation:scrollAnnouncement 22s linear infinite;
+}
+
+.announcement-item{
+    margin-right:80px;
+    font-weight:500;
+    font-size:15px;
+}
+
+.announcement-item strong{
+    color:#facc15;
+    margin-right:8px;
+}
+
+@keyframes scrollAnnouncement{
+    from{
+        transform:translateX(100%);
+    }
+    to{
+        transform:translateX(-100%);
+    }
+}
+
+@media(max-width:768px){
+
+    .announcement-wrapper{
+        height:auto;
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .announcement-label{
+        width:100%;
+        padding:14px 18px;
+    }
+
+    .announcement-marquee{
+        width:100%;
+        height:50px;
+    }
+
+}
+
 </style>
 
 
 <div class="products-wrapper">
+  <div class="announcement-wrapper">
+
+    <div class="announcement-label">
+
+        <i class="bi bi-megaphone-fill me-2"></i>
+
+        Announcements
+
+    </div>
+
+    <div class="announcement-marquee">
+
+        <div class="announcement-track" id="announcementTrack"></div>
+
+    </div>
+
+</div>
   <div class="toast-box" id="toastBox"></div>
 
   <div class="top-bar d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -361,6 +463,7 @@ function updateCsrf(token){
 $(document).ready(function(){
 
     loadProducts();
+    loadAnnouncements()
 
 });
 
@@ -661,6 +764,56 @@ $(document).on('click','.addCartBtn',function(){
     });
 
 });
+
+function loadAnnouncements(){
+
+    $.ajax({
+
+        url:"<?= base_url('announcements') ?>",
+
+        type:"GET",
+
+        dataType:"json",
+
+        success:function(response){
+
+            if(!response.status || !response.announcement.length){
+
+                $('.announcement-wrapper').hide();
+
+                return;
+
+            }
+
+            let html='';
+
+            $.each(response.announcement,function(i,item){
+
+                html+=`
+                    <div class="announcement-item">
+
+                        <strong>${item.title}</strong>
+
+                        ${item.message}
+
+                    </div>
+                `;
+
+            });
+
+            $('#announcementTrack').html(html+html);
+
+        },
+
+        error:function(){
+
+            $('.announcement-wrapper').hide();
+
+        }
+
+    });
+
+}
 
 </script>
 

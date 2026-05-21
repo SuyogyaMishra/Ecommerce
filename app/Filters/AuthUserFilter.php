@@ -6,6 +6,8 @@ use App\Services\JwtService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
+use App\Repositories\UserRepository;
+
 
 class AuthUserFilter implements FilterInterface
 {
@@ -19,6 +21,9 @@ class AuthUserFilter implements FilterInterface
                 return redirect()->to(base_url('loginform'))->with('error','Unauthorized Access, Please login');
 
             $user = (new JwtService())->decode($token);
+
+                (new UserRepository())->setUser($user->id);
+
 
             if($user->role !== 'user')
                 return redirect()->to(base_url('loginform'))->with('error','Only users can access this page');

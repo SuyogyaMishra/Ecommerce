@@ -33,9 +33,10 @@ $routes->post('admin/login', [UserController::class, 'adminlogin']);
 //////  Product controller routes   for the users   ->solid principals ,paswoord hash and salting  , jwt ,admin page;
 
 $routes->group('', ['filter' => 'AuthUserFilter'], function ($routes) {
-    $routes->get('/dashboard', function () {
-        return view('userproducts/dashboard');
+    $routes->get('products', function () {
+        return view('userproducts/products');
     });
+    $routes->get('user/profile',[UserController::class, 'getUser']);
     $routes->get('getproducts', [ProductController::class, 'productData']);
 
 
@@ -66,16 +67,39 @@ $routes->group('', ['filter' => 'AuthUserFilter'], function ($routes) {
     $routes->post('createpayment', 'PaymentController::createPayment');
     $routes->get('payment/verify/razorpay', 'PaymentController::verifyPayment');
 
+    $routes->get('user/invoice/(:num)','OrderController::invoice/$1');
 
+
+ 
     $routes->get(
         'payment/cancel',
         'PaymentController::cancel'
     );
+
+
+
+
+
+
+
+
+    // walet routes
+    $routes->get('wallet', 'WalletController::index');
+    $routes->get('getwallet','WalletController::getUserByUserId');
+
+
+    $routes->get('orderdetails/(:num)','OrderController::orderDetailsPage/$1');
+
+    $routes->get('getorderdetails/(:num)','OrderController::details/$1');
+
+
+    //announcement routes
+
+    $routes->get('userstats','UserController::userstats');
+    $routes->get('dashboard','UserController::dashboard');
+
+    
 });
-
-
-
-//     wallet , waleet trans histroy, users wallet balance, generate log;
 
 
 
