@@ -3,16 +3,15 @@ namespace App\Factories;
 use App\Factories\BaseFactory;
 use App\Services\Payments\RazorpayService;
 use App\Services\Payments\StripeService;
+use App\Constants\Literals;
 
 
 class PaymentFactory extends BaseFactory{
       
       protected static array $items=[
         
-         'razorpay'=>RazorpayService::class,
+         Literals::RAZORPAY=>RazorpayService::class,
 
-          'stripe'=>StripeService::class,
-      
     ];
      
 }

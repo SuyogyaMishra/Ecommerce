@@ -94,8 +94,7 @@ class WalletModel extends Model
     {
         $sql = "SELECT w1.*,
                  (
-                         SELECT SUM(
-                                CASE             
+                         SELECT SUM( CASE             
                                  WHEN w2.type='credit' THEN w2.amount
                                   ELSE -w2.amount
                                   END
@@ -158,16 +157,5 @@ class WalletModel extends Model
         )->getResultArray();
     }
 
-    public function transferWallet($from, $to, $amount, $reference_id = null)
-    {
-        $this->db->transStart();
-
-        $this->debitWallet($from, $amount, 'transfer', $reference_id, 'wallet transfer debit');
-
-        $this->rechargeWallet($to, $amount, 'transfer', $reference_id, 'wallet transfer credit');
-
-        $this->db->transComplete();
-
-        return $this->db->transStatus();
-    }
+   
 }

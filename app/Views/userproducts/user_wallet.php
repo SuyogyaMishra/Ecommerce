@@ -503,15 +503,7 @@
 
                         </label>
 
-                        <label class="gateway-card flex-fill" data-gateway="stripe">
-
-                            <input type="radio" name="gateway" value="stripe" hidden>
-
-                            <div class="gateway-name">
-                                Stripe
-                            </div>
-
-                        </label>
+                 
 
                     </div>
 
