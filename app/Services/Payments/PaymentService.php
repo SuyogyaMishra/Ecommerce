@@ -12,14 +12,13 @@ use App\Models\WalletModel;
 
 class PaymentService extends BaseService
 {
-    protected $orderModel, $paymentModel, $walletModel,$paymentFactory;
+    protected $orderModel, $paymentModel, $walletModel, $paymentFactory;
     public function __construct()
     {
         parent::__construct();
         $this->orderModel = new OrderModel();
         $this->paymentModel = new paymentModel();
         $this->walletModel = new WalletModel();
-
     }
 
     public function getPayment($id)
@@ -44,7 +43,7 @@ class PaymentService extends BaseService
             $payment = paymentFactory::make($gateway);
 
 
-                $this->db->transStart();
+            $this->db->transStart();
 
 
             $response = $payment->createOrder([
@@ -63,10 +62,10 @@ class PaymentService extends BaseService
             ]);
             $this->db->transComplete();
 
-              if(!$this->db->transStatus()){
+            if (!$this->db->transStatus()) {
                 $this->db->transRollback();
                 return $this->error('some error occured');
-              }
+            }
 
             return $this->success(
                 'Payment initiated',
@@ -109,28 +108,28 @@ class PaymentService extends BaseService
                     ->request
                     ->getGet('razorpay_payment_id')
             ];
-             
+
             $paymentGateway = PaymentFactory::make('razorpay');
 
-             
+
             $verified = $paymentGateway->verifyPayment($data);
-             
+
             if (!$verified['status'])
                 throw new \Exception('Payment verification failed');
 
-             
+
             $payment = $this->paymentModel->getByGatewayOrderId(
                 $verified['payment_link_id']
             );
-           
+
             if (!$payment)
                 throw new \Exception('Payment not found');
-             
-            
-            if ($payment['status'] === 'paid'){
+
+
+            if ($payment['status'] === 'paid') {
                 return redirect()->to(base_url('user/orders'));
             }
-            
+
             $this->db->transStart();
 
             $this->paymentModel->markPaid($payment['id'], $verified['payment_id']);
@@ -143,28 +142,28 @@ class PaymentService extends BaseService
                 'note' =>  'online added'
 
             ];
-               
+
             $this->walletModel->addWallet($walletData);
 
             $this->db->transComplete();
 
-            if(!$this->db->transStatus()){
+            if (!$this->db->transStatus()) {
                 $this->db->transRollback();
                 return $this->error('some error occured');
             }
 
-            return redirect()->to(base_url('wallet'));
+            return redirect()->to(
+                base_url('wallet?payment=success&amount=' . $payment['amount'])
+            );
         } catch (\Throwable $e) {
 
             $this->db->transRollback();
 
-            customLog( $e->getMessage());
+            customLog($e->getMessage());
 
             return redirect()
                 ->back()
                 ->with('error', $e->getMessage());
         }
     }
-
-
 }

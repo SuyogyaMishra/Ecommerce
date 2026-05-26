@@ -503,7 +503,7 @@
 
                         </label>
 
-                 
+
 
                     </div>
 
@@ -511,6 +511,39 @@
 
                 <button class="btn btn-dark w-100 mt-4 py-3 fw-semibold" id="rechargeBtn">
                     Continue Recharge
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade" id="paymentSuccessModal" tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content border-0 rounded-4">
+
+            <div class="modal-body text-center p-5">
+
+                <div style="font-size:70px">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                </div>
+
+                <h3 class="fw-bold mt-3">
+                    Payment Successful
+                </h3>
+
+                <p class="text-muted" id="paymentMessage">
+                    Wallet recharge completed successfully
+                </p>
+
+                <button class="btn btn-dark px-4"
+                    data-bs-dismiss="modal">
+                    Okay
                 </button>
 
             </div>
@@ -736,6 +769,36 @@
             }
 
         });
+
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const paymentStatus = urlParams.get('payment');
+        const amount = urlParams.get('amount');
+
+        if (paymentStatus === 'success') {
+
+            $('#paymentMessage').html(
+                `<b>₹${amount}</b> added to wallet successfully `
+            );
+
+            let modal = new bootstrap.Modal(
+                document.getElementById('paymentSuccessModal')
+            );
+
+            modal.show();
+
+            // clean URL after showing popup
+            window.history.replaceState({},
+                document.title,
+                window.location.pathname
+            );
+        }
 
     });
 </script>
