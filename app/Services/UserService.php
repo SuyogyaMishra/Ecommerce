@@ -22,7 +22,7 @@ class UserService extends BaseService
     public function createUser()
     {
 
-       
+
         $validation = $this->validation
             ->validateSignup();
 
@@ -34,7 +34,7 @@ class UserService extends BaseService
         $salt = bin2hex(random_bytes(16));
 
         $finalPassword = password_hash($data['password'] . $salt, PASSWORD_DEFAULT);
-        $result= $this->userModel->insertUser([
+        $result = $this->userModel->insertUser([
 
             'name' => $data['name'],
 
@@ -45,7 +45,7 @@ class UserService extends BaseService
             'password' => $finalPassword,
             'Salt' => $salt
         ]);
-        if(!$result){
+        if (!$result) {
             return $this->error('Sign up failed');
         }
         return $this->success('', [
@@ -61,46 +61,50 @@ class UserService extends BaseService
 
     public function loginUser()
     {
-        $validation = $this->validation
-            ->validateLogin();
+        try {
+            $validation = $this->validation
+                ->validateLogin();
 
-        if (!$validation['status']) {
+            if (!$validation['status']) {
 
-            return $this->validationError( $validation);
+                return $this->validationError($validation);
+            }
+            $data = $validation['data'];
+            $jwtService = new JwtService();
+            $user = $this->userModel
+                ->loginUser($data['email']);;
+            if ($user && isset($data['remember_me'])) {
+                $this->userModel->updateRememberToken($user['id'], $data['remember_me']);
+            }
+
+            if (!$user) {
+
+                return $this->error('No user found eith this mail');
+            }
+
+            $finalPassword = $data['password'] . $user['salt'];
+            if (!password_verify($finalPassword, $user['password'])) {
+
+                return $this->error('invalid password');
+            }
+
+            if ($user['role'] != 'user') {
+                return $this->error('Login with User account');
+            }
+
+            $pylod = $jwtService->encode($user, $data['remember_me'] ?? false);
+
+            return $this->success('Login successful redirecting to dashboard..')->setcookie(
+                [
+                    'name' => 'token',
+                    'value' => $pylod['jwt'],
+                    'expire' =>  $pylod['expire'],
+                    'httponly' => true
+                ]
+            );
+        } catch (\Exception $e) {
+            customLog($e->getMessage());
         }
-        $data = $validation['data'];
-        $jwtService = new JwtService();
-        $user = $this->userModel
-            ->loginUser($data['email']);;
-        if ($user && isset($data['remember_me'])) {
-            $this->userModel->updateRememberToken($user['id'], $data['remember_me']);
-        }
-
-        if (!$user) {
-
-           return $this->error('No user found eith this mail');
-        }
-
-        $finalPassword = $data['password'] . $user['salt'];
-        if (!password_verify($finalPassword, $user['password'])) {
-             
-            return $this->error('invalid password');
-        }
-
-        if($user['role'] != 'user'){
-                   return $this->error('Login with User account');
-        }
-
-        $pylod = $jwtService->encode($user, $data['remember_me'] ?? false);
-        return $this->success('Login successful redirecting to dashboard..')->setcookie(
-            [
-            'name' => 'token',
-            'value' => $pylod['jwt'],
-            'expire' =>  $pylod['expire'],
-            'httponly' => true
-        ]
-        );
-
     }
 
 
@@ -131,10 +135,10 @@ class UserService extends BaseService
 
             'salt' => $salt,
         ]);
-         if(!$result){
-             return $this->error('creation failed');
+        if (!$result) {
+            return $this->error('creation failed');
         }
-        return $this->success('',[
+        return $this->success('', [
 
             'status' => true,
 
@@ -152,7 +156,7 @@ class UserService extends BaseService
             ->validateLogin();
 
         if (!$validation['status']) {
-           return $this->validationError($validation);
+            return $this->validationError($validation);
         }
         $data = $validation['data'];
         $jwtService = new JwtService();
@@ -164,7 +168,7 @@ class UserService extends BaseService
         }
         if (!$user) {
 
-           return $this->error('Admin not found');
+            return $this->error('Admin not found');
         }
 
         $finalPassword = $data['password'] . $user['salt'];
@@ -172,31 +176,33 @@ class UserService extends BaseService
 
             return $this->error('invalid credetionles');
         }
-       
+
         $pylod = $jwtService->encode($user, $data['remember'] ?? false);
 
-        if($user['role'] != 'admin'){
-                   return $this->error('Not an admin account');
+        if ($user['role'] != 'admin') {
+            return $this->error('Not an admin account');
         }
 
-         return $this->success('Login successful redirecting to dashboard..',[ 'redirect'=>'admin\dashboard'])->setcookie(
+        return $this->success('Login successful redirecting to dashboard..', ['redirect' => 'admin\dashboard'])->setcookie(
             [
-            'name' => 'token',
-            'value' => $pylod['jwt'],
-            'expire' =>  $pylod['expire'],
-            'httponly' => true
-        ]
+                'name' => 'token',
+                'value' => $pylod['jwt'],
+                'expire' =>  $pylod['expire'],
+                'httponly' => true
+            ]
         );
-    }
+    } 
 
-    public function getUser(){ 
-        return $this->success('user found',$this->user);
+    public function getUser()
+    {
+        return $this->success('user found', $this->user);
     }
-    public function getUsers(){ 
-       $users =  $this->userModel->getUsers();
-       if(!$users){
-        return $this->error('can not find users');
-       }
-       return $this->success('user found',['user'=>$users]);
+    public function getUsers()
+    {
+        $users =  $this->userModel->getUsers();
+        if (!$users) {
+            return $this->error('can not find users');
+        }
+        return $this->success('user found', ['user' => $users]);
     }
 }

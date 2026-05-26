@@ -39,6 +39,7 @@ class Autoload extends AutoloadConfig
      */
     public $psr4 = [
         APP_NAMESPACE => APPPATH,
+        'Core'     => APPPATH . 'Core',
     ];
 
     /**
@@ -88,5 +89,5 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-    public $helpers = ['api','order'];
+    public $helpers = ['api','order','Core\comman'];  
 }

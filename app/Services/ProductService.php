@@ -118,7 +118,9 @@ class ProductService extends BaseService{
             $data['image']='uploads/products/'.$imageName;
         }
 
-        $this->productModel->saveProduct($data);
+       $id= $this->productModel->saveProduct($data);
+        $metadata=changeToJson( ['id'=>$id],[]);
+         $this->logger->logActivity('product added successfully ',$metadata);
 
         return $this->success('product added succesfuly');
         }
@@ -165,6 +167,8 @@ class ProductService extends BaseService{
         if(!$delted){
             return $this->error('can not delete product');
         }
+          $metadata=changeToJson( ['id'=>$id],[]);
+         $this->logger->logActivity('product added successfully ',$metadata);
         return $this->success('Product Deleted Successfully');
     }
     

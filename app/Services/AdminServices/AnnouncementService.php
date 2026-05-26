@@ -52,6 +52,9 @@ class AnnouncementService extends BaseService
                     $this->db->transRollback();
                     return $this->error('some error occured');
                 }
+                $metadata = changeToJson(['id' => $announcementId], []);
+                $this->logger->logActivity('New Announce ment Added', $metadata);
+
                 return $this->success('Announcement added sucessfully');
             }
             $anncouncementTaarget = $anncouncementTaarget = [
@@ -67,29 +70,32 @@ class AnnouncementService extends BaseService
                 $this->db->transRollback();
                 return $this->error('some error occured');
             }
+            $metadata = changeToJson(['id' => $announcementId], []);
+            $this->logger->logActivity('New Announce ment Added', $metadata);
+
             return $this->success('Announcement added sucessfully');
         } catch (\Exception $e) {
             $this->db->transRollback();
             customLog($e->getMessage() . $e->getLine());
-            return $this->serverError("some error occured");
+            return $this->error("some error occured");
         }
     }
 
     public function getAnnouncement()
     {
         try {
-            $limit = Service('request')->getGet('limit')??10;
+            $limit = Service('request')->getGet('limit') ?? 10;
             $keyword = Service('request')->getGet('search');
-            $page=  Service('request')->getGet('page');
-            $column= Service('request')->getGet('column');
+            $page =  Service('request')->getGet('page');
+            $column = Service('request')->getGet('column');
             $direction = Service('request')->getGet('direction');
-            $offset=($page-1)*$limit;
-            $result = $this->announcementModel->allAnnouncement($limit,$offset,$keyword,$column,$direction);
+            $offset = ($page - 1) * $limit;
+            $result = $this->announcementModel->allAnnouncement($limit, $offset, $keyword, $column, $direction);
             $totalPages = ceil($result['total'] / $limit);
             if (!$result) {
                 return $this->error('can not find details');
             }
-            return $this->success('found', ['data' => $result['data'],'page' => (int)$page,'totalPages' => $totalPages]);
+            return $this->success('found', ['data' => $result['data'], 'page' => (int)$page, 'totalPages' => $totalPages]);
         } catch (\Exception $e) {
             customLog($e->getMessage() . $e->getLine());
         }

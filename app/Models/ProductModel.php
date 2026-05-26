@@ -112,7 +112,7 @@ class ProductModel{
             );
         }
 
-        return $this->db->query(
+        $this->db->query(
 
             "INSERT INTO products(
                 name,
@@ -131,6 +131,7 @@ class ProductModel{
             ]
 
         );
+        return $this->db->insertID();
     }
 
     public function deleteProduct($id){

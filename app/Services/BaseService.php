@@ -3,16 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\UserRepository;
+use App\Core\Libraries\Logger;
 
 class BaseService{
 
-    protected $response,$request,$user,$db;
+    protected $response,$request,$user,$db,$logger;
     public function __construct(){
 
         $this->response=service('response');
         $this->request=service('request');
         $this->db=\Config\Database::connect();
         $this->user=UserRepository::user();
+        $this->logger =  Logger::getInstance();
 
     }
     protected function json(
@@ -31,8 +33,6 @@ class BaseService{
                     'status'=>$status,
 
                     'message'=>$message,
-
-                    'token'=>csrf_hash()
 
                 ],$data)
 
@@ -92,54 +92,6 @@ class BaseService{
             ],
 
             422
-        );
-    }
-
-    protected function unauthorized(
-        $message='Unauthorized'
-    ){
-
-        return $this->json(
-            false,
-            $message,
-            [],
-            401
-        );
-    }
-
-    protected function forbidden(
-        $message='Forbidden'
-    ){
-
-        return $this->json(
-            false,
-            $message,
-            [],
-            403
-        );
-    }
-
-    protected function notFound(
-        $message='Not found'
-    ){
-
-        return $this->json(
-            false,
-            $message,
-            [],
-            404
-        );
-    }
-
-    protected function serverError(
-        $message='Internal server error'
-    ){
-
-        return $this->json(
-            false,
-            $message,
-            [],
-            500
         );
     }
   

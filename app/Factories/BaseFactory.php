@@ -25,7 +25,7 @@ class BaseFactory
             throw new \Exception('Service Not Availble');
         }
 
-        $class = static::$items[$type];
+        $class = static::$items[$type];  // ob crtd nxt lne
 
         return new $class;
     }

@@ -110,3 +110,5 @@ $routes->group('', ['filter' => 'AuthUserFilter'], function ($routes) {
 
 
 require APPPATH . 'Config/Routes/AdminRoutes.php';
+require APPPATH . 'Core/Routes.php';
+

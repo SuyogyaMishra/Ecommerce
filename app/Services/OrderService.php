@@ -73,8 +73,6 @@ class OrderService extends BaseService
 
             $services = TaxFactory::makeAll();
 
-
-
             $this->db->transBegin();
             foreach ($services as $service) {
 
@@ -149,7 +147,8 @@ class OrderService extends BaseService
                         ]
                     ];
                 }
-
+                $metadata=changeToJson( ['id'=>$orderId],[]);
+                 $this->logger->logActivity('New Announce ment Added',$metadata);
                 return $this->success('order placed', [
                     'redirect_url' => base_url('user/orders'),
                     'order_id' => $orderId,
@@ -197,6 +196,8 @@ class OrderService extends BaseService
 
                     return $this->error('Failed to place oreder');
                 }
+                 $metadata=changeToJson( ['id'=>$orderId],[]);
+                 $this->logger->logActivity('New Announce ment Added',$metadata);
 
                 return $this->success('order placed', [
                     'status' => true,
@@ -327,7 +328,8 @@ class OrderService extends BaseService
         if (!$result) {
            return $this->error('unable to updtae data');
         }
-
+        $metadata=changeToJson( ['id'=>$orderId],['updated to'=>$status]);
+         $this->logger->logActivity('Order status updated successfully ',$metadata);
 
         return $this->success('fetched',[
             'status' => true,
@@ -347,6 +349,8 @@ class OrderService extends BaseService
         if (!$result) {
            return $this->error('failled to delete orders');
         }
+          $metadata=changeToJson( ['id'=>$id],[]);
+         $this->logger->logActivity('Order deleted successfully ',$metadata);
        return $this->success('Order Deleted Successfully');
     }
 
@@ -365,7 +369,8 @@ class OrderService extends BaseService
 
         }
 
-       
+         $metadata=changeToJson( ['id'=>$id],[]);
+         $this->logger->logActivity('Order deleted successfully by user ',$metadata);
         return $this->success('order delted successfully');
     }
 
