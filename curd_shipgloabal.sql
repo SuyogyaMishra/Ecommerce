@@ -463,3 +463,22 @@ ALTER TABLE `products` ADD `vendor_id` INT(20) NULL DEFAULT NULL AFTER `id`;
 
 
 ALTER TABLE `products` ADD CONSTRAINT `fk_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendors`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
+ALTER TABLE `vendors` ADD `is_kyc` TINYINT NOT NULL DEFAULT '0' AFTER `status`;
+
+
+
+
+ALTER TABLE `vendors` CHANGE `is_kyc` `kyc_status` TINYINT(4) NOT NULL DEFAULT '0';
+
+
+CREATE TABLE `curd_shipgloabal`.`vendor_docs` (`id` INT NOT NULL AUTO_INCREMENT , `doc_name` INT NOT NULL , `doc_number` INT NOT NULL , `is_verified` INT NULL DEFAULT NULL , `admin_id` INT NULL DEFAULT NULL , `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `vendor_id` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+
+ALTER TABLE `vendor_docs` ADD CONSTRAINT `fk_vendor` FOREIGN KEY (`vendor_id`) REFERENCES `vendors`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE `vendor_docs` CHANGE `is_verified` `is_verified` INT(11) NULL DEFAULT '0';
+
+ALTER TABLE `vendors` ADD `admin_id` INT NULL DEFAULT NULL AFTER `kyc_status`;

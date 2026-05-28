@@ -22,8 +22,10 @@ class CheckVendor implements FilterInterface
         }
         catch(\Exception $e)
         {
+
             log_message('error','AuthFilter error: '.$e->getMessage());
-            return redirect()->to(base_url('vendor/loginform'))->with('error','Token expired or logged out');
+           
+            return redirect()->to(base_url('vendor/loginform'))->deleteCookie('vendor_token')->with('error','Token expired or logged out');
         }
     }
 

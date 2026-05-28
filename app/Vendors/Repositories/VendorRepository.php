@@ -8,7 +8,9 @@ class VendorRepository
 {
     private static $instance = null;
 
-    protected $vendorsModel, $user;
+    protected  $vendorsModel;
+
+    protected static $user = null;
 
 
 
@@ -28,21 +30,21 @@ class VendorRepository
 
     public function setUser($id)
     {
-        if ($this->user == null) {
-            $this->user = (array) $this->vendorsModel->getVendorById($id);
-            return true;
+        if (static::$user == null) {
+            static::$user = (array)  $this->vendorsModel->getVendorById($id);
+            return self::$instance;
             
         }
-        return true;
+         return self::$instance;
     }
 
       public function getUser()
     {
-       return $this->user;
+       return static::$user;
     }
 
     public function unsetUser(){
-        $this->user  = null;
+        static::$user  = null;
         return true;
     }
 }

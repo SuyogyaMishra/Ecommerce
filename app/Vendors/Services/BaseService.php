@@ -11,6 +11,7 @@ class BaseService{
     protected $response,$request,$db,$logger;
 
     protected $user ;
+    protected $vendorRepo;
 
     public function __construct(){
 
@@ -18,7 +19,8 @@ class BaseService{
         $this->request=service('request');
         $this->db=\Config\Database::connect();
         $this->logger =  Logger::getInstance();
-        $this->user  = VendorRepository::getInstance();
+        $this->user  = VendorRepository::getInstance()->getUser();
+        $this->vendorRepo  = VendorRepository::getInstance();
 
     }
     protected function json(

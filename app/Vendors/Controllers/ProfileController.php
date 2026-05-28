@@ -28,5 +28,13 @@ class ProfileController extends BaseController
     public function logout(){
         return $this->profileService->logout();
     }
+
+    public function profile(){
+        return $this->profileService->profile();
+    }
+
+    public function kycStatus(){
+        return $this->profileService->vendorKycStatus();
+    }
     
 }

@@ -6,6 +6,7 @@ use App\Core\Services\JwtService;
 use App\Vendors\Models\VendorsModel;
 use App\Vendors\Services\BaseService;
 use Error;
+use PHPUnit\Framework\TestStatus\Success;
 
 class ProfileService extends BaseService
 {
@@ -55,6 +56,7 @@ class ProfileService extends BaseService
           }
 
          $token = $this->jwtService->encode($user,$rember);
+
          return $this->success('Login Successfull , Redirecting to dashboard',['url' => base_url('vendor/dashboard')])->setcookie(
              [
                     'name' => 'vendor_token',
@@ -66,7 +68,23 @@ class ProfileService extends BaseService
     }
 
     public function logout(){
-         $this->user->unsetUser();       
+         $this->vendorRepo->unsetUser();   
          return redirect()->to(base_url('vendor/loginform'))->deleteCookie('vendor_token');
+    }
+
+    public function profile(){
+
+        return $this->Success('fetched',['name'=>$this->user['name'],'email'=>$this->user['email']]);
+        // $profile= $this->vendorModel->getVendorById($this->user-);
+    }
+
+    public function vendorKycStatus(){
+
+        $status= $this->vendorModel->getKycStatus($this->user['id']);
+        if(!$status){
+            return $this->error('Some error occured');
+        }
+        return $this->success('',$status);
+
     }
 }

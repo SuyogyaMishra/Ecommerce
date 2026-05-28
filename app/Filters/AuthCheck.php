@@ -14,6 +14,7 @@ class AuthCheck implements FilterInterface
         try {
 
             $token = request()->getCookie('token');
+            $segment = request()->getUri()->getSegment(1);
             log_message('info', 'AuthCheck: Retrieved token from cookies:');
             if (!$token) {
                 log_message('info', 'No token found in cookies.');
@@ -24,12 +25,16 @@ class AuthCheck implements FilterInterface
 
             if ($user) {
 
-                if ($user->role === 'admin') {
+                if ($user->role === 'admin'  && $segment === 'adminlogin') {
                     return redirect()->to(base_url('admin/dashboard'));
                 }
+                else{
+                    return;
+                }
 
-                return redirect()->to(base_url('dashboard'));
+                
             }
+            return redirect()->to(base_url('dashboard'));
 
         } catch (\Exception $e) {
 

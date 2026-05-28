@@ -10,33 +10,38 @@ use App\Vendors\Repositories\VendorRepository;
 
 class AuthVendor implements FilterInterface
 {
-    public function before(RequestInterface $request,$arguments=null)
+    public function before(RequestInterface $request, $arguments = null)
     {
-        try
-        {
+        try {
             $token = request()->getCookie('vendor_token');
+            $path = $request->getUri()->getSegment(1);
+            if (!$token)
+                return redirect()->to(base_url('vendor/loginform'))->with('error', 'Unauthorized Access, Login as admin');
 
-            if(!$token)
-                return redirect()->to(base_url('vendor/loginform'))->with('error','Unauthorized Access, Login as admin');
+            $user = (new JwtService())->decode($token);
+            $venRepo = VendorRepository::getInstance();
 
-            $user = (new JwtService())->decode($token);            
-             $venRepo = VendorRepository::getInstance();
+            $venRepo->setUser($user->id);
 
-             $venRepo->setUser($user->id);           
-        
-            if($user->role !== 'vendor'){
 
-                return redirect()->to(base_url('vendor/loginform'))->with('error','Must be an Vendor to access this page');
+            if ($path !== 'vendor') {
+                return redirect()
+                    ->to(base_url('vendor/dashboard'))
+                    ->with('error', 'Unauthorized route');
+            }
+
+            if ($user->role !== 'vendor') {
+
+                return redirect()->to(base_url('vendor/loginform'))->with('error', 'Must be an Vendor to access this page');
             }
 
             $request->user = $user;
-        }
-        catch(\Exception $e)
-        {
-            log_message('error','AuthFilter error: '.$e->getMessage());
-            return redirect()->to(base_url('vendor/loginform'))->with('error','Token expired or logged out');
+        } catch (\Exception $e) {
+            customLog($e->getMessage());
+            log_message('error', 'AuthFilter error: ' . $e->getMessage());
+            return redirect()->to(base_url('vendor/loginform'))->deleteCookie('vendor_token')->with('error', 'Token expired or logged out');
         }
     }
 
-    public function after(RequestInterface $request,ResponseInterface $response,$arguments=null){}
+    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null) {}
 }
