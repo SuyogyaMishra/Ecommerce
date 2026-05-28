@@ -67,5 +67,20 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
     $routes->get('invoice/(:num)','OrderController::invoice/$1');
 
+    $routes->get('vendor', [AdminController::class, 'Vendors']);
+
+    $routes->get('vendordata', [AdminController::class, 'vendorData']);
+
+    $routes->put('update/vendor', [AdminController::class, 'updateVendor']);
+    $routes->delete('delete/vendor', [AdminController::class, 'deleteVendor']);
+
+
     $routes->get('logout', [UserController::class, 'adminLogout']);
+
+    $routes->get('kyc/details', [AdminController::class, 'kycDetails']);
+
+    $routes->put('updatekyc', [AdminController::class, 'updatekyc']);
+
+    
+
 });

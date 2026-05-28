@@ -30,17 +30,6 @@
                 Create Account
             </h2>
 
-            <!-- Success Message -->
-
-            <?php if (session()->getFlashdata('success')) : ?>
-
-                <div class="alert alert-success">
-
-                    <?= session()->getFlashdata('success') ?>
-
-                </div>
-
-            <?php endif; ?>
 
             <!-- Validation Errors -->
 

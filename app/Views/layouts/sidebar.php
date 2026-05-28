@@ -127,6 +127,14 @@
                      Orders
                  </a>
              </li>
+
+             <li class="nav-item">
+                 <a href="<?= base_url('admin/vendor') ?>"
+                     class="nav-link <?= $uri->getSegment(2) == 'vendor' ? 'active-menu' : '' ?>">
+                     <i class="bi bi-person-badge me-2"></i>
+                     Vendors
+                 </a>
+             </li>
              
              <li class="nav-item">
                  <a href="<?= base_url('admin/announcements') ?>"

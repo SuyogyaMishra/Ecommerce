@@ -6,10 +6,11 @@ use App\Controllers\BaseController;
 use App\Services\AdminServices\DashboardService;
 use App\Services\JwtService;
 use App\Services\AdminServices\UserDashboardService;
+use App\Services\AdminServices\VendorService;
 
 class AdminController extends BaseController
 {
-    protected $jwtService,$AdminService,$userDashboardService;
+    protected $jwtService,$AdminService,$userDashboardService,$vendorService;
 
     public function __construct()
     {
@@ -18,6 +19,7 @@ class AdminController extends BaseController
         $this->jwtService=new JwtService();
         $this->AdminService=new DashboardService();
         $this->userDashboardService=new UserDashboardService();
+        $this->vendorService = new VendorService();
     }
 
     public function dashboard()
@@ -192,4 +194,31 @@ class AdminController extends BaseController
     {
         return view('Admin/AdminOrder');
     }
+
+    public function Vendors(){
+        return view('Admin/AdminVendor');
+    }
+    public function vendorData(){
+        return  $this->vendorService->vendorData();
+    }
+
+    public function updateVendor(){
+         return $this->vendorService->updateVendor();
+    }
+    public function deleteVendor(){
+        return $this->vendorService->deleteVendor();
+    }
+
+    public function kycDetails(){
+
+        return $this->vendorService->kycDetails();
+
+    }
+
+    public function updatekyc(){
+        return $this->vendorService->updateKyc();
+    }
+
+
+    
 }

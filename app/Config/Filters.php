@@ -37,6 +37,8 @@ class Filters extends BaseFilters
         'auth'          => \App\Filters\AuthFilter::class,
         'AuthCheck'     => \App\Filters\AuthCheck::class,
         'AuthUserFilter' =>  \App\Filters\AuthUserFilter::class,
+        'AuthVendor'    => \App\Vendors\Filters\AuthVendor::class,
+        'VendorCheck'  => \App\Vendors\Filters\CheckVendor::class,
     ];
 
     /**

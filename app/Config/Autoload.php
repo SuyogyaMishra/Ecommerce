@@ -40,7 +40,7 @@ class Autoload extends AutoloadConfig
     public $psr4 = [
         APP_NAMESPACE => APPPATH,
         'Core'     => APPPATH . 'Core',
-        'Vendor'     => APPPATH . 'Vendor',
+        'Vendor'     => APPPATH . 'Vendors',
     ];
 
     /**
